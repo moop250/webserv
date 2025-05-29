@@ -6,7 +6,7 @@
 #    By: hlibine <hlibine@student.42lausanne.ch>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/05/28 14:49:15 by hlibine          ###   ########.fr        #
+#    Updated: 2025/05/29 15:49:26 by hlibine          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,8 +19,8 @@ FLAGS		= -Wall -Wextra -Werror -std=c++98
 RM			= rm -rf
 
 OBJDIR		= .obj
-SRCSDIR		= srcs
-INCLDIR		= incl
+SRCSDIR		= src
+INCLDIR		= inc
 
 # Colors
 GREEN		= \033[0;32m
