@@ -5,14 +5,30 @@ Config::Config(std::string fileName, Debug &dfile) :
 {
     std::ifstream   readFile(fileName.c_str());
     char            buf[10000];
+    const char     *mtokens[NUM_MAIN_TOKENS] = {
+        "Listen", "server_name", "host", "root", "client...",
+        "index", "error_page", "location"
+    };
+    const char      *ltokens[NUM_LOC_TOKENS] = {
+        "", "", "", "", "", "", ""
+    };
 
     //  read config file
     for (int i = 0; i < 10000; i++)
         buf[i] = 0;
     readFile.read(buf, sizeof(readFile));
     _content = buf;
-	_dfile->append("content of config file read");
+	_dfile->append("content of config file read\nContent :\n");
     _dfile->append(buf);
+
+    //  Main tokens to look
+    for (int i = 0; i < NUM_MAIN_TOKENS; i++)
+        _MainTokens[i] = mtokens[i];
+    
+    //  Locations tokens to look
+    for (int i = 0; i < NUM_LOC_TOKENS; i++)
+        _LocTokens[i] = ltokens[i];
+
     //  set tokens to look
     //      listener
     //      host

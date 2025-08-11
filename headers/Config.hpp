@@ -4,12 +4,56 @@
 # include "StdLibs.hpp"
 # include "Debug.hpp"
 
-# define NUM_TOKENS 10
+# define NUM_MAIN_TOKENS 8
+# define NUM_LOC_TOKENS 7
+
+enum
+{
+    METHODS,                // 0
+    AUTOINDEX,              // 1
+    SPEC_INDEX,             // 2
+    RETURN,                 // 3
+    ROOT,                   // 4
+    CGI_PATH,               // 5
+    CGI_EXT,                // 6
+    OTHER_LOCATION_TOKEN    // 7
+}   LocationToken;
+
+enum
+{
+    LISTENER,               // 0
+    SERVER_NAME,            // 1
+    HOST,                   // 2
+    ROOT_PATH,              // 3
+    CLIENT_BUFFER_SIZE,     // 4
+    HTLM_INDEX,             // 5
+    ERROR_PAGE,             // 6
+    LOCATION,               // 7
+    OTHER_TOKEN             // 8
+}   TokenType;
+
+typedef struct Location
+{
+    std::string loc;
+    std::string methods[3];
+    std::string HTLMindexName;
+    std::string cgi_path;
+    std::string cgi_ext;
+    bool        autoIndex;
+}   t_Location;
+
+typedef struct ServerData
+{
+    t_Location      *locations;
+    std::string     tokens[NUM_MAIN_TOKENS];
+}   t_ServerData;
 
 class Config
 {
+    ServerData  *_servers;
     Debug       *_dfile;
-    std::string _tokens[NUM_TOKENS];
+    std::string _MainTokens[NUM_MAIN_TOKENS];
+    std::string _LocTokens[NUM_LOC_TOKENS];
     std::string _content;
     public:
         Config(std::string fileName, Debug &dfile);
@@ -18,7 +62,9 @@ class Config
 
         Config  &operator=(const Config &);
 
-        void    unexpected();
+        bool    checkServerData(int index) const;
+        void    getServerData(int index) const;
+        void    setServerData();
         void    parseContent();
 
         //  generic errors
