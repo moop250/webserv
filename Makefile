@@ -27,14 +27,12 @@ LBLUE       = \033[0;36m
 RESET       = \033[0m
 RESETNL     = \033[0m\n
 
-# Sources explicitement listées
 SRCS        = src/main.cpp \
               src/utils/Colors.cpp \
               src/configSetUp/getConfig.cpp \
               src/configSetUp/setUp.cpp \
               src/sockets/testSocket.cpp
 
-# Conversion en .o avec arborescence préservée dans .obj/
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
 all: $(NAME)
