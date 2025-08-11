@@ -11,12 +11,12 @@
 
 class Debug
 {
-    std::ofstream   _file;
     public:
         Debug();
         ~Debug();
         
         void    append(const char *msg);
+        std::ofstream   file;
 };
 
 static std::string  getTime()
@@ -36,8 +36,8 @@ Debug::Debug()
     std::stringstream   header;
     const std::string   t = getTime();
 
-    _file.open("Debug.log");    
-    if (!_file.is_open())
+    file.open("Debug.log");    
+    if (!file.is_open())
     {
         std::cerr << "Debug file's creation failed\n";
         return ;
@@ -46,22 +46,22 @@ Debug::Debug()
         << "//////////////////////////\n"
         << "//  WEBSERV DEBUG LOG   //\n"
         << "//////////////////////////\n" << RESET << std::endl;
-    _file << header.str();
+    file << header.str();
     return ;
 }
 
 Debug::~Debug()
 {
-    if (_file.is_open())
-        _file.close();
+    if (file.is_open())
+        file.close();
     return ;
 }
 
 void    Debug::append(const char *msg)
 {
-    if (!_file.is_open())
+    if (!file.is_open())
         return ;
-    _file << msg << '\n';
+    file << msg << '\n';
     return ;
 }
 

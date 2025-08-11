@@ -74,6 +74,7 @@ int main(int ac, char** av)
 	Config	*config = parseConfigFile(av[1]);
 	Debug	dfile;
 
+	ErrorDebug(dfile, "Config file parsing uncomplete");
 	setUpServer(config);	
 	eventLoop();
 	free(config);
