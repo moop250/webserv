@@ -10,6 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Config.hpp"
+#include "Error.hpp"
+
 static void	init()
 {
 	//	memset 0
@@ -17,21 +20,26 @@ static void	init()
 	return ;
 }
 
-void	parseConfigFile()
+Config	*parseConfigFile(const char *file)
 {
+	Config	*config = new Config();
+
+	(void)file;
 	//	call init
 	//	get info from config file
 	//	define outputs before launch
-	return ;
+	init();
+	return config;
 }
 
-void	setUpServer(Config config)
+void	setUpServer(Config *config)
 {
 	//	sockets
 	//	ports
 	//	Methods
 	//	adrrinfo
 	//	...
+	(void)config;
 	return ;
 }
 
@@ -50,18 +58,21 @@ void	eventLoop()
 	return ;
 }
 
-void	free()
+void	free(Config *conf)
 {
 	//	free all
+	delete conf;
 	return ;
 }
 
 int main(int ac, char** av)
 {
-	class	config = parseConfigFile();
-
+	if (ac != 2)
+		return Error("Bad Arguments", __func__, __FILE__, __LINE__), -1;
+	
+	Config	*config = parseConfigFile(av[1]);
 	setUpServer(config);	
-	eventLoop(config);
-	free();
+	eventLoop();
+	free(config);
 	return 0;
 }
