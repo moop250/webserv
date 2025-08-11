@@ -28,8 +28,8 @@ RESET       = \033[0m
 RESETNL     = \033[0m\n
 
 SRCS        = src/main.cpp \
-              src/utils/Colors.cpp \
-              src/configSetUp/getConfig.cpp \
+	      src/utils/Colors.cpp src/utils/Debug.cpp src/utils/Error.cpp \
+	      src/configSetUp/getConfig.cpp \
               src/configSetUp/setUp.cpp \
               src/sockets/testSocket.cpp
 

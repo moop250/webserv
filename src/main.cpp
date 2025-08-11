@@ -21,11 +21,11 @@ static void	init()
 	return ;
 }
 
-Config	*parseConfigFile(const char *file)
+Config	*parseConfigFile(std::string file, Debug &dfile)
 {
-	Config	*config = new Config();
-
-	(void)file;
+	Config	*config = new Config(file);
+	
+	(void)dfile;
 	//	call init
 	//	get info from config file
 	//	define outputs before launch
@@ -70,11 +70,12 @@ int main(int ac, char** av)
 {
 	if (ac != 2)
 		return Error("Bad Arguments", __func__, __FILE__, __LINE__), -1;
-	
-	Config	*config = parseConfigFile(av[1]);
+
 	Debug	dfile;
+	Config	*config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
 
 	ErrorDebug(dfile, "Config file parsing uncomplete");
+
 	setUpServer(config);	
 	eventLoop();
 	free(config);
