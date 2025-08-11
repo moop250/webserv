@@ -3,8 +3,11 @@
 
 # include "StdLibs.hpp"
 
+# define NUM_TOKENS 10
+
 class Config
 {
+    std::string _tokens[NUM_TOKENS];
     std::string _content;
     public:
         Config(std::string fileName);

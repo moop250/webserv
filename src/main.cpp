@@ -25,7 +25,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 {
 	Config	*config = new Config(file);
 	
-	(void)dfile;
+	dfile.append("content of config file read");
 	//	call init
 	//	get info from config file
 	//	define outputs before launch

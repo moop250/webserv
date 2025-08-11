@@ -8,11 +8,13 @@
 
 Config::Config(std::string fileName)
 {
-    if (fileName == "NOFILE")
-    {
-        throw Error("No File Name");
-    }
-    return ;
+    std::ifstream   readFile(fileName.c_str());
+    char            buf[10000];
+
+    for (int i = 0; i < 10000; i++)
+        buf[i] = 0;
+    readFile.read(buf, sizeof(readFile));
+    _content = buf;
 }
 
 Config::Config(const Config &conf)
