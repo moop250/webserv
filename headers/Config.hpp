@@ -2,19 +2,24 @@
 # define CONFIG_HPP
 
 # include "StdLibs.hpp"
+# include "Debug.hpp"
 
 # define NUM_TOKENS 10
 
 class Config
 {
+    Debug       *_dfile;
     std::string _tokens[NUM_TOKENS];
     std::string _content;
     public:
-        Config(std::string fileName);
+        Config(std::string fileName, Debug &dfile);
         Config(const Config &);
         ~Config();
 
         Config  &operator=(const Config &);
+
+        void    unexpected();
+        void    parseContent();
 
         //  generic errors
         class BadFileException : public std::exception

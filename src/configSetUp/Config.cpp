@@ -1,20 +1,32 @@
 #include "Config.hpp"
-#ifndef ERROR_HPP
-#include "Error.hpp"
-#endif
-#ifndef DEBUG_HPP
-#include "Debug.hpp"
-#endif
 
-Config::Config(std::string fileName)
+Config::Config(std::string fileName, Debug &dfile) :
+    _dfile(&dfile)
 {
     std::ifstream   readFile(fileName.c_str());
     char            buf[10000];
 
+    //  read config file
     for (int i = 0; i < 10000; i++)
         buf[i] = 0;
     readFile.read(buf, sizeof(readFile));
     _content = buf;
+	_dfile->append("content of config file read");
+    _dfile->append(buf);
+    //  set tokens to look
+    //      listener
+    //      host
+    //      root path
+    //      client buffer size
+    //      error Pages
+    //       
+    //      Location 1
+    //          methods
+    //          extra mode
+    //
+    //      Location ...
+    
+    //      Location n
 }
 
 Config::Config(const Config &conf)
