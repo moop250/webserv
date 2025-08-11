@@ -5,6 +5,8 @@
 
 class Config
 {
+    int         _fd;
+    std::string _file;
     std::string _serversNames;
     public:
         Config();
@@ -15,7 +17,7 @@ class Config
 };
 
 Config::Config() :
-    _serversNames("Uname server")
+    _fd(-1), _file("No file"), _serversNames("Uname server")
 {
     return ;
 }

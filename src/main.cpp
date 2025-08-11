@@ -12,6 +12,7 @@
 
 #include "Config.hpp"
 #include "Error.hpp"
+#include "Debug.hpp"
 
 static void	init()
 {
@@ -71,6 +72,8 @@ int main(int ac, char** av)
 		return Error("Bad Arguments", __func__, __FILE__, __LINE__), -1;
 	
 	Config	*config = parseConfigFile(av[1]);
+	Debug	dfile;
+
 	setUpServer(config);	
 	eventLoop();
 	free(config);
