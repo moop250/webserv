@@ -3,11 +3,12 @@
 
 # include "StdLibs.hpp"
 # include "Debug.hpp"
+# include <vector>
 
 # define NUM_MAIN_TOKENS 8
 # define NUM_LOC_TOKENS 7
 
-enum
+typedef enum LocationTokens
 {
     METHODS,                // 0
     AUTOINDEX,              // 1
@@ -17,9 +18,9 @@ enum
     CGI_PATH,               // 5
     CGI_EXT,                // 6
     OTHER_LOCATION_TOKEN    // 7
-}   LocationToken;
+}   e_LocationToken;
 
-enum
+typedef enum TokenTypes
 {
     LISTENER,               // 0
     SERVER_NAME,            // 1
@@ -30,7 +31,7 @@ enum
     ERROR_PAGE,             // 6
     LOCATION,               // 7
     OTHER_TOKEN             // 8
-}   TokenType;
+}   e_TokenType;
 
 typedef struct Location
 {
@@ -50,11 +51,14 @@ typedef struct ServerData
 
 class Config
 {
-    ServerData  *_servers;
-    Debug       *_dfile;
-    std::string _MainTokens[NUM_MAIN_TOKENS];
-    std::string _LocTokens[NUM_LOC_TOKENS];
-    std::string _content;
+//    std::vector<ServerData> *_servers;    // do cpp08
+    t_ServerData            *_servers;
+    Debug                   *_dfile;
+    std::string             _MainTokens[NUM_MAIN_TOKENS];
+    std::string             _LocTokens[NUM_LOC_TOKENS];
+    std::string             _content;
+    e_LocationToken         LocIndex;
+    e_TokenType             TokIndex;
     public:
         Config(std::string fileName, Debug &dfile);
         Config(const Config &);
@@ -62,10 +66,10 @@ class Config
 
         Config  &operator=(const Config &);
 
-        bool    checkServerData(int index) const;
-        void    getServerData(int index) const;
-        void    setServerData();
-        void    parseContent();
+        bool            checkServerData(int index) const;
+        t_ServerData    getServerData(int index) const;
+        void            setServerData(t_ServerData data);
+        void            parseContent();
 
         //  generic errors
         class BadFileException : public std::exception
@@ -88,6 +92,13 @@ class Config
             public:
                 const char  *what() const throw();
         };
+        class OutOfBoundsExeption : public std::exception
+        {
+            public:
+                const char *what() const throw();
+        };
 };
+
+std::ostream    &operator<<(std::ostream &stream, Config &conf);
 
 #endif

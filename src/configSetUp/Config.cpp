@@ -1,7 +1,7 @@
 #include "Config.hpp"
 
 Config::Config(std::string fileName, Debug &dfile) :
-    _dfile(&dfile)
+    _servers(NULL) ,_dfile(&dfile)
 {
     std::ifstream   readFile(fileName.c_str());
     char            buf[10000];
@@ -61,6 +61,35 @@ Config  &Config::operator=(const Config &)
     return *this;
 }
 
+bool    Config::checkServerData(int index) const
+{
+    (void)index;
+    return (false);
+}
+
+t_ServerData    Config::getServerData(int index) const
+{
+    try
+    {
+        return (_servers[index]);
+    }
+    catch(const std::exception& e)
+    {
+        throw OutOfBoundsExeption();
+    }
+}
+
+void    Config::setServerData(t_ServerData data)
+{
+    (void)data;
+ //   int i = 0;
+//
+ //   if (_servers)
+ //       _servers->assign(...)
+ //   return ;
+}
+
+
 const char  *Config::BadFileException::what() const throw()
 {
     return "File given is empty or does not exist";
@@ -79,4 +108,16 @@ const char  *Config::BadParamException::what() const throw()
 const char  *Config::ParseErrorExemption::what() const throw()
 {
     return "I did some shit somewhere";
+}
+
+const char  *Config::OutOfBoundsExeption::what() const throw()
+{
+    return "Data to be reach is out of bounds";
+}
+
+std::ostream    &operator<<(std::ostream &stream, Config &conf)
+{
+    (void)stream;
+    (void)conf;
+    return (stream);
 }

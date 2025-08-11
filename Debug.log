@@ -1,4 +1,4 @@
-Creation time : 2025-08-11 10:13:56
+Creation time : 2025-08-11 11:23:22
 //////////////////////////
 //  WEBSERV DEBUG LOG   //
 //////////////////////////
@@ -9,6 +9,8 @@ Creation time : 2025-08-11 10:13:56
 // Parsing Part //
 //////////////////
 content of config file read
+Content :
+
 server {
     listen 8002;
 	server_name localhost;
