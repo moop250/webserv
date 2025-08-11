@@ -4,54 +4,84 @@
 # include "StdLibs.hpp"
 # include "Debug.hpp"
 # include <vector>
-
-# define NUM_MAIN_TOKENS 8
-# define NUM_LOC_TOKENS 7
-
-typedef enum LocationTokens
-{
-    METHODS,                // 0
-    AUTOINDEX,              // 1
-    SPEC_INDEX,             // 2
-    RETURN,                 // 3
-    ROOT,                   // 4
-    CGI_PATH,               // 5
-    CGI_EXT,                // 6
-    OTHER_LOCATION_TOKEN    // 7
-}   e_LocationToken;
+# include <map>
 
 typedef enum TokenTypes
 {
-    LISTENER,               // 0
-    SERVER_NAME,            // 1
-    HOST,                   // 2
-    ROOT_PATH,              // 3
-    CLIENT_BUFFER_SIZE,     // 4
-    HTLM_INDEX,             // 5
-    ERROR_PAGE,             // 6
-    LOCATION,               // 7
-    OTHER_TOKEN             // 8
-}   e_TokenType;
+    LISTENER = 0,          // interface:port
+    SERVER_NAME,           // virtual host name
+    ERROR_PAGE,            // default error pages
+    CLIENT_MAX_BODY_SIZE,  // max request body
+    ROOT_PATH,             // root directory for server
+    LOCATION,              // start of a location block
+    OTHER_TOKEN,
+    TOKEN_TYPE_COUNT       // always last
+} e_TokenType;
+
+typedef enum LocationTokens
+{
+    METHODS = 0,            // accepted HTTP methods
+    HTTP_REDIRECTION,       // redirection URL or code
+    FILE_PATH,              // local file path
+    DIR_LISTING,            // autoindex on/off
+    DEFAULT_FILE,           // default file for directories
+    UPLOAD_STORAGE,         // where uploads are saved
+    CGI_EXTENSION,          // CGI extension (e.g., .php)
+    CGI_PATH,               // path to CGI executable
+    OTHER_LOCATION_TOKEN,
+    LOCATION_TOKEN_COUNT    // always last
+} e_LocationToken;
+
+# define NUM_MAIN_TOKENS TOKEN_TYPE_COUNT
+# define NUM_LOC_TOKENS LOCATION_TOKEN_COUNT
+
 
 typedef struct Location
 {
-    std::string loc;
-    std::string methods[3];
-    std::string HTLMindexName;
-    std::string cgi_path;
-    std::string cgi_ext;
-    bool        autoIndex;
-}   t_Location;
+    std::string                 loc;            // path of location
+    std::vector<std::string>    methods;        // GET, POST, etc.
+    std::string                 redirection;    // could be "301 /newpath"
+    std::string                 root;           // path mapping for this location
+    bool                        autoIndex;      // true/false
+    std::string                 defaultFile;    // index.html
+    std::string                 uploadDir;      // upload storage
+    std::string                 cgi_ext;        // .php, .py
+    std::string                 cgi_path;       // path to interpreter
+} t_Location;
 
 typedef struct ServerData
 {
-    t_Location      *locations;
-    std::string     tokens[NUM_MAIN_TOKENS];
-}   t_ServerData;
+    std::vector<std::string>    listeners;        // multiple host:port
+    std::string                 server_name;
+    std::map<int, std::string>  error_pages;    // code -> file path
+    size_t                      client_max_body_size;
+    std::string                 root;
+    std::vector<t_Location>     locations;
+} t_ServerData;
+
+// static const std::map<std::string, e_TokenType> mainTokenMap = {
+//     {"listen", LISTENER},
+//     {"server_name", SERVER_NAME},
+//     {"error_page", ERROR_PAGE},
+//     {"client_max_body_size", CLIENT_MAX_BODY_SIZE},
+//     {"root", ROOT_PATH},
+//     {"location", LOCATION}
+// };
+
+// static const std::map<std::string, e_LocationToken> locTokenMap = {
+//     {"methods", METHODS},
+//     {"return", HTTP_REDIRECTION},
+//     {"root", FILE_PATH},
+//     {"autoindex", DIR_LISTING},
+//     {"index", DEFAULT_FILE},
+//     {"upload_store", UPLOAD_STORAGE},
+//     {"cgi_ext", CGI_EXTENSION},
+//     {"cgi_path", CGI_PATH}
+// };
+
 
 class Config
 {
-//    std::vector<ServerData> *_servers;    // do cpp08
     t_ServerData            *_servers;
     Debug                   *_dfile;
     std::string             _MainTokens[NUM_MAIN_TOKENS];

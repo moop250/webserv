@@ -5,12 +5,24 @@ Config::Config(std::string fileName, Debug &dfile) :
 {
     std::ifstream   readFile(fileName.c_str());
     char            buf[10000];
-    const char     *mtokens[NUM_MAIN_TOKENS] = {
-        "Listen", "server_name", "host", "root", "client...",
-        "index", "error_page", "location"
+    static const std::map<std::string, e_TokenType> mainTokenMap = {
+        {"listen", LISTENER},
+        {"server_name", SERVER_NAME},
+        {"error_page", ERROR_PAGE},
+        {"client_max_body_size", CLIENT_MAX_BODY_SIZE},
+        {"root", ROOT_PATH},
+        {"location", LOCATION}
     };
-    const char      *ltokens[NUM_LOC_TOKENS] = {
-        "", "", "", "", "", "", ""
+
+    static const std::map<std::string, e_LocationToken> locTokenMap = {
+        {"methods", METHODS},
+        {"return", HTTP_REDIRECTION},
+        {"root", FILE_PATH},
+        {"autoindex", DIR_LISTING},
+        {"index", DEFAULT_FILE},
+        {"upload_store", UPLOAD_STORAGE},
+        {"cgi_ext", CGI_EXTENSION},
+        {"cgi_path", CGI_PATH}
     };
 
     //  read config file
