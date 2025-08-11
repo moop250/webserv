@@ -68,16 +68,29 @@ void	free(Config *conf)
 
 int main(int ac, char** av)
 {
-	if (ac != 2)
-		return Error("Bad Arguments", __func__, __FILE__, __LINE__), -1;
-
 	Debug	dfile;
-	Config	*config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
+	Config	*config = NULL;
+
+	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
+	if (ac == 2)
+		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
+	else
+		config = parseConfigFile("default.config", dfile);
 
 	ErrorDebug(dfile, "Config file parsing uncomplete");
 
-	setUpServer(config);	
+	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
+
+	setUpServer(config);
+	
+	ErrorDebug(dfile, "Server Setup Incomplete");
+
+	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
+
 	eventLoop();
+
+	ErrorDebug(dfile, "Event Loop Undefined");
+
 	free(config);
 	return 0;
 }
