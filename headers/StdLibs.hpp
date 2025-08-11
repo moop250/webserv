@@ -3,6 +3,8 @@
 
 # include <iostream>
 # include <string>
+# include <ostream>
+# include <fstream>
 # include "Colors.hpp"
 
 #endif

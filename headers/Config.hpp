@@ -2,41 +2,42 @@
 # define CONFIG_HPP
 
 # include "StdLibs.hpp"
+# include "Error.hpp"
 
 class Config
 {
-    int         _fd;
-    std::string _file;
-    std::string _serversNames;
+    std::string _content;
     public:
-        Config();
+        Config(std::string fileName);
         Config(const Config &);
         ~Config();
 
         Config  &operator=(const Config &);
 };
 
-Config::Config() :
-    _fd(-1), _file("No file"), _serversNames("Uname server")
+class ConfigError : public Config, public Error
 {
-    return ;
+    public:
+        class BadFileException : public std::exception
+        {
+            public:
+                const char  *what() const throw();
+        };
+        class MissingParamException : public std::exception
+        {
+            public:
+                const char  *what() const throw();
+        };
+        class BadParamException : public std::exception
+        {
+            public:
+                const char  *what() const throw();
+        };
+        class ParseErrorExemption : public std::exception
+        {
+            public:
+                const char  *what() const throw();
+        };
 }
-
-Config::Config(const Config &conf)
-{
-    (void)conf;
-    return ;
-}
-
-Config::~Config()
-{
-    return ;
-}
-
-Config  &Config::operator=(const Config &)
-{
-    return *this;
-}
-
 
 #endif
