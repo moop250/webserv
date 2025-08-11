@@ -2,7 +2,6 @@
 # define CONFIG_HPP
 
 # include "StdLibs.hpp"
-# include "Error.hpp"
 
 class Config
 {
@@ -13,11 +12,8 @@ class Config
         ~Config();
 
         Config  &operator=(const Config &);
-};
 
-class ConfigError : public Config, public Error
-{
-    public:
+        //  generic errors
         class BadFileException : public std::exception
         {
             public:
@@ -38,6 +34,6 @@ class ConfigError : public Config, public Error
             public:
                 const char  *what() const throw();
         };
-}
+};
 
 #endif
