@@ -1,7 +1,8 @@
 # Request handler documentation:
 
 
-## Request class API:
+## Request class methods:
+Getter:
 - `getMethod()` -> Return the resquest method in std::string.
 - `getURL()` -> Return the request path in std::string.
 - `getQuery()` -> Return the query in std::string.
