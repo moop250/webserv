@@ -20,27 +20,35 @@ const t_ServerData  default_server_values = {
 
 void    Config::initTokenMaps()
 {
-    _locTokenMap.insert(std::make_pair("methods", METHODS));
-    _locTokenMap.insert(std::make_pair("return", HTTP_REDIRECTION));
-    _locTokenMap.insert(std::make_pair("root", FILE_PATH));
-    _locTokenMap.insert(std::make_pair("autoindex", DIR_LISTING));
-    _locTokenMap.insert(std::make_pair("index", DEFAULT_FILE));
-    _locTokenMap.insert(std::make_pair("upload_storage", UPLOAD_STORAGE));
-    _locTokenMap.insert(std::make_pair("cgi_ext", CGI_EXTENSION));
-    _locTokenMap.insert(std::make_pair("cgi_path", CGI_PATH));
-    _locTokenMap.insert(std::make_pair("Loc_all", LOC_ALL));
-
-    _mainTokenMap.insert(std::make_pair("listen", LISTENER));
-    _mainTokenMap.insert(std::make_pair("server_name", SERVER_NAME));
-    _mainTokenMap.insert(std::make_pair("error_page", ERROR_PAGE));
-    _mainTokenMap.insert(std::make_pair("client_max_body_size", CLIENT_MAX_BODY_SIZE));
-    _mainTokenMap.insert(std::make_pair("root", ROOT_PATH));
-    _mainTokenMap.insert(std::make_pair("location", LOCATION));
-    _mainTokenMap.insert(std::make_pair("all", ALL));
+    static const char *locTokenMap[] = {
+        "methods",
+        "return",
+        "root",
+        "autoindex",
+        "index",
+        "upload_storage",
+        "cgi_ext",
+        "cgi_path",
+        NULL
+    };
+    static const char *mainTokenMap[] = {
+        "listen",
+        "server_name",
+        "error_page",
+        "client_max_body",
+        "root_path", 
+        "location",
+        NULL
+    };
+    
+    for (int i = 0; i < LOCATION_TOKEN_COUNT && locTokenMap[i]; i++)
+        _locTokenMap[i] = locTokenMap[i];
+    for (int i = 0; i < TOKEN_TYPE_COUNT && mainTokenMap[i]; i++)
+        _mainTokenMap[i] = mainTokenMap[i];
 }
 
 Config::Config(std::string fileName, Debug &dfile) :
-    _dfile(&dfile)
+    _dfile(&dfile), _nbServers(1)
 {
     std::ifstream   readFile(fileName.c_str());
     char            buf[10000];
@@ -83,27 +91,18 @@ bool    Config::checkServerData(int index) const
     return (false);
 }
 
-void     *Config::getServerParam(int serverID, std::string param) const
-{
-//    std::string msg = "No param found";
-    (void)param;
-    (void)serverID;
-   // try
-   // {
-   //     t_ServerData    s = _servers.at(serverID);
-   //     
-   // }
-   // catch(const std::exception& e)
-   // {
-   //     std::cerr << e.what() << '\n';
-   // }
-    return (NULL);
-}
-
 t_ServerData    Config::getServerData(int serverID) const
 {
     if (_servers.empty())
         return (default_server_values);
+    else
+    {
+        std::stringstream msg;
+
+        msg << "Server N* " << serverID << " not empty\nData : \n";
+        _dfile->append(msg.str().c_str());
+        return (_servers.back());
+    }
     try
     {
        return (_servers.at(serverID));
@@ -114,14 +113,113 @@ t_ServerData    Config::getServerData(int serverID) const
     }
 }
 
+int Config::getNbServers() const
+{
+    return _nbServers;
+}
+
 void    Config::setServerData(t_ServerData data)
 {
     (void)data;
 }
 
+void    assignToken(t_Location &loc, size_t pos, int token)
+{
+    switch (token)
+    {
+        case METHODS:
+            break;
+        case HTTP_REDIRECTION:
+            break ;
+        case FILE_PATH:
+            break ;
+        case DIR_LISTING:
+            break ;
+        case UPLOAD_STORAGE:
+            break ;
+        case CGI_EXTENSION:
+            break ;
+        case CGI_PATH:
+            break ;
+        default:
+            break;
+    }
+}
+
+void    assignToken(t_ServerData &serv, size_t pos, int token)
+{
+    switch (token)
+    {
+        case LISTENER:
+            break ;
+        case SERVER_NAME:
+            break ;
+        case ERROR_PAGE:
+            break ;
+        case CLIENT_MAX_BODY_SIZE:
+            break ;
+        case ROOT_PATH:
+            break ;
+        case LOCATION:
+            break ;
+        default:
+            break ;
+    }
+}
+
+void    reset(t_ServerData &serv, std::string content, size_t &pos, size_t &rBegin, size_t &rEnd)
+{
+    serv = default_server_values;
+    pos = 0;
+    rBegin = content.find_first_of("server");
+    if (rBegin == -1)
+    {
+        rEnd = rBegin;
+        return ;
+    }
+    while (rBegin != content.length() && content[rBegin] != '{')
+        rBegin++;
+    rEnd = content.find_first_of('}');
+}
+
+size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
+{
+    size_t  pos = content.find_first_of(_mainTokenMap[i]);
+
+    if (pos == -1 || pos <= range[0] || pos >= range[1])
+        return (0);
+    return (pos);
+}
+
+size_t  Config::findToken(std::string content, size_t range[2], e_LocationToken i)
+{
+    size_t  pos = content.find_first_of(_locTokenMap[i]);
+
+    if (pos == -1 || pos <= range[0] || pos >= range[1])
+        return (0);
+    return (pos);
+}
+
+
 void    Config::parseContent()
 {
-    return ;
+    std::string     trim = _content;
+    t_ServerData    serv;
+    size_t          servPos;
+    size_t          servRange[2];
+
+    while (!trim.empty())
+    {
+        reset(serv, trim, servPos, servRange[0], servRange[1]);
+        for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+        {
+            if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
+                continue ;
+            assignToken(serv,servPos, i);
+            trim.erase(servPos, _mainTokenMap[i].length());
+        }
+        _servers.push_back(serv);
+    }
 }
 
 const char  *Config::BadFileException::what() const throw()
@@ -153,28 +251,31 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
 {
     t_ServerData    print;
 
-    print = conf.getServerData(0);
-    stream << "Server name : " << print.server_name << '\n'
-            << "Root path   : " << print.root << '\n'
-            << "Max client buf Size : " << print.client_max_body_size << std::endl;
-    for (std::vector<std::string>::iterator i = print.listeners.begin(); i != print.listeners.end(); ++i)
-        stream << "Listener : " << *i << '\n';
-    for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); ++i)
+    for (int i = 0; i < conf.getNbServers(); i++)
     {
-        static int iteration = 0;
-        stream << "Locations :" << iteration++  << '\n'
-            << "\tLocation ID     :" << i->loc << '\n'
-            << "\tRedirection     : " << i->redirection << '\n'
-            << "\tRoot path       : " << i->root << '\n'
-            << "\tAuto index status : " << (i->autoIndex ? "On" : "OFF") << '\n'
-            << "\tDefault file    : " << i->defaultFile << '\n'
-            << "\tUpload storage : " << i->uploadDir << '\n'
-            << "\tCgi external entity : " << i->cgi_ext << '\n'
-            << "\tCgi path to interpreter : " << i->cgi_path << '\n'
-            << "\tMethods allowed : ";
-        for (int j = 0; j < 5; j++)
-            stream << i->methods[j];
-        stream << '\n';
+        print = conf.getServerData(0);
+        stream << "\tServer name : " << print.server_name << '\n'
+                << "\tRoot path   : " << print.root << '\n'
+                << "\tMax client buf Size : " << print.client_max_body_size << std::endl;
+        for (std::vector<std::string>::iterator i = print.listeners.begin(); i != print.listeners.end(); ++i)
+            stream << "\tListener : " << *i << '\n';
+        for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); ++i)
+        {
+            static int iteration = 0;
+            stream << "\tLocations :" << iteration++  << '\n'
+                << "\t\tLocation ID     :" << i->loc << '\n'
+                << "\t\tRedirection     : " << i->redirection << '\n'
+                << "\t\tRoot path       : " << i->root << '\n'
+                << "\t\tAuto index status : " << (i->autoIndex ? "On" : "OFF") << '\n'
+                << "\t\tDefault file    : " << i->defaultFile << '\n'
+                << "\t\tUpload storage : " << i->uploadDir << '\n'
+                << "\t\tCgi external entity : " << i->cgi_ext << '\n'
+                << "\t\tCgi path to interpreter : " << i->cgi_path << '\n'
+                << "\t\tMethods allowed : ";
+            for (int j = 0; j < 5; j++)
+                stream << i->methods[j];
+            stream << '\n';
+        }
     }
     return (stream);
 }

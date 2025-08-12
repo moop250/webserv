@@ -15,9 +15,8 @@ typedef enum TokenTypes
     CLIENT_MAX_BODY_SIZE,  // max request body
     ROOT_PATH,             // root directory for server
     LOCATION,              // start of a location block
-    ALL,
     TOKEN_TYPE_COUNT       //                       7
-} e_TokenType;
+}   e_TokenType;
 
 typedef enum LocationTokens
 {
@@ -29,9 +28,8 @@ typedef enum LocationTokens
     UPLOAD_STORAGE,         // where uploads are saved
     CGI_EXTENSION,          // CGI extensio
     CGI_PATH,               // path to CGI executable
-    LOC_ALL,
     LOCATION_TOKEN_COUNT    //                          9
-} e_LocationToken;
+}   e_LocationToken;
 
 # define NUM_MAIN_TOKENS TOKEN_TYPE_COUNT
 # define NUM_LOC_TOKENS LOCATION_TOKEN_COUNT
@@ -66,10 +64,13 @@ extern const t_ServerData  default_server_values;
 class Config
 {
     Debug                                   *_dfile;
+    int                                     _nbServers;
     std::vector<t_ServerData>               _servers;
     std::string                             _content;
-    std::map<std::string, e_LocationToken>  _locTokenMap;
-    std::map<std::string, e_TokenType>      _mainTokenMap;
+    //std::map<std::string, e_LocationToken>  _locTokenMap;
+    //std::map<std::string, e_TokenType>      _mainTokenMap;
+    std::string                             _locTokenMap[NUM_LOC_TOKENS + 1];   
+    std::string                             _mainTokenMap[NUM_MAIN_TOKENS + 1];
     void                                    initTokenMaps();
     public:
         Config(std::string fileName, Debug &dfile);
@@ -79,14 +80,22 @@ class Config
 
         Config  &operator=(const Config &);
 
-        bool            checkServerData(int index) const;
-        void            *getServerParam(int serverID, std::string param) const;
-        t_ServerData    getServerData(int serverID) const;
+        //  setters
         void            setServerData(t_ServerData data);
+
+        //  getters
+//        void            *getServerParam(int serverID, std::string param) const;
+        t_ServerData    getServerData(int serverID) const;
+        int             getNbServers() const;
+    
+        //  active parsing
+        bool            checkServerData(int index) const;
         void            parseContent();
 
-        e_LocationToken findToken();
-
+        //  UTILS
+        size_t  findToken(std::string content, size_t range[2], e_TokenType i);
+        size_t  findToken(std::string content, size_t range[2], e_LocationToken i);
+        std::string is(int token);
 
         //  generic errors
         class BadFileException : public std::exception

@@ -12,6 +12,7 @@
 
 #include "Config.hpp"
 #include "Error.hpp"
+
 #include "Debug.hpp"
 
 Config	*parseConfigFile(std::string file, Debug &dfile)
@@ -29,7 +30,6 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	config->parseContent();
 	try
 	{
-		dfile.append("Printing configuration got");
 		std::stringstream	strparam;
 		strparam << *config;
 		dfile.append(strparam.str().c_str());
