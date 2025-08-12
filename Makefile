@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: hlibine <hlibine@student.42lausanne.ch>    +#+  +:+       +#+         #
+#    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/05/29 15:49:26 by hlibine          ###   ########.fr        #
+#    Updated: 2025/08/12 17:37:50 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,10 +28,7 @@ RESET       = \033[0m
 RESETNL     = \033[0m\n
 
 SRCS        = src/main.cpp \
-	      src/utils/Colors.cpp src/utils/Debug.cpp src/utils/Error.cpp \
-	      src/configSetUp/getConfig.cpp \
-              src/configSetUp/setUp.cpp \
-              src/sockets/testSocket.cpp
+			src/request/Request.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
