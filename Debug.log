@@ -1,0 +1,31 @@
+Creation time : 2025-08-12 03:42:33
+//////////////////////////
+//  WEBSERV DEBUG LOG   //
+//////////////////////////
+
+
+
+//////////////////
+// Parsing Part //
+//////////////////
+
+content of config file read
+Content :
+
+
+
+Token Maps content initialise
+
+Error :	[Config file parsing uncomplete]
+
+
+//////////////////
+//  Setup Part  //
+//////////////////
+Error :	[Server Setup Incomplete]
+
+
+//////////////////////
+// Event loop start //
+//////////////////////
+Error :	[Event Loop Undefined]
