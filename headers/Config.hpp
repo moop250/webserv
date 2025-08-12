@@ -15,7 +15,7 @@ typedef enum TokenTypes
     CLIENT_MAX_BODY_SIZE,  // max request body
     ROOT_PATH,             // root directory for server
     LOCATION,              // start of a location block
-    OTHER_TOKEN,
+    ALL,
     TOKEN_TYPE_COUNT       //                       7
 } e_TokenType;
 
@@ -29,7 +29,7 @@ typedef enum LocationTokens
     UPLOAD_STORAGE,         // where uploads are saved
     CGI_EXTENSION,          // CGI extensio
     CGI_PATH,               // path to CGI executable
-    OTHER_LOCATION_TOKEN,
+    LOC_ALL,
     LOCATION_TOKEN_COUNT    //                          9
 } e_LocationToken;
 
@@ -60,10 +60,13 @@ typedef struct ServerData
     std::vector<t_Location>     locations;
 }   t_ServerData;
 
+extern const t_Location    default_location_values;
+extern const t_ServerData  default_server_values;
+
 class Config
 {
     Debug                                   *_dfile;
-    t_ServerData                            *_servers;
+    std::vector<t_ServerData>               _servers;
     std::string                             _content;
     std::map<std::string, e_LocationToken>  _locTokenMap;
     std::map<std::string, e_TokenType>      _mainTokenMap;
@@ -77,9 +80,13 @@ class Config
         Config  &operator=(const Config &);
 
         bool            checkServerData(int index) const;
-        t_ServerData    getServerData(int index, std::string param) const;
+        void            *getServerParam(int serverID, std::string param) const;
+        t_ServerData    getServerData(int serverID) const;
         void            setServerData(t_ServerData data);
         void            parseContent();
+
+        e_LocationToken findToken();
+
 
         //  generic errors
         class BadFileException : public std::exception

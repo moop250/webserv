@@ -1,5 +1,23 @@
 #include "Config.hpp"
 
+const t_Location    default_location_values = {
+    .loc = "Undefine loc",
+    .methods = {"NONE", "NONE", "NONE", "NONE", "NONE"},
+    .redirection = "Undefined redirection",
+    .root = "/",
+    .autoIndex = false,
+    .defaultFile = "Undefined default file",
+    .uploadDir = "Undefined upload directory",
+    .cgi_ext = "No external CGI",
+    .cgi_path = "Undefined CGI path"
+};
+
+const t_ServerData  default_server_values = {
+    .server_name = "No server name",
+    .client_max_body_size = 1,
+    .root = "/"
+};
+
 void    Config::initTokenMaps()
 {
     _locTokenMap.insert(std::make_pair("methods", METHODS));
@@ -7,9 +25,10 @@ void    Config::initTokenMaps()
     _locTokenMap.insert(std::make_pair("root", FILE_PATH));
     _locTokenMap.insert(std::make_pair("autoindex", DIR_LISTING));
     _locTokenMap.insert(std::make_pair("index", DEFAULT_FILE));
-    _locTokenMap.insert(std::make_pair("upload_store", UPLOAD_STORAGE));
+    _locTokenMap.insert(std::make_pair("upload_storage", UPLOAD_STORAGE));
     _locTokenMap.insert(std::make_pair("cgi_ext", CGI_EXTENSION));
     _locTokenMap.insert(std::make_pair("cgi_path", CGI_PATH));
+    _locTokenMap.insert(std::make_pair("Loc_all", LOC_ALL));
 
     _mainTokenMap.insert(std::make_pair("listen", LISTENER));
     _mainTokenMap.insert(std::make_pair("server_name", SERVER_NAME));
@@ -17,10 +36,11 @@ void    Config::initTokenMaps()
     _mainTokenMap.insert(std::make_pair("client_max_body_size", CLIENT_MAX_BODY_SIZE));
     _mainTokenMap.insert(std::make_pair("root", ROOT_PATH));
     _mainTokenMap.insert(std::make_pair("location", LOCATION));
+    _mainTokenMap.insert(std::make_pair("all", ALL));
 }
 
 Config::Config(std::string fileName, Debug &dfile) :
-    _dfile(&dfile), _servers(NULL)
+    _dfile(&dfile)
 {
     std::ifstream   readFile(fileName.c_str());
     char            buf[10000];
@@ -34,8 +54,11 @@ Config::Config(std::string fileName, Debug &dfile) :
 	_dfile->append("\ncontent of config file read\nContent :\n");
     _dfile->append(buf);
 
+    _dfile->append("\nServers initialise at 0");
     initTokenMaps();
     _dfile->append("\nToken Maps content initialise\n");
+    _servers.push_back(default_server_values);
+    _servers.at(0).locations.push_back(default_location_values);
 }
 
 Config::Config(const Config &conf)
@@ -60,16 +83,34 @@ bool    Config::checkServerData(int index) const
     return (false);
 }
 
-t_ServerData    Config::getServerData(int index, std::string param) const
+void     *Config::getServerParam(int serverID, std::string param) const
 {
+//    std::string msg = "No param found";
+    (void)param;
+    (void)serverID;
+   // try
+   // {
+   //     t_ServerData    s = _servers.at(serverID);
+   //     
+   // }
+   // catch(const std::exception& e)
+   // {
+   //     std::cerr << e.what() << '\n';
+   // }
+    return (NULL);
+}
+
+t_ServerData    Config::getServerData(int serverID) const
+{
+    if (_servers.empty())
+        return (default_server_values);
     try
     {
-       return (_servers[index]);
+       return (_servers.at(serverID));
     }
     catch(...)
     {
-        Error("Overflow on servers array");
-        throw OutOfBoundsExeption();
+        throw MissingParamException();
     }
 }
 
@@ -82,8 +123,6 @@ void    Config::parseContent()
 {
     return ;
 }
-
-
 
 const char  *Config::BadFileException::what() const throw()
 {
@@ -114,11 +153,9 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
 {
     t_ServerData    print;
 
-    std::cout << "In operator <<\n";
-    print = conf.getServerData(0, "all");
-    std::cout << "Wesh\n";
-    stream << "Server name : " << print.server_name
-            << "Root path   : " << print.root
+    print = conf.getServerData(0);
+    stream << "Server name : " << print.server_name << '\n'
+            << "Root path   : " << print.root << '\n'
             << "Max client buf Size : " << print.client_max_body_size << std::endl;
     for (std::vector<std::string>::iterator i = print.listeners.begin(); i != print.listeners.end(); ++i)
         stream << "Listener : " << *i << '\n';
@@ -139,6 +176,5 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
             stream << i->methods[j];
         stream << '\n';
     }
-    std::cout << "Out\n"; 
     return (stream);
 }

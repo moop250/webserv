@@ -30,7 +30,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	try
 	{
 		dfile.append("Printing configuration got");
-		std::cout << config << std::endl;
+		std::cout << *config << std::endl;
 		dfile.append("Config printed");
 	}
 	catch(const std::exception& e)
