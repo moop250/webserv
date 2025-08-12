@@ -2,6 +2,7 @@
 # define CONFIG_HPP
 
 # include "StdLibs.hpp"
+# include "Error.hpp"
 # include "Debug.hpp"
 # include <vector>
 # include <map>
@@ -39,7 +40,7 @@ typedef enum LocationTokens
 typedef struct Location
 {
     std::string                 loc;            // path of location
-    std::vector<std::string>    methods;        // GET, POST, etc.
+    std::string                 methods[5];        // GET, POST, etc.
     std::string                 redirection;    // could be "301 /newpath"
     std::string                 root;           // path mapping for this location
     bool                        autoIndex;      // true/false
@@ -47,7 +48,7 @@ typedef struct Location
     std::string                 uploadDir;      // upload storage
     std::string                 cgi_ext;        // .php, .py
     std::string                 cgi_path;       // path to interpreter
-} t_Location;
+}   t_Location;
 
 typedef struct ServerData
 {
@@ -57,7 +58,7 @@ typedef struct ServerData
     size_t                      client_max_body_size;
     std::string                 root;
     std::vector<t_Location>     locations;
-} t_ServerData;
+}   t_ServerData;
 
 class Config
 {
@@ -76,7 +77,7 @@ class Config
         Config  &operator=(const Config &);
 
         bool            checkServerData(int index) const;
-        t_ServerData    getServerData(int index) const;
+        t_ServerData    getServerData(int index, std::string param) const;
         void            setServerData(t_ServerData data);
         void            parseContent();
 

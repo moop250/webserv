@@ -60,14 +60,15 @@ bool    Config::checkServerData(int index) const
     return (false);
 }
 
-t_ServerData    Config::getServerData(int index) const
+t_ServerData    Config::getServerData(int index, std::string param) const
 {
     try
     {
-        return (_servers[index]);
+       return (_servers[index]);
     }
-    catch(const std::exception& e)
+    catch(...)
     {
+        Error("Overflow on servers array");
         throw OutOfBoundsExeption();
     }
 }
@@ -76,6 +77,12 @@ void    Config::setServerData(t_ServerData data)
 {
     (void)data;
 }
+
+void    Config::parseContent()
+{
+    return ;
+}
+
 
 
 const char  *Config::BadFileException::what() const throw()
@@ -105,7 +112,33 @@ const char  *Config::OutOfBoundsExeption::what() const throw()
 
 std::ostream    &operator<<(std::ostream &stream, Config &conf)
 {
-    (void)stream;
-    (void)conf;
+    t_ServerData    print;
+
+    std::cout << "In operator <<\n";
+    print = conf.getServerData(0, "all");
+    std::cout << "Wesh\n";
+    stream << "Server name : " << print.server_name
+            << "Root path   : " << print.root
+            << "Max client buf Size : " << print.client_max_body_size << std::endl;
+    for (std::vector<std::string>::iterator i = print.listeners.begin(); i != print.listeners.end(); ++i)
+        stream << "Listener : " << *i << '\n';
+    for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); ++i)
+    {
+        static int iteration = 0;
+        stream << "Locations :" << iteration++  << '\n'
+            << "\tLocation ID     :" << i->loc << '\n'
+            << "\tRedirection     : " << i->redirection << '\n'
+            << "\tRoot path       : " << i->root << '\n'
+            << "\tAuto index status : " << (i->autoIndex ? "On" : "OFF") << '\n'
+            << "\tDefault file    : " << i->defaultFile << '\n'
+            << "\tUpload storage : " << i->uploadDir << '\n'
+            << "\tCgi external entity : " << i->cgi_ext << '\n'
+            << "\tCgi path to interpreter : " << i->cgi_path << '\n'
+            << "\tMethods allowed : ";
+        for (int j = 0; j < 5; j++)
+            stream << i->methods[j];
+        stream << '\n';
+    }
+    std::cout << "Out\n"; 
     return (stream);
 }
