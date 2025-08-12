@@ -1,4 +1,4 @@
-Creation time : 2025-08-12 08:11:08
+Creation time : 2025-08-12 08:36:26
 //////////////////////////
 //  WEBSERV DEBUG LOG   //
 //////////////////////////
@@ -45,6 +45,20 @@ Servers initialise at 0
 Token Maps content initialise
 
 Printing configuration got
+Server name : No server name
+Root path   : /
+Max client buf Size : 1
+Locations :0
+	Location ID     :Undefine loc
+	Redirection     : Undefined redirection
+	Root path       : /
+	Auto index status : OFF
+	Default file    : Undefined default file
+	Upload storage : Undefined upload directory
+	Cgi external entity : No external CGI
+	Cgi path to interpreter : Undefined CGI path
+	Methods allowed : NONENONENONENONENONE
+
 Config printed
 Error :	[Config file parsing uncomplete]
 
