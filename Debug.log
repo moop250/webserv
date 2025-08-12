@@ -1,4 +1,4 @@
-Creation time : 2025-08-11 11:23:22
+Creation time : 2025-08-12 03:42:33
 //////////////////////////
 //  WEBSERV DEBUG LOG   //
 //////////////////////////
@@ -8,36 +8,14 @@ Creation time : 2025-08-11 11:23:22
 //////////////////
 // Parsing Part //
 //////////////////
+
 content of config file read
 Content :
 
-server {
-    listen 8002;
-	server_name localhost;
-    host 127.0.0.1;
-    root docs/fusion_web/;
-    # client_max_body_size 3000000;
-	index index.html;
-    error_page 404 error_pages/404.html;
 
-    location / {
-        allow_methods  DELETE POST GET;
-        autoindex off;
-    }
-    
-    location /tours {
-        autoindex on;
-        index tours1.html;
-        allow_methods GET POST PUT HEAD;
-    }
 
-	location /red {
-		return /tours;
-	}
+Token Maps content initialise
 
-    location /cgi-bin {
-        root ./;
-        allow_methods GET POST DELETE
 Error :	[Config file parsing uncomplete]
 
 

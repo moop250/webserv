@@ -1,60 +1,41 @@
 #include "Config.hpp"
 
+void    Config::initTokenMaps()
+{
+    _locTokenMap.insert(std::make_pair("methods", METHODS));
+    _locTokenMap.insert(std::make_pair("return", HTTP_REDIRECTION));
+    _locTokenMap.insert(std::make_pair("root", FILE_PATH));
+    _locTokenMap.insert(std::make_pair("autoindex", DIR_LISTING));
+    _locTokenMap.insert(std::make_pair("index", DEFAULT_FILE));
+    _locTokenMap.insert(std::make_pair("upload_store", UPLOAD_STORAGE));
+    _locTokenMap.insert(std::make_pair("cgi_ext", CGI_EXTENSION));
+    _locTokenMap.insert(std::make_pair("cgi_path", CGI_PATH));
+
+    _mainTokenMap.insert(std::make_pair("listen", LISTENER));
+    _mainTokenMap.insert(std::make_pair("server_name", SERVER_NAME));
+    _mainTokenMap.insert(std::make_pair("error_page", ERROR_PAGE));
+    _mainTokenMap.insert(std::make_pair("client_max_body_size", CLIENT_MAX_BODY_SIZE));
+    _mainTokenMap.insert(std::make_pair("root", ROOT_PATH));
+    _mainTokenMap.insert(std::make_pair("location", LOCATION));
+}
+
 Config::Config(std::string fileName, Debug &dfile) :
-    _servers(NULL) ,_dfile(&dfile)
+    _dfile(&dfile), _servers(NULL)
 {
     std::ifstream   readFile(fileName.c_str());
     char            buf[10000];
-    static const std::map<std::string, e_TokenType> mainTokenMap = {
-        {"listen", LISTENER},
-        {"server_name", SERVER_NAME},
-        {"error_page", ERROR_PAGE},
-        {"client_max_body_size", CLIENT_MAX_BODY_SIZE},
-        {"root", ROOT_PATH},
-        {"location", LOCATION}
-    };
-
-    static const std::map<std::string, e_LocationToken> locTokenMap = {
-        {"methods", METHODS},
-        {"return", HTTP_REDIRECTION},
-        {"root", FILE_PATH},
-        {"autoindex", DIR_LISTING},
-        {"index", DEFAULT_FILE},
-        {"upload_store", UPLOAD_STORAGE},
-        {"cgi_ext", CGI_EXTENSION},
-        {"cgi_path", CGI_PATH}
-    };
 
     //  read config file
     for (int i = 0; i < 10000; i++)
         buf[i] = 0;
+    // check buffersize ?
     readFile.read(buf, sizeof(readFile));
     _content = buf;
-	_dfile->append("content of config file read\nContent :\n");
+	_dfile->append("\ncontent of config file read\nContent :\n");
     _dfile->append(buf);
 
-    //  Main tokens to look
-    for (int i = 0; i < NUM_MAIN_TOKENS; i++)
-        _MainTokens[i] = mtokens[i];
-    
-    //  Locations tokens to look
-    for (int i = 0; i < NUM_LOC_TOKENS; i++)
-        _LocTokens[i] = ltokens[i];
-
-    //  set tokens to look
-    //      listener
-    //      host
-    //      root path
-    //      client buffer size
-    //      error Pages
-    //       
-    //      Location 1
-    //          methods
-    //          extra mode
-    //
-    //      Location ...
-    
-    //      Location n
+    initTokenMaps();
+    _dfile->append("\nToken Maps content initialise\n");
 }
 
 Config::Config(const Config &conf)
@@ -94,11 +75,6 @@ t_ServerData    Config::getServerData(int index) const
 void    Config::setServerData(t_ServerData data)
 {
     (void)data;
- //   int i = 0;
-//
- //   if (_servers)
- //       _servers->assign(...)
- //   return ;
 }
 
 
