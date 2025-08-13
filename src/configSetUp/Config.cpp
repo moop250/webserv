@@ -21,7 +21,7 @@ const t_ServerData  default_server_values = {
 void    Config::initTokenMaps()
 {
     static const char *locTokenMap[] = {
-        "methods",
+        "allow_methods",
         "return",
         "root",
         "autoindex",
@@ -36,7 +36,7 @@ void    Config::initTokenMaps()
         "server_name",
         "error_page",
         "client_max_body",
-        "root_path", 
+        "root", 
         "location",
         NULL
     };
@@ -247,13 +247,26 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content)
     serv.locations.push_back(loc);
 }
 
+void    eraseLine(std::string &content, std::string line)
+{
+    size_t  from = content.find(line), to = 0;
+
+    if (from == std::string::npos)
+        return ;
+    to = from + line.length();
+    content.erase(from, to);
+    std::cout << YELLOW << "line suppressed : " << line << RESET <<std::endl;
+    return ;
+}
+
 void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
 {
-    std::string tokenLine = "";
+    std::string tokenLine = "default token line";
     std::string path;
     int         nb;
 
     tokenLine = getTokenLine(_mainTokenMap[type], pos);
+    eraseLine(content, tokenLine);
     sanitizeLine(tokenLine);
     switch (type)
     {
@@ -275,12 +288,13 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             serv.root = tokenLine;
             break ;
         case LOCATION:
+            serv.locations.push_back(default_location_values);
+            break ;
             parseLocation(serv, content);
             break ;
         default:
             break ;
     }
-    
 }
 
 void    Config::parseContent()
@@ -295,27 +309,24 @@ void    Config::parseContent()
     int a = 0;
     while (!trim.empty())
     {
-        reset(serv, trim, servPos, servRange[0], servRange[1]);
-        if (servRange[0] == std::string::npos)
-        {
-            _dfile->append("RANGE FAILED");
-            break ;
-        }
-        dbug << "Server range begin at " << servRange[BEGIN]
-            << " and ends at " << servRange[END] << '\n';
-        _dfile->append(dbug.str().c_str());
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         {
-            std::cout << "Shit\n";
+            reset(serv, trim, servPos, servRange[0], servRange[1]);
+            if (servRange[0] == std::string::npos)
+                break ;
+            dbug << "Server range begin at " << servRange[BEGIN]
+                << " and ends at " << servRange[END] << '\n';
+            _dfile->append(dbug.str().c_str());
             if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
                 continue ;
-            std::cout << "No shit !\n";
+            _dfile->append("TOKEN FOUND");
             assignToken(serv, trim, servPos, i);
-            std::cout << trim << std::endl;;
         }
-        if (sizeof(serv) != sizeof(default_server_values))
-            _servers.push_back(serv);
-        trim.erase(trim.find("server"), 6);
+        _dfile->append("Pushing data to server's config member");
+        _servers.push_back(serv);
+        _dfile->append("Push success");
+        trim.erase(trim.find("server"), 0);
+        break ;
     }
     std::cout << "//////////////////////\n" << _content << std::endl;
 }
