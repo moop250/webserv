@@ -2,13 +2,10 @@
 # define SOCKET_CLASS_HPP
 
 #include "Config.hpp"
+#include "sys/socket.h"
+#include <netdb.h>
+#include <string>
 #include <vector>
-
-typedef struct socketData {
-
-	int server_fd;
-
-} t_socketData;
 
 class ServerSocket {
 
@@ -16,11 +13,11 @@ class ServerSocket {
 		ServerSocket();
 		~ServerSocket();
 
-		t_socketData	getSocketData(int pos);
-		void 			initializeNewSocket_(std::string combo);
+		int		getSocketFd(int pos);
+		void	initializeNewSocket_(std::string combo);
 
 	private:
-		std::vector<t_socketData>	socketData_;
+		std::vector<int>	socketFd_;
 };
 
 #endif
