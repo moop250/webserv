@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/12 17:37:47 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/13 22:45:56 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ Request::~Request() {
 std::string Request::getMethod() const {
 		return this->method;
 }
-std::string Request::getURL() const {
-		return this->url;
+std::string Request::getPath() const {
+		return this->path;
 }
 std::string Request::getQuery() const {
 		return this->query;
@@ -73,8 +73,8 @@ Request& Request::setMethod(const std::string& method) {
 	this->method = method;
 	return *this;
 }
-Request& Request::setURL(const std::string& url) {
-	this->url = url;
+Request& Request::setPath(const std::string& path) {
+	this->path = path;
 	return *this;
 }
 Request& Request::setQuery(const std::string& query) {

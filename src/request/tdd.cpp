@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/13 18:22:36 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/13 23:19:15 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ TEST_CASE("Request class default constructor") {
 	Request requestDefault;
 
     REQUIRE(requestDefault.getMethod() == "");
-	REQUIRE(requestDefault.getURL() == "");
+	REQUIRE(requestDefault.getPath() == "");
 	REQUIRE(requestDefault.getQuery() == "");
 	REQUIRE(requestDefault.getHttpVersion() == "");
 	REQUIRE(requestDefault.getHeader("nothing") == "");
@@ -66,15 +66,37 @@ TEST_CASE("Parse Request", "[Error]") {
 		std::string buffer = "GET HTTP/1.1";
 		parse_method(request, buffer);
 		int code = parse_URL(request, buffer);
-		REQUIRE(request.getURL() == "");
+		REQUIRE(request.getPath() == "");
 		REQUIRE(code == 400);
 	}
 	SECTION("Bad URL format", "[URL Error]") {
 		std::string buffer = "GET www.google.com HTTP/1.1";
 		parse_method(request, buffer);
 		int code = parse_URL(request, buffer);
-		REQUIRE(request.getURL() == "");
+		REQUIRE(request.getPath() == "");
 		REQUIRE(code == 400);
+	}
+	SECTION("No HTTP version", "[HTTP Error]") {
+		std::string buffer = "GET /test/demo_form.php?user=random&pass=1234 \r\n\r\n";
+		parse_method(request, buffer);
+		REQUIRE(request.getMethod() == "GET");
+		parse_URL(request, buffer);
+		REQUIRE(request.getPath() == "/test/demo_form.php");
+		REQUIRE(request.getQuery() == "user=random&pass=1234");
+		int code = parse_http_ver(request, buffer);
+		REQUIRE(request.getHttpVersion() == "");
+		REQUIRE(code == 400);
+	}
+	SECTION("Wrong HTTP version", "[HTTP Error]") {
+		std::string buffer = "GET /test/demo_form.php?user=random&pass=1234 HTTP/1.0\r\n\r\n";
+		parse_method(request, buffer);
+		REQUIRE(request.getMethod() == "GET");
+		parse_URL(request, buffer);
+		REQUIRE(request.getPath() == "/test/demo_form.php");
+		REQUIRE(request.getQuery() == "user=random&pass=1234");
+		int code = parse_http_ver(request, buffer);
+		REQUIRE(request.getHttpVersion() == "");
+		REQUIRE(code == 505);
 	}
 }
 
@@ -104,28 +126,63 @@ TEST_CASE("Parse request line", "[Success]") {
 	SECTION("URL absolute path http no query", "[Success]") {
 		std::string buffer = "GET http://www.google.com/test HTTP/1.1";
 		parse_method(request, buffer);
-		REQUIRE(request.getMethod() == "GET");
 		int code = parse_URL(request, buffer);
-		REQUIRE(request.getURL() == "http://www.google.com/test");
+		REQUIRE(request.getPath() == "/test");
 		REQUIRE(buffer == "HTTP/1.1");
 		REQUIRE(code == 0);
 	}
 	SECTION("URL absolute path https no query", "[Success]") {
 		std::string buffer = "DELETE https://www.google.com/test HTTP/1.1";
 		parse_method(request, buffer);
-		REQUIRE(request.getMethod() == "DELETE");
 		int code = parse_URL(request, buffer);
-		REQUIRE(request.getURL() == "https://www.google.com/test");
+		REQUIRE(request.getPath() == "/test");
 		REQUIRE(buffer == "HTTP/1.1");
 		REQUIRE(code == 0);
 	}
-	SECTION("Whole line no query", "[Success]") {
-		std::string buffer = "GET /test/demo_form.php HTTP/1.1";
-		int code = parse_method(request, buffer);
-		REQUIRE(request.getMethod() == "GET");
-		// REQUIRE(buffer ==  "");
-		// REQUIRE(request.getURL() == "/test/demo_form.php");
-		// REQUIRE(request.getHttpVersion() == "HTTP/1.1");
+	SECTION("URL relative path no query", "[Success]") {
+		std::string buffer = "DELETE / HTTP/1.1";
+		parse_method(request, buffer);
+		int code = parse_URL(request, buffer);
+		REQUIRE(request.getPath() == "/");
+		REQUIRE(buffer == "HTTP/1.1");
+		REQUIRE(code == 0);
+	}
+	SECTION("URL absolute path http with query", "[Success]") {
+		std::string buffer = "POST https://www.figma.com/board/5K7iAxd6BVPNkAG1kahXpk/Webserv-diagram?node-id=0-1&p=f&t=PEPXxciFALE3JwX7-0 HTTP/1.1";
+		parse_method(request, buffer);
+		int code = parse_URL(request, buffer);
+		REQUIRE(request.getPath() == "/board/5K7iAxd6BVPNkAG1kahXpk/Webserv-diagram");
+		REQUIRE(request.getQuery() == "node-id=0-1&p=f&t=PEPXxciFALE3JwX7-0");
+		REQUIRE(buffer == "HTTP/1.1");
+		REQUIRE(code == 0);
+	}
+	SECTION("HTTP version with headers", "[Success]") {
+		std::string buffer = 
+			"GET /test/demo_form.php?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\n\r\n";
+		parse_method(request, buffer);
+		parse_URL(request, buffer);
+		int code = parse_http_ver(request, buffer);
+		REQUIRE(request.getHttpVersion() == "HTTP/1.1");
+		REQUIRE(buffer == "Host: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\n\r\n");
+		REQUIRE(code == 0);
+	}
+	SECTION("HTTP version without headers", "[Success]") {
+		std::string buffer = "GET /test/demo_form.php?user=random&pass=1234 HTTP/1.1\r\n\r\n";
+		parse_method(request, buffer);
+		parse_URL(request, buffer);
+		int code = parse_http_ver(request, buffer);
+		REQUIRE(request.getHttpVersion() == "HTTP/1.1");
+		REQUIRE(buffer == "\r\n");
+		REQUIRE(code == 0);
+	}
+	SECTION("HTTP version with headers", "[Success]") {
+		std::string buffer = 
+			"GET /test/demo_form.php?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\n\r\n";
+		parse_method(request, buffer);
+		parse_URL(request, buffer);
+		int code = parse_http_ver(request, buffer);
+		REQUIRE(request.getHttpVersion() == "HTTP/1.1");
+		REQUIRE(buffer == "Host: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\n\r\n");
 		REQUIRE(code == 0);
 	}
 }
