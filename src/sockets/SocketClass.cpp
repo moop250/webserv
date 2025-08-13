@@ -8,28 +8,31 @@
 #include <vector>
 #include <sys/socket.h>
 
-ServerSocket::ServerSocket(std::string combo) : server_fd_(-1) {
-	initializeSocket_(combo);
-}
+ServerSocket::ServerSocket() {}
 
 ServerSocket::~ServerSocket() {}
 
-void ServerSocket::initializeSocket_(std::string combo) {
+void ServerSocket::initializeNewSocket_(std::string combo) {
+	t_socketData currentSocket;
+	std::string host, port;
+	int del = combo.find("|");
 
-	this->server_fd_ = socket(AF_INET, SOCK_STREAM, 0);
+	host = combo.substr(0, del);
+	port = combo.substr(del, combo.length());
 
-	if (this->server_fd_ < 0) {throw std::runtime_error("server_fd_ socket error:" + std::string(strerror(errno)));}
+	currentSocket.server_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+	if (currentSocket.server_fd < 0) {throw std::runtime_error("server_fd_ socket error:" + std::string(strerror(errno)));}
 	
 	// Bind the combo to a socket
 
-	
 	// Start listenting to the socket
 	
 	// save file descriptor to a class or something to be returned
 
-	// return status code
+	this->socketData_.push_back(currentSocket);
 };
 
-int ServerSocket::getFd() {
-	return server_fd_;
+t_socketData ServerSocket::getSocketData(int pos) {
+	return this->socketData_.at(pos);
 }

@@ -4,17 +4,23 @@
 #include "Config.hpp"
 #include <vector>
 
+typedef struct socketData {
+
+	int server_fd;
+
+} t_socketData;
+
 class ServerSocket {
 
 	public:
-		ServerSocket(std::string);
+		ServerSocket();
 		~ServerSocket();
 
-		int	getFd();
+		t_socketData	getSocketData(int pos);
+		void 			initializeNewSocket_(std::string combo);
 
 	private:
-		void	initializeSocket_(std::string combo);
-		int		server_fd_;
+		std::vector<t_socketData>	socketData_;
 };
 
 #endif
