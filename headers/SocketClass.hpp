@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+# define BACKLOG 20
+
 class ServerSocket {
 
 	public:

@@ -14,33 +14,27 @@ ServerSocket::ServerSocket() {}
 ServerSocket::~ServerSocket() {}
 
 void ServerSocket::initializeNewSocket_(std::string combo) {
-	int status, socketfd;
+	int socketfd = -1;
 	struct addrinfo	info, *res;
 	int del = combo.find("|");
 	std::string		host = combo.substr(0, del),
 					port = combo.substr(del + 1, combo.length());
 
-
 	info.ai_family = AF_INET;
 	info.ai_socktype = SOCK_STREAM;
 
-	status = getaddrinfo(host.empty() ? NULL : host.c_str(),
-							port.c_str(),
-							&info, &res);
-
-	socketfd = socket(AF_INET, SOCK_STREAM, 0);
-
-	if (socketfd < 0) {throw std::runtime_error("server_fd_ socket error:" + std::string(strerror(errno)));}
-	
-	// Bind the combo to a socket
-
-	status = bind(socketfd, res->ai_addr, res->ai_addrlen);
+	if (getaddrinfo(host.empty() ? NULL : host.c_str(), port.c_str(), &info, &res))
+		{throw std::runtime_error("getaddrinfo error:" + std::string(strerror(errno)));}
+	if (socket(AF_INET, SOCK_STREAM, 0))
+		{throw std::runtime_error("Socket initialization error:" + std::string(strerror(errno)));}
+	if (bind(socketfd, res->ai_addr, res->ai_addrlen))
+		{throw std::runtime_error("Socket binding error:" + std::string(strerror(errno)));}
 
 	freeaddrinfo(res);
-
-	// Start listenting to the socket
 	
-	// save file descriptor to a class or something to be returned
+	// Start listenting to the socket
+	if (listen(socketfd,BACKLOG) < 0)
+		{throw std::runtime_error("Socket listen error:" + std::string(strerror(errno)));}
 
 	this->socketFd_.push_back(socketfd);
 };
