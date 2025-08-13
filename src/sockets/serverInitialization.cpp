@@ -16,6 +16,7 @@ static bool compareConfigs(std::string currentPair, std::vector<std::string> all
 
 static std::vector<std::string> sanitizeConfig(Config serverConfig) {
 	std::vector<std::string> out;
+
 	for (int i = serverConfig.getNbServers(); i > 0; --i) {
 		ServerData serv = serverConfig.getServerData(i);
 		std::string tmp;
@@ -36,7 +37,5 @@ ServerSocket initalizeServer(Config serverConfig) {
 	for (size_t i = uniqueComboList.size(); i >= 0; --i) {
 		socket.initializeNewSocket_(uniqueComboList.at(i));
 	}
-
-	
 	return socket;
 };

@@ -8,10 +8,15 @@
 #include <string>
 #include <vector>
 #include <sys/socket.h>
+#include "unistd.h"
 
 ServerSocket::ServerSocket() {}
 
-ServerSocket::~ServerSocket() {}
+ServerSocket::~ServerSocket() {
+	for (int i = this->getSocketCount(); i <= 0; --i) {
+		close(this->getSocketFd(i));
+	}
+}
 
 void ServerSocket::initializeNewSocket_(std::string combo) {
 	int socketfd = -1;
@@ -41,4 +46,8 @@ void ServerSocket::initializeNewSocket_(std::string combo) {
 
 int ServerSocket::getSocketFd(int pos) {
 	return this->socketFd_.at(pos);
+}
+
+int ServerSocket::getSocketCount() {
+	return this->socketFd_.size();
 }

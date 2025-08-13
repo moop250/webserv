@@ -16,6 +16,7 @@ class ServerSocket {
 		~ServerSocket();
 
 		int		getSocketFd(int pos);
+		int		getSocketCount(void);
 		void	initializeNewSocket_(std::string combo);
 
 	private:
