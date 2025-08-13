@@ -43,11 +43,21 @@ void    Config::initTokenMaps()
         _Tokens[i] = mainTokenMap[i];
 }
 
+t_ServerData    getDefaultServ()
+{
+    t_ServerData    defaultServ = default_server_values;
+
+    defaultServ.hosts.push_back("Undefined Host");
+    defaultServ.listeners.push_back("Undefinded listeners");
+    defaultServ.methods.push_back("GET");
+    defaultServ.locations.push_back(default_location_values);
+    return (defaultServ);
+}
+
 Config::Config(std::string fileName, Debug &dfile) :
     _dfile(&dfile), _nbServers(0)
 {
     std::ifstream   readFile(fileName.c_str());
-    t_ServerData    defaultServ = default_server_values;
     char            buf[10000];
 
     //  read config file
@@ -62,11 +72,7 @@ Config::Config(std::string fileName, Debug &dfile) :
     _dfile->append("\nServers initialise at 0");
     initTokenMaps();
     _dfile->append("\nToken Maps content initialise\n");
-    defaultServ.hosts.push_back("Undefined Host");
-    defaultServ.listeners.push_back("Undefinded listeners");
-    defaultServ.methods.push_back("GET");
-    defaultServ.locations.push_back(default_location_values);
-    _servers.push_back(defaultServ);
+    _servers.push_back(getDefaultServ());
 }
 
 Config::Config(const Config &conf)
@@ -151,7 +157,7 @@ void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBe
     //  revoir logique
     serv = default_server_values;
     pos = 0;
-    rBegin = content.find_first_of("server");
+    rBegin = content.find("server");
     if (rBegin == -1)
     {
         rEnd = rBegin;
@@ -159,7 +165,7 @@ void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBe
     }
     while (rBegin != content.length() && content[rBegin] != '{')
         rBegin++;
-    rEnd = content.find_first_of('}', rBegin - 1);
+    rEnd = content.find('}', rBegin - 1);
     return ;
     rEnd = findCorrCloseBracket(content, rBegin);
 }
@@ -177,7 +183,7 @@ void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin
     }
     while (rBegin != content.length() && content[rBegin] != '{')
         rBegin++;
-    rEnd = content.find_first_of('}', rBegin);
+    rEnd = content.find('}', rBegin);
     return ;
     rEnd = findCorrCloseBracket(content, rBegin);
 }
