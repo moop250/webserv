@@ -1,23 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   request_handler.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/28 15:03:20 by hlibine           #+#    #+#             */
-/*   Updated: 2025/08/12 23:36:37 by hoannguy         ###   ########.fr       */
+/*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
+/*   Updated: 2025/08/13 18:00:05 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef REQUEST_HANDLER_HPP
+#define REQUEST_HANDLER_HPP
 #include "Request.hpp"
-#include "request_handler.hpp"
 
-int main(int ac, char** av)
-{
-	(void)ac;
-	(void)av;
-	Request getRequest;
-	
-	return 0;
-}
+int response(int code);
+int parse_method(Request& request, std::string& buffer);
+int parse_URL(Request& request, std::string& buffer);
+int parse_request(std::string& buffer);
+
+#endif

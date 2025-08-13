@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/12 17:34:32 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/13 16:47:05 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #define REQUEST_HPP
 #include <string>
 #include <map>
-// #include <exception>
+#include <stdexcept>
 
 enum requestType {
 	File,
