@@ -145,7 +145,7 @@ void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin
     loc = default_location_values;
     pos = 0;
     rBegin = content.find_first_of("location");
-    if (rBegin == -1)
+    if (rBegin == std::string::npos)
     {
         rEnd = rBegin;
         return ;
@@ -157,18 +157,22 @@ void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin
 
 size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
 {
-    size_t  pos = content.find_first_of(_mainTokenMap[i]);
+    size_t  pos = content.find(_mainTokenMap[i]);
 
-    if (pos == -1 || pos <= range[BEGIN] || pos >= range[END])
+    std::cout << "Token looking for : " << _mainTokenMap[i]
+        << "\nposition : " << pos
+        << "\nrange begine at " << range[0]
+        << "\nrange ends at " << range[1] << std::endl;
+    if (pos == std::string::npos || pos <= range[BEGIN] || pos >= range[END])
         return (0);
     return (pos);
 }
 
 size_t  Config::findToken(std::string content, size_t range[2], e_LocationToken i)
 {
-    size_t  pos = content.find_first_of(_locTokenMap[i]);
+    size_t  pos = content.find(_locTokenMap[i]);
 
-    if (pos == -1 || pos <= range[BEGIN] || pos >= range[END])
+    if (pos == std::string::npos || pos <= range[BEGIN] || pos >= range[END])
         return (0);
     return (pos);
 }
@@ -189,7 +193,7 @@ std::string getTokenLine(std::string token, size_t pos)
 
 void    Config::assignToken(t_Location &loc, std::string content, size_t pos, int type)
 {
-    std::string tokenLine = NULL;
+    std::string tokenLine = "";
 
     tokenLine = getTokenLine(_locTokenMap[type], pos);
     sanitizeLine(tokenLine);
@@ -227,12 +231,16 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content)
     size_t      lpos = 0;
     size_t      locRange[2] = {0, 0};
     
+    return ;
     reset(loc, content, lpos, locRange[BEGIN], locRange[END]);
-    if (locRange[BEGIN] == -1)
+    if (locRange[BEGIN] == std::string::npos)
+    {
+        _dfile->append("RANGE FAILED");
         return ;
+    }
     for (int i = 0; i < LOCATION_TOKEN_COUNT; i++)
     {
-        if ((lpos = findToken(content, locRange, static_cast<e_LocationToken>(i))) == 01)
+        if (!(lpos = findToken(content, locRange, static_cast<e_LocationToken>(i))))
             continue ;
         assignToken(loc, content, lpos, static_cast<e_LocationToken>(i));
     }
@@ -241,7 +249,7 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content)
 
 void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
 {
-    std::string tokenLine = NULL;
+    std::string tokenLine = "";
     std::string path;
     int         nb;
 
@@ -282,23 +290,32 @@ void    Config::parseContent()
     size_t          servPos;
     size_t          servRange[2] = {0, 0};
 
-    return ;
+    std::stringstream   dbug;
+
     int a = 0;
     while (!trim.empty())
     {
         reset(serv, trim, servPos, servRange[0], servRange[1]);
-        if (servRange[0] == -1)
+        if (servRange[0] == std::string::npos)
+        {
+            _dfile->append("RANGE FAILED");
             break ;
+        }
+        dbug << "Server range begin at " << servRange[BEGIN]
+            << " and ends at " << servRange[END] << '\n';
+        _dfile->append(dbug.str().c_str());
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         {
+            std::cout << "Shit\n";
             if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
                 continue ;
+            std::cout << "No shit !\n";
             assignToken(serv, trim, servPos, i);
             std::cout << trim << std::endl;;
         }
         if (sizeof(serv) != sizeof(default_server_values))
             _servers.push_back(serv);
-        trim.erase(trim.find_first_of("server"), 6);
+        trim.erase(trim.find("server"), 6);
     }
     std::cout << "//////////////////////\n" << _content << std::endl;
 }

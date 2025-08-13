@@ -6,5 +6,8 @@
 # include <ostream>
 # include <fstream>
 # include "Colors.hpp"
+# include <stdint.h>
+# include <vector>
+# include <map>
 
 #endif
