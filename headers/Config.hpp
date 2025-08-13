@@ -20,6 +20,7 @@
         //"location",
 typedef enum TokenTypes
 {
+    HOST,
     LISTEN,              // interface:port        0
     SERVER_NAME,
     ROOT_PATH,           // virtual host name

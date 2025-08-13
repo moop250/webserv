@@ -24,6 +24,7 @@ void    Config::printServers() const
 void    Config::initTokenMaps()
 {
     static const char *mainTokenMap[] = {
+        "host",
         "listen",
         "server_name",
         "root",
@@ -33,8 +34,8 @@ void    Config::initTokenMaps()
         "upload_storage",
         "cgi_ext",
         "cgi_path",
-        "client_max_body",
-        "allowed_methods",
+        "client_max_body_size",
+        "allow_methods",
         "location",
         NULL
     };
@@ -190,11 +191,20 @@ size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
 {
     size_t  pos = content.find(_Tokens[i], range[BEGIN]);
 
+    if (pos == std::string::npos || pos <= range[BEGIN] || pos >= range[END])
+        return (0);
+
+    while (pos != content.length() - 5 && pos != std::string::npos && (!isspace(content[pos - 1]) || !isspace(content[pos + _Tokens[i].length()])))
+    {
+        std::cout << "It was " << content[pos - 1] << " and " << content[pos + _Tokens[i].length()] << std::endl;
+        pos += 1;
+        pos = content.find(_Tokens[i], pos);
+    }
     std::cout << "Token looking for : " << _Tokens[i]
         << "\nposition : " << pos
         << "\nrange begine at " << range[0]
         << "\nrange ends at " << range[1] << std::endl;
-    if (pos == std::string::npos || pos <= range[BEGIN] || pos >= range[END])
+    if (pos == std::string::npos)
         return (0);
     return (pos);
 }
@@ -281,6 +291,8 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
     std::cout << "type : " << type << std::endl;
     switch (type)
     {
+        case HOST:
+            serv.hosts.push_back(tokenLine);
         case LISTEN:
             serv.listeners.push_back(tokenLine);
             break ;
@@ -402,10 +414,11 @@ void    Config::parseContent()
         _dfile->append("Pushing data to server's config member");
         _servers.push_back(serv);
         _dfile->append("Push success");
-        trim.erase(trim.find("server"), 0);
+        trim.erase(trim.find("server"), 8);
         _nbServers++;
         break ;
     }
+    std::cout << trim << std::endl;
     std::cout << "NB of servers = " << _nbServers << std::endl;
     std::cout << "//////////////////////\n" << _content << std::endl;
 }
@@ -443,7 +456,8 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
     for (int i = 0; i < conf.getNbServers(); i++)
     {
         print = conf.getServerData(i);
-        stream  << "\tServer name    : " << print.server_name << '\n'
+        stream // << "\tHost name      : " << print.hosts.at(0) << '\n'
+                << "\tServer name    : " << print.server_name << '\n'
                 << "\tRoot path      : " << print.root << '\n'
                 << "\tIndex file     : " << print.index << '\n'
                 << "\tAuto index     : " << (print.autoindex ? "On" : "OFF") << '\n'
