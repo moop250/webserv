@@ -68,6 +68,9 @@ Config::Config(std::string fileName, Debug &dfile) :
     initTokenMaps();
     _dfile->append("\nToken Maps content initialise\n");
     _servers.push_back(default_server_values);
+    _servers.at(0).hosts.push_back("Undefined Host");
+    _servers.at(0).listeners.push_back("Undefinded listeners");
+    _servers.at(0).methods.push_back("GET");
     _servers.at(0).locations.push_back(default_location_values);
 }
 
@@ -146,7 +149,7 @@ void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin
     //  revoir logique
     loc = default_location_values;
     pos = 0;
-    rBegin = content.find_first_of("location");
+    rBegin = content.find("location", pos);
     if (rBegin == std::string::npos)
     {
         rEnd = rBegin;
@@ -159,7 +162,7 @@ void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin
 
 size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
 {
-    size_t  pos = content.find(_Tokens[i]);
+    size_t  pos = content.find(_Tokens[i], range[BEGIN]);
 
     std::cout << "Token looking for : " << _Tokens[i]
         << "\nposition : " << pos
@@ -235,27 +238,10 @@ void    eraseLine(std::string &content, std::string line)
 //    }
 //}
 
-//void    Config::parseLocation(t_ServerData &serv, std::string &content)
-//{
-//    t_Location  loc = default_location_values;
-//    size_t      lpos = 0;
-//    size_t      locRange[2] = {0, 0};
-//    
-//    return ;
-//    reset(loc, content, lpos, locRange[BEGIN], locRange[END]);
-//    if (locRange[BEGIN] == std::string::npos)
-//    {
-//        _dfile->append("RANGE FAILED");
-//        return ;
-//    }
-//    for (int i = 0; i < LOCATION_TOKEN_COUNT; i++)
-//    {
-//        if (!(lpos = findToken(content, locRange, static_cast<e_LocationToken>(i))))
-//            continue ;
-//        assignToken(loc, content, lpos, static_cast<e_LocationToken>(i));
-//    }
-//    serv.locations.push_back(loc);
-//}
+void    Config::parseLocation(t_ServerData &serv, std::string &content)
+{
+    serv.locations.push_back(default_location_values);
+}
 
 void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
 {
@@ -282,9 +268,6 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
         case AUTOINDEX:
             break ;
         case ERROR_PAGE:
-            //nb = extractFirstNumber(tokenLine);
-            //path = extractPath(tokenLine);
-            //serv.error_pages.insert(std::make_pair(nb, path));
             break ;
         case UPLOAD_STORAGE:
             break ;
@@ -336,8 +319,10 @@ void    Config::parseContent()
         _servers.push_back(serv);
         _dfile->append("Push success");
         trim.erase(trim.find("server"), 0);
+        _nbServers++;
         break ;
     }
+    std::cout << "NB of servers = " << _nbServers << std::endl;
     std::cout << "//////////////////////\n" << _content << std::endl;
 }
 
@@ -373,12 +358,27 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
     std::cout << ROSE << "PRINTING OPERATOR\n";
     for (int i = 0; i < conf.getNbServers(); i++)
     {
-        print = conf.getServerData(0);
-        stream << "\tServer name : " << print.server_name << '\n'
-                << "\tRoot path   : " << print.root << '\n'
-                << "\tMax client buffer size : " << print.client_max_body_size << std::endl;
+        print = conf.getServerData(1);
+        stream  << "\tServer name    : " << print.server_name << '\n'
+                << "\tRoot path      : " << print.root << '\n'
+                << "\tIndex file     : " << print.index << '\n'
+                << "\tAuto index     : " << (print.autoindex ? "On" : "OFF") << '\n'
+                << "\tUpload storage : " << print.upload_storage << '\n'
+                << "\tCgi external   : " << print.cgi_ext << '\n'
+                << "\tCgi path       : " << print.cgi_path << '\n'
+                << "\tMax client siz : " << print.client_max_body_size << std::endl;
+        std::cout << "OK\n";
+        stream << "\tMethods : ";
+        for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); ++i)
+            stream << " " << *i;
+        stream << '\n';
+        stream << "\tHosts : ";
+        for (std::vector<std::string>::iterator i = print.hosts.begin(); i != print.hosts.end(); ++i)
+            stream << " " << *i;
+        stream << '\n' << "\tListeners : ";
         for (std::vector<std::string>::iterator i = print.listeners.begin(); i != print.listeners.end(); ++i)
-            stream << "\tListener : " << *i << '\n';
+            stream << " " << *i;
+        stream << '\n';
         for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); ++i)
         {
             static int iteration = 0;
@@ -391,8 +391,8 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\t\tCgi external entity     : " << i->data.cgi_ext << '\n'
                 << "\t\tCgi path to interpreter : " << i->data.cgi_path << '\n'
                 << "\t\tMethods allowed : ";
-            for (int j = 0; j < 5; j++)
-                stream << i->data.methods.at(j);
+            for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); ++i)
+                stream << *i << '\n';
             stream << '\n';
         }
     }
