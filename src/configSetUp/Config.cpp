@@ -158,7 +158,7 @@ void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBe
     serv = default_server_values;
     pos = 0;
     rBegin = content.find("server");
-    if (rBegin == -1)
+    if (rBegin == std::string::npos)
     {
         rEnd = rBegin;
         return ;
@@ -206,29 +206,28 @@ void    sanitizeLine(std::string &line)
     (void)line;
     return ;
 }
-
-std::string getTokenLine(std::string content, std::string token, size_t pos)
+std::string getTokenLine(const std::string &content, const std::string &token, size_t pos)
 {
-    size_t      len = 0;//content.find_first_of('\n', pos);
-    for (; content.c_str()[pos + len] && content.c_str()[pos + len] != '\n'; len++)
-        len++;
-    std::string line = content.substr(pos, len);
+    size_t end = content.find('\n', pos);
 
+    if (end == std::string::npos)
+        end = content.size();
+    std::string line = content.substr(pos, end - pos);
     std::cout << CYAN << "Line found : " << line << RESET << std::endl;
-    std::cout << "Line length : " << len << std::endl;
-    return (line);
+    std::cout << "Line length : " << (end - pos) << std::endl;
+    return line;
 }
 
-void    eraseLine(std::string &content, std::string line)
+void eraseLine(std::string &content, const std::string &line)
 {
-    size_t  from = content.find(line), to = 0;
+    size_t  from = content.find(line);
 
     if (from == std::string::npos)
-        return ;
-    to = from + line.length();
-    content.erase(from, to);
-    std::cout << YELLOW << "line suppressed : " << line << RESET <<std::endl;
-    return ;
+        return;    
+    content.erase(from, line.length());
+    if (from < content.size() && content[from] == '\n')
+        content.erase(from, 1);
+    std::cout << YELLOW << "line suppressed : " << line << RESET << std::endl;
 }
 
 //void    Config::assignToken(t_Location &loc, std::string content, size_t pos, int type)
