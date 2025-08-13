@@ -1,50 +1,52 @@
 #include "Config.hpp"
 
-const t_Location    default_location_values = {
-    .loc = "Undefine loc",
-    .methods = {"NONE", "NONE", "NONE", "NONE", "NONE"},
-    .redirection = "Undefined redirection",
-    .root = "/",
-    .autoIndex = false,
-    .defaultFile = "Undefined default file",
-    .uploadDir = "Undefined upload directory",
-    .cgi_ext = "No external CGI",
-    .cgi_path = "Undefined CGI path"
-};
-
 const t_ServerData  default_server_values = {
     .server_name = "No server name",
+    .root = "/",
+    .index = "No file.html undefined",
+    .upload_storage = "Upload dir undefined",
+    .cgi_ext = "cgi extention undefined",
+    .cgi_path = "cgi path undefined",
     .client_max_body_size = 1,
-    .root = "/"
+    .autoindex = false
 };
+
+const t_Location    default_location_values = {
+    .active = false,
+    .data = default_server_values
+};
+
+//	server_name 127.0.0.1
+//	listen 5050
+//	root ./public/website1
+//	index index.html
+//	max_client_body_size 2
+//    allow  GET DELETE
+//    autoindex on
+//	error_page 404 ./public/error_pages/404.html
+//    upload ./public/website2/
+//	location /home {
 
 void    Config::initTokenMaps()
 {
-    static const char *locTokenMap[] = {
-        "allow_methods",
-        "return",
-        "root",
-        "autoindex",
-        "index",
-        "upload_storage",
-        "cgi_ext",
-        "cgi_path",
-        NULL
-    };
     static const char *mainTokenMap[] = {
         "listen",
         "server_name",
+        "root",
+        "index",
+        "autoindex",
         "error_page",
+        "upload_storage",
+        "cgi_ext",
+        "cgi_path",
         "client_max_body",
-        "root", 
+        "allowed_methods",
         "location",
         NULL
     };
     
-    for (int i = 0; i < LOCATION_TOKEN_COUNT && locTokenMap[i]; i++)
-        _locTokenMap[i] = locTokenMap[i];
     for (int i = 0; i < TOKEN_TYPE_COUNT && mainTokenMap[i]; i++)
-        _mainTokenMap[i] = mainTokenMap[i];
+        _Tokens[i] = mainTokenMap[i];
 }
 
 Config::Config(std::string fileName, Debug &dfile) :
@@ -157,21 +159,12 @@ void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin
 
 size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
 {
-    size_t  pos = content.find(_mainTokenMap[i]);
+    size_t  pos = content.find(_Tokens[i]);
 
-    std::cout << "Token looking for : " << _mainTokenMap[i]
+    std::cout << "Token looking for : " << _Tokens[i]
         << "\nposition : " << pos
         << "\nrange begine at " << range[0]
         << "\nrange ends at " << range[1] << std::endl;
-    if (pos == std::string::npos || pos <= range[BEGIN] || pos >= range[END])
-        return (0);
-    return (pos);
-}
-
-size_t  Config::findToken(std::string content, size_t range[2], e_LocationToken i)
-{
-    size_t  pos = content.find(_locTokenMap[i]);
-
     if (pos == std::string::npos || pos <= range[BEGIN] || pos >= range[END])
         return (0);
     return (pos);
@@ -183,68 +176,16 @@ void    sanitizeLine(std::string &line)
     return ;
 }
 
-std::string getTokenLine(std::string token, size_t pos)
+std::string getTokenLine(std::string content, std::string token, size_t pos)
 {
-    std::string line = "default line";
-    (void)token;
-    (void)pos;
+    size_t      len = 0;//content.find_first_of('\n', pos);
+    for (; content.c_str()[pos + len] && content.c_str()[pos + len] != '\n'; len++)
+        len++;
+    std::string line = content.substr(pos, len);
+
+    std::cout << CYAN << "Line found : " << line << RESET << std::endl;
+    std::cout << "Line length : " << len << std::endl;
     return (line);
-}
-
-void    Config::assignToken(t_Location &loc, std::string content, size_t pos, int type)
-{
-    std::string tokenLine = "";
-
-    tokenLine = getTokenLine(_locTokenMap[type], pos);
-    sanitizeLine(tokenLine);
-    switch (type)
-    {
-        case METHODS:
-            loc.methods[0] = tokenLine.substr(0, tokenLine.find_first_of(' '));
-            pos = loc.methods[0].length();
-           // for (int i = 1; i < 5; i++)
-           // {
-           //     if (i != 1)
-           //         pos += tokenLine
-           //     loc.methods[i] = tokenLine.substr(find)
-            break;
-        case HTTP_REDIRECTION:
-            break ;
-        case FILE_PATH:
-            break ;
-        case DIR_LISTING:
-            break ;
-        case UPLOAD_STORAGE:
-            break ;
-        case CGI_EXTENSION:
-            break ;
-        case CGI_PATH:
-            break ;
-        default:
-            break;
-    }
-}
-
-void    Config::parseLocation(t_ServerData &serv, std::string &content)
-{
-    t_Location  loc = default_location_values;
-    size_t      lpos = 0;
-    size_t      locRange[2] = {0, 0};
-    
-    return ;
-    reset(loc, content, lpos, locRange[BEGIN], locRange[END]);
-    if (locRange[BEGIN] == std::string::npos)
-    {
-        _dfile->append("RANGE FAILED");
-        return ;
-    }
-    for (int i = 0; i < LOCATION_TOKEN_COUNT; i++)
-    {
-        if (!(lpos = findToken(content, locRange, static_cast<e_LocationToken>(i))))
-            continue ;
-        assignToken(loc, content, lpos, static_cast<e_LocationToken>(i));
-    }
-    serv.locations.push_back(loc);
 }
 
 void    eraseLine(std::string &content, std::string line)
@@ -259,39 +200,106 @@ void    eraseLine(std::string &content, std::string line)
     return ;
 }
 
+//void    Config::assignToken(t_Location &loc, std::string content, size_t pos, int type)
+//{
+//    std::string tokenLine = "";
+//
+//    tokenLine = getTokenLine(content, _locTokenMap[type], pos);
+//    eraseLine(content, tokenLine);
+//    sanitizeLine(tokenLine);
+//    switch (type)
+//    {
+//        case METHODS:
+//            loc.methods[0] = tokenLine.substr(0, tokenLine.find_first_of(' '));
+//            pos = loc.methods[0].length();
+//           // for (int i = 1; i < 5; i++)
+//           // {
+//           //     if (i != 1)
+//           //         pos += tokenLine
+//           //     loc.methods[i] = tokenLine.substr(find)
+//            break;
+//        case HTTP_REDIRECTION:
+//            break ;
+//        case FILE_PATH:
+//            break ;
+//        case DIR_LISTING:
+//            break ;
+//        case UPLOAD_STORAGE:
+//            break ;
+//        case CGI_EXTENSION:
+//            break ;
+//        case CGI_PATH:
+//            break ;
+//        default:
+//            break;
+//    }
+//}
+
+//void    Config::parseLocation(t_ServerData &serv, std::string &content)
+//{
+//    t_Location  loc = default_location_values;
+//    size_t      lpos = 0;
+//    size_t      locRange[2] = {0, 0};
+//    
+//    return ;
+//    reset(loc, content, lpos, locRange[BEGIN], locRange[END]);
+//    if (locRange[BEGIN] == std::string::npos)
+//    {
+//        _dfile->append("RANGE FAILED");
+//        return ;
+//    }
+//    for (int i = 0; i < LOCATION_TOKEN_COUNT; i++)
+//    {
+//        if (!(lpos = findToken(content, locRange, static_cast<e_LocationToken>(i))))
+//            continue ;
+//        assignToken(loc, content, lpos, static_cast<e_LocationToken>(i));
+//    }
+//    serv.locations.push_back(loc);
+//}
+
 void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
 {
     std::string tokenLine = "default token line";
     std::string path;
     int         nb;
 
-    tokenLine = getTokenLine(_mainTokenMap[type], pos);
+    tokenLine = getTokenLine(content, _Tokens[type], pos);
     eraseLine(content, tokenLine);
     sanitizeLine(tokenLine);
     switch (type)
     {
-        case LISTENER:
+        case LISTEN:
             serv.listeners.push_back(tokenLine);
             break ;
         case SERVER_NAME:
             serv.server_name = tokenLine;
+            break ;
+        case ROOT_PATH:
+            serv.root = tokenLine;
+            break ;
+        case HTLM_INDEX:
+            break ;
+        case AUTOINDEX:
             break ;
         case ERROR_PAGE:
             //nb = extractFirstNumber(tokenLine);
             //path = extractPath(tokenLine);
             //serv.error_pages.insert(std::make_pair(nb, path));
             break ;
+        case UPLOAD_STORAGE:
+            break ;
+        case CGI_EXTENTION:
+            break ;
+        case CGI_PATH:
+            break ;
         case CLIENT_MAX_BODY_SIZE:
             serv.client_max_body_size = atoi(tokenLine.c_str());
-            break ;
-        case ROOT_PATH:
-            serv.root = tokenLine;
             break ;
         case LOCATION:
             serv.locations.push_back(default_location_values);
             break ;
-            parseLocation(serv, content);
-            break ;
+        //    parseLocation(serv, content);
+          //  break ;
         default:
             break ;
     }
@@ -306,6 +314,8 @@ void    Config::parseContent()
 
     std::stringstream   dbug;
 
+    if (trim.empty())
+        return _servers.push_back(default_server_values);
     int a = 0;
     while (!trim.empty())
     {
@@ -360,29 +370,29 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
 {
     t_ServerData    print;
 
+    std::cout << ROSE << "PRINTING OPERATOR\n";
     for (int i = 0; i < conf.getNbServers(); i++)
     {
         print = conf.getServerData(0);
         stream << "\tServer name : " << print.server_name << '\n'
                 << "\tRoot path   : " << print.root << '\n'
-                << "\tMax client buf Size : " << print.client_max_body_size << std::endl;
+                << "\tMax client buffer size : " << print.client_max_body_size << std::endl;
         for (std::vector<std::string>::iterator i = print.listeners.begin(); i != print.listeners.end(); ++i)
             stream << "\tListener : " << *i << '\n';
         for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); ++i)
         {
             static int iteration = 0;
             stream << "\tLocations :" << iteration++  << '\n'
-                << "\t\tLocation ID     :" << i->loc << '\n'
-                << "\t\tRedirection     : " << i->redirection << '\n'
-                << "\t\tRoot path       : " << i->root << '\n'
-                << "\t\tAuto index status : " << (i->autoIndex ? "On" : "OFF") << '\n'
-                << "\t\tDefault file    : " << i->defaultFile << '\n'
-                << "\t\tUpload storage : " << i->uploadDir << '\n'
-                << "\t\tCgi external entity : " << i->cgi_ext << '\n'
-                << "\t\tCgi path to interpreter : " << i->cgi_path << '\n'
+                << "\t\tLocation ID             :" << std::to_string(i->data.locations.size()) << '\n'
+                << "\t\tRoot path               : " << i->data.root << '\n'
+                << "\t\tAuto index status       : " << (i->data.autoindex ? "On" : "OFF") << '\n'
+                << "\t\tHTLM index file         : " << i->data.index << '\n'
+                << "\t\tUpload storage          : " << i->data.upload_storage << '\n'
+                << "\t\tCgi external entity     : " << i->data.cgi_ext << '\n'
+                << "\t\tCgi path to interpreter : " << i->data.cgi_path << '\n'
                 << "\t\tMethods allowed : ";
             for (int j = 0; j < 5; j++)
-                stream << i->methods[j];
+                stream << i->data.methods.at(j);
             stream << '\n';
         }
     }

@@ -25,6 +25,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	}
 	catch(const std::exception& e)
 	{
+		Error("here at : ", __func__, __FILE__, __LINE__);
 		throw Config::BadFileException();
 	}
 	config->parseContent();
@@ -37,7 +38,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	}
 	catch(const std::exception& e)
 	{
-		Error("Config failed");
+		Error("Config", __func__, __FILE__, __LINE__);
 		throw Config::MissingParamException();
 	}
 	return config;
@@ -85,7 +86,7 @@ int main(int ac, char** av)
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
 	else
-		config = parseConfigFile("default.config", dfile);
+		config = parseConfigFile("configFiles/default.config", dfile);
 
 	ErrorDebug(dfile, "Config file parsing uncomplete");
 
