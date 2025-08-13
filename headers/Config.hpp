@@ -115,6 +115,7 @@ class Config
 //        void            *getServerParam(int serverID, std::string param) const;
         t_ServerData    getServerData(int serverID) const;
         int             getNbServers() const;
+        void            printServers() const;
     
         //  active parsing
         bool            checkServerData(int index) const;

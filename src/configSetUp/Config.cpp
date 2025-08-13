@@ -16,16 +16,10 @@ const t_Location    default_location_values = {
     .data = default_server_values
 };
 
-//	server_name 127.0.0.1
-//	listen 5050
-//	root ./public/website1
-//	index index.html
-//	max_client_body_size 2
-//    allow  GET DELETE
-//    autoindex on
-//	error_page 404 ./public/error_pages/404.html
-//    upload ./public/website2/
-//	location /home {
+void    Config::printServers() const
+{
+    return ;
+}
 
 void    Config::initTokenMaps()
 {
@@ -50,9 +44,10 @@ void    Config::initTokenMaps()
 }
 
 Config::Config(std::string fileName, Debug &dfile) :
-    _dfile(&dfile), _nbServers(1)
+    _dfile(&dfile), _nbServers(0)
 {
     std::ifstream   readFile(fileName.c_str());
+    t_ServerData    defaultServ = default_server_values;
     char            buf[10000];
 
     //  read config file
@@ -67,11 +62,11 @@ Config::Config(std::string fileName, Debug &dfile) :
     _dfile->append("\nServers initialise at 0");
     initTokenMaps();
     _dfile->append("\nToken Maps content initialise\n");
-    _servers.push_back(default_server_values);
-    _servers.at(0).hosts.push_back("Undefined Host");
-    _servers.at(0).listeners.push_back("Undefinded listeners");
-    _servers.at(0).methods.push_back("GET");
-    _servers.at(0).locations.push_back(default_location_values);
+    defaultServ.hosts.push_back("Undefined Host");
+    defaultServ.listeners.push_back("Undefinded listeners");
+    defaultServ.methods.push_back("GET");
+    defaultServ.locations.push_back(default_location_values);
+    _servers.push_back(defaultServ);
 }
 
 Config::Config(const Config &conf)
@@ -106,7 +101,7 @@ t_ServerData    Config::getServerData(int serverID) const
 
         msg << "Server N* " << serverID << " not empty\nData : \n";
         _dfile->append(msg.str().c_str());
-        return (_servers.back());
+        return (_servers.at(serverID));
     }
     try
     {
@@ -246,8 +241,8 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content)
 void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
 {
     std::string tokenLine = "default token line";
-    std::string path;
-    int         nb;
+    std::string path = "no path";
+    int         nb = 404;
 
     tokenLine = getTokenLine(content, _Tokens[type], pos);
     eraseLine(content, tokenLine);
@@ -264,16 +259,22 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             serv.root = tokenLine;
             break ;
         case HTLM_INDEX:
+            serv.index = tokenLine;
             break ;
         case AUTOINDEX:
+            (tokenLine == "ON" ? serv.autoindex = true : serv.autoindex = false);
             break ;
         case ERROR_PAGE:
+            serv.error_pages.insert(std::make_pair(nb, path));
             break ;
         case UPLOAD_STORAGE:
+            serv.upload_storage = tokenLine;
             break ;
         case CGI_EXTENTION:
+            serv.cgi_ext = tokenLine;
             break ;
         case CGI_PATH:
+            serv.cgi_path = tokenLine;
             break ;
         case CLIENT_MAX_BODY_SIZE:
             serv.client_max_body_size = atoi(tokenLine.c_str());
@@ -287,6 +288,53 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             break ;
     }
 }
+
+void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type)
+{
+    (void)content;
+    (void)pos;
+     switch (type)
+    {
+        case LISTEN:
+            serv.listeners.push_back("UNDEFINED");
+            break ;
+        case SERVER_NAME:
+            serv.server_name = "UNDEFINED";
+            break ;
+        case ROOT_PATH:
+            serv.root = "UNDEFINED";
+            break ;
+        case HTLM_INDEX:
+            serv.index = "UNDEFINED";
+            break ;
+        case AUTOINDEX:
+            serv.autoindex = false;
+            break ;
+        case ERROR_PAGE:
+            serv.error_pages.insert(std::make_pair(404, "UNDEFINED"));
+            break ;
+        case UPLOAD_STORAGE:
+            serv.upload_storage = "UNDEFINED";
+            break ;
+        case CGI_EXTENTION:
+            serv.cgi_ext = "UNDEFINED";
+            break ;
+        case CGI_PATH:
+            serv.cgi_path = "UNDEFINED";
+            break ;
+        case CLIENT_MAX_BODY_SIZE:
+            serv.client_max_body_size = 0;
+            break ;
+        case LOCATION:
+            serv.locations.push_back(default_location_values);
+            break ;
+        //    parseLocation(serv, content);
+          //  break ;
+        default:
+            break ;
+    }
+}
+
 
 void    Config::parseContent()
 {
@@ -311,16 +359,17 @@ void    Config::parseContent()
                 << " and ends at " << servRange[END] << '\n';
             _dfile->append(dbug.str().c_str());
             if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
-                continue ;
-            _dfile->append("TOKEN FOUND");
-            assignToken(serv, trim, servPos, i);
+                assignDefaultToken(serv, trim, servPos, i);
+            else
+                assignToken(serv, trim, servPos, i);
         }
         _dfile->append("Pushing data to server's config member");
         _servers.push_back(serv);
         _dfile->append("Push success");
         trim.erase(trim.find("server"), 0);
         _nbServers++;
-        break ;
+        if (_nbServers > 3)
+            break ;
     }
     std::cout << "NB of servers = " << _nbServers << std::endl;
     std::cout << "//////////////////////\n" << _content << std::endl;
@@ -358,7 +407,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
     std::cout << ROSE << "PRINTING OPERATOR\n";
     for (int i = 0; i < conf.getNbServers(); i++)
     {
-        print = conf.getServerData(1);
+        print = conf.getServerData(i);
         stream  << "\tServer name    : " << print.server_name << '\n'
                 << "\tRoot path      : " << print.root << '\n'
                 << "\tIndex file     : " << print.index << '\n'
@@ -369,17 +418,17 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\tMax client siz : " << print.client_max_body_size << std::endl;
         std::cout << "OK\n";
         stream << "\tMethods : ";
-        for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); ++i)
+        for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); i++)
             stream << " " << *i;
         stream << '\n';
         stream << "\tHosts : ";
-        for (std::vector<std::string>::iterator i = print.hosts.begin(); i != print.hosts.end(); ++i)
+        for (std::vector<std::string>::iterator i = print.hosts.begin(); i != print.hosts.end(); i++)
             stream << " " << *i;
         stream << '\n' << "\tListeners : ";
-        for (std::vector<std::string>::iterator i = print.listeners.begin(); i != print.listeners.end(); ++i)
+        for (std::vector<std::string>::iterator i = print.listeners.begin(); i != print.listeners.end(); i++)
             stream << " " << *i;
-        stream << '\n';
-        for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); ++i)
+        stream << "\n";
+        for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); i++)
         {
             static int iteration = 0;
             stream << "\tLocations :" << iteration++  << '\n'
@@ -393,8 +442,9 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\t\tMethods allowed : ";
             for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); ++i)
                 stream << *i << '\n';
-            stream << '\n';
+            stream << "\n\n";
         }
+        stream << "\n\n";
     }
     return (stream);
 }
