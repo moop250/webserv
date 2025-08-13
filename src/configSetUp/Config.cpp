@@ -123,6 +123,29 @@ void    Config::setServerData(t_ServerData data)
     (void)data;
 }
 
+size_t  findCorrCloseBracket(std::string content, size_t start)
+{
+    int  total = 0;
+    int  befor = 0;
+    size_t  next = start;
+
+    return (/*fuck*/ 0);
+    if (start > content.length())
+        return (0);
+    while (content[start])
+        if (content[start++] == '{')
+            total++;
+    for (size_t i = 0; content[i] && befor < start; i++)
+        if (content[i] == '{')
+            befor++;
+    for (; content[next] && befor > 0; next++)
+    {
+        if (content[next] == '}')
+            befor--;
+    }
+    return (next);
+}
+
 void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
 {
     //  revoir logique
@@ -136,7 +159,9 @@ void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBe
     }
     while (rBegin != content.length() && content[rBegin] != '{')
         rBegin++;
-    rEnd = content.find_last_of('}');
+    rEnd = content.find_first_of('}', rBegin - 1);
+    return ;
+    rEnd = findCorrCloseBracket(content, rBegin);
 }
 
 void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
@@ -152,7 +177,9 @@ void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin
     }
     while (rBegin != content.length() && content[rBegin] != '{')
         rBegin++;
-    rEnd = content.find_last_of('}');
+    rEnd = content.find_first_of('}', rBegin);
+    return ;
+    rEnd = findCorrCloseBracket(content, rBegin);
 }
 
 size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
@@ -357,7 +384,10 @@ void    Config::parseContent()
                 break ;
             dbug << "Server range begin at " << servRange[BEGIN]
                 << " and ends at " << servRange[END] << '\n';
+            dbug << "Token treated is " << _Tokens[i] << '\n';
             _dfile->append(dbug.str().c_str());
+            dbug.str("");
+            dbug.clear();
             if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
                 assignDefaultToken(serv, trim, servPos, i);
             else
@@ -368,8 +398,7 @@ void    Config::parseContent()
         _dfile->append("Push success");
         trim.erase(trim.find("server"), 0);
         _nbServers++;
-        if (_nbServers > 3)
-            break ;
+        break ;
     }
     std::cout << "NB of servers = " << _nbServers << std::endl;
     std::cout << "//////////////////////\n" << _content << std::endl;
