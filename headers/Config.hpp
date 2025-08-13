@@ -7,6 +7,9 @@
 # include <vector>
 # include <map>
 
+# define BEGIN 0
+# define END 1
+
 typedef enum TokenTypes
 {
     LISTENER,              // interface:port        0
@@ -67,8 +70,6 @@ class Config
     int                                     _nbServers;
     std::vector<t_ServerData>               _servers;
     std::string                             _content;
-    //std::map<std::string, e_LocationToken>  _locTokenMap;
-    //std::map<std::string, e_TokenType>      _mainTokenMap;
     std::string                             _locTokenMap[NUM_LOC_TOKENS + 1];   
     std::string                             _mainTokenMap[NUM_MAIN_TOKENS + 1];
     void                                    initTokenMaps();
@@ -90,12 +91,14 @@ class Config
     
         //  active parsing
         bool            checkServerData(int index) const;
+        void            parseLocation(t_ServerData &serv, std::string &content);
         void            parseContent();
 
         //  UTILS
+        void    assignToken(t_Location &loc, std::string content, size_t pos, int type);
+        void    assignToken(t_ServerData &serv, std::string &content, size_t pos, int type);
         size_t  findToken(std::string content, size_t range[2], e_TokenType i);
         size_t  findToken(std::string content, size_t range[2], e_LocationToken i);
-        std::string is(int token);
 
         //  generic errors
         class BadFileException : public std::exception

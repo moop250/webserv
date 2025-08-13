@@ -123,11 +123,86 @@ void    Config::setServerData(t_ServerData data)
     (void)data;
 }
 
-void    assignToken(t_Location &loc, size_t pos, int token)
+void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
 {
-    switch (token)
+    //  revoir logique
+    serv = default_server_values;
+    pos = 0;
+    rBegin = content.find_first_of("server");
+    if (rBegin == -1)
+    {
+        rEnd = rBegin;
+        return ;
+    }
+    while (rBegin != content.length() && content[rBegin] != '{')
+        rBegin++;
+    rEnd = content.find_last_of('}');
+}
+
+void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
+{
+    //  revoir logique
+    loc = default_location_values;
+    pos = 0;
+    rBegin = content.find_first_of("location");
+    if (rBegin == -1)
+    {
+        rEnd = rBegin;
+        return ;
+    }
+    while (rBegin != content.length() && content[rBegin] != '{')
+        rBegin++;
+    rEnd = content.find_last_of('}');
+}
+
+size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
+{
+    size_t  pos = content.find_first_of(_mainTokenMap[i]);
+
+    if (pos == -1 || pos <= range[BEGIN] || pos >= range[END])
+        return (0);
+    return (pos);
+}
+
+size_t  Config::findToken(std::string content, size_t range[2], e_LocationToken i)
+{
+    size_t  pos = content.find_first_of(_locTokenMap[i]);
+
+    if (pos == -1 || pos <= range[BEGIN] || pos >= range[END])
+        return (0);
+    return (pos);
+}
+
+void    sanitizeLine(std::string &line)
+{
+    (void)line;
+    return ;
+}
+
+std::string getTokenLine(std::string token, size_t pos)
+{
+    std::string line = "default line";
+    (void)token;
+    (void)pos;
+    return (line);
+}
+
+void    Config::assignToken(t_Location &loc, std::string content, size_t pos, int type)
+{
+    std::string tokenLine = NULL;
+
+    tokenLine = getTokenLine(_locTokenMap[type], pos);
+    sanitizeLine(tokenLine);
+    switch (type)
     {
         case METHODS:
+            loc.methods[0] = tokenLine.substr(0, tokenLine.find_first_of(' '));
+            pos = loc.methods[0].length();
+           // for (int i = 1; i < 5; i++)
+           // {
+           //     if (i != 1)
+           //         pos += tokenLine
+           //     loc.methods[i] = tokenLine.substr(find)
             break;
         case HTTP_REDIRECTION:
             break ;
@@ -146,80 +221,86 @@ void    assignToken(t_Location &loc, size_t pos, int token)
     }
 }
 
-void    assignToken(t_ServerData &serv, size_t pos, int token)
+void    Config::parseLocation(t_ServerData &serv, std::string &content)
 {
-    switch (token)
+    t_Location  loc = default_location_values;
+    size_t      lpos = 0;
+    size_t      locRange[2] = {0, 0};
+    
+    reset(loc, content, lpos, locRange[BEGIN], locRange[END]);
+    if (locRange[BEGIN] == -1)
+        return ;
+    for (int i = 0; i < LOCATION_TOKEN_COUNT; i++)
+    {
+        if ((lpos = findToken(content, locRange, static_cast<e_LocationToken>(i))) == 01)
+            continue ;
+        assignToken(loc, content, lpos, static_cast<e_LocationToken>(i));
+    }
+    serv.locations.push_back(loc);
+}
+
+void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
+{
+    std::string tokenLine = NULL;
+    std::string path;
+    int         nb;
+
+    tokenLine = getTokenLine(_mainTokenMap[type], pos);
+    sanitizeLine(tokenLine);
+    switch (type)
     {
         case LISTENER:
+            serv.listeners.push_back(tokenLine);
             break ;
         case SERVER_NAME:
+            serv.server_name = tokenLine;
             break ;
         case ERROR_PAGE:
+            //nb = extractFirstNumber(tokenLine);
+            //path = extractPath(tokenLine);
+            //serv.error_pages.insert(std::make_pair(nb, path));
             break ;
         case CLIENT_MAX_BODY_SIZE:
+            serv.client_max_body_size = atoi(tokenLine.c_str());
             break ;
         case ROOT_PATH:
+            serv.root = tokenLine;
             break ;
         case LOCATION:
+            parseLocation(serv, content);
             break ;
         default:
             break ;
     }
+    
 }
-
-void    reset(t_ServerData &serv, std::string content, size_t &pos, size_t &rBegin, size_t &rEnd)
-{
-    serv = default_server_values;
-    pos = 0;
-    rBegin = content.find_first_of("server");
-    if (rBegin == -1)
-    {
-        rEnd = rBegin;
-        return ;
-    }
-    while (rBegin != content.length() && content[rBegin] != '{')
-        rBegin++;
-    rEnd = content.find_first_of('}');
-}
-
-size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
-{
-    size_t  pos = content.find_first_of(_mainTokenMap[i]);
-
-    if (pos == -1 || pos <= range[0] || pos >= range[1])
-        return (0);
-    return (pos);
-}
-
-size_t  Config::findToken(std::string content, size_t range[2], e_LocationToken i)
-{
-    size_t  pos = content.find_first_of(_locTokenMap[i]);
-
-    if (pos == -1 || pos <= range[0] || pos >= range[1])
-        return (0);
-    return (pos);
-}
-
 
 void    Config::parseContent()
 {
     std::string     trim = _content;
     t_ServerData    serv;
     size_t          servPos;
-    size_t          servRange[2];
+    size_t          servRange[2] = {0, 0};
 
+    return ;
+    int a = 0;
     while (!trim.empty())
     {
         reset(serv, trim, servPos, servRange[0], servRange[1]);
+        if (servRange[0] == -1)
+            break ;
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         {
             if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
                 continue ;
-            assignToken(serv,servPos, i);
-            trim.erase(servPos, _mainTokenMap[i].length());
+            assignToken(serv, trim, servPos, i);
+            std::cout << trim << std::endl;;
         }
-        _servers.push_back(serv);
+        if (sizeof(serv) != sizeof(default_server_values))
+            _servers.push_back(serv);
+        trim.erase(trim.find_first_of("server"), 6);
     }
+    std::cout << "//////////////////////\n" << _content << std::endl;
 }
 
 const char  *Config::BadFileException::what() const throw()
