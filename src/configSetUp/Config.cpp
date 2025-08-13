@@ -154,8 +154,6 @@ size_t  findCorrCloseBracket(std::string content, size_t start)
 
 void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
 {
-    //  revoir logique
-    serv = default_server_values;
     pos = 0;
     rBegin = content.find("server");
     if (rBegin == std::string::npos)
@@ -279,6 +277,8 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
     tokenLine = getTokenLine(content, _Tokens[type], pos);
     eraseLine(content, tokenLine);
     sanitizeLine(tokenLine);
+    std::cout << ROSE << "line : " << tokenLine << std::endl << RESET;
+    std::cout << "type : " << type << std::endl;
     switch (type)
     {
         case LISTEN:
@@ -379,9 +379,10 @@ void    Config::parseContent()
 
     if (trim.empty())
         return _servers.push_back(default_server_values);
-    int a = 0;
+    _servers.pop_back();    // rm default
     while (!trim.empty())
     {
+        serv = getDefaultServ();
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         {
             reset(serv, trim, servPos, servRange[0], servRange[1]);
