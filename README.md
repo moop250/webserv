@@ -4,7 +4,7 @@
 ## Request class methods:
 Getter:
 - `getMethod()` -> Return the resquest method in std::string.
-- `getURL()` -> Return the request path in std::string.
+- `getPath()` -> Return the request path in std::string.
 - `getQuery()` -> Return the query in std::string.
 - `getHttpVersion()` -> Return the request HTTP version in std::string.
 - `getHeader()` -> Accept a key in std::string, return the value in std::string. If key doesn't exist, return an empty std::string istead.

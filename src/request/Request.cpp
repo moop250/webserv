@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/13 22:45:56 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/13 23:26:52 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ std::string Request::getBody() const {
 		return this->body;
 	return "";
 }
-unsigned long long Request::getContentLength() const{
+size_t Request::getContentLength() const{
 	if (this->method == "POST")
 		return this->contentLength;
 	return 0;
@@ -103,7 +103,7 @@ Request& Request::setBody(const std::string& body) {
 	this->body = body;
 	return *this;
 }
-Request& Request::setContentLength(const unsigned long long len) {
+Request& Request::setContentLength(const size_t len) {
 	this->contentLength = len;
 	return *this;
 }
