@@ -1,4 +1,4 @@
-Creation time : 2025-08-12 03:42:33
+Creation time : 2025-08-13 08:12:24
 //////////////////////////
 //  WEBSERV DEBUG LOG   //
 //////////////////////////
@@ -12,10 +12,56 @@ Creation time : 2025-08-12 03:42:33
 content of config file read
 Content :
 
+server {
+    listen 8002;
+	server_name localhost;
+    host 127.0.0.1;
+    root docs/fusion_web/;
+    # client_max_body_size 3000000;
+	index index.html;
+    error_page 404 error_pages/404.html;
 
+    location / {
+        allow_methods  DELETE POST GET;
+        autoindex off;
+    }
+    
+    location /tours {
+        autoindex on;
+        index tours1.html;
+        allow_methods GET POST PUT HEAD;
+    }
+
+	location /red {
+		return /tours;
+	}
+
+    location /cgi-bin {
+        root ./;
+        allow_methods GET POST DELETE
+
+Servers initialise at 0
 
 Token Maps content initialise
 
+Server N* 0 not empty
+Data : 
+
+	Server name : No server name
+	Root path   : /
+	Max client buf Size : 1
+	Locations :0
+		Location ID     :Undefine loc
+		Redirection     : Undefined redirection
+		Root path       : /
+		Auto index status : OFF
+		Default file    : Undefined default file
+		Upload storage : Undefined upload directory
+		Cgi external entity : No external CGI
+		Cgi path to interpreter : Undefined CGI path
+		Methods allowed : NONENONENONENONENONE
+
+Config printed
 Error :	[Config file parsing uncomplete]
 
 

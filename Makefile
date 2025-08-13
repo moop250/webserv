@@ -14,7 +14,8 @@
 NAME        = webserv
 
 CC          = c++
-FLAGS       = -Wall -Wextra -Werror -std=c++98
+DBUG	     = -fsanitize=address
+BFLAGS       = -Wall -Wextra -Werror -std=c++98
 
 OBJDIR      = .obj
 INCLDIR     = headers
@@ -39,7 +40,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@printf "$(ORANGE)Compiling $(NAME)$(RESET)"
-	@$(CC) $(OBJS) -o $(NAME)
+	@$(CC) $(OBJS) $(DBUG) -o $(NAME)
 	@printf "\r\033[K"
 	@printf "$(GREEN)$(NAME) compiled$(RESETNL)"
 

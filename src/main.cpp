@@ -12,23 +12,34 @@
 
 #include "Config.hpp"
 #include "Error.hpp"
-#include "Debug.hpp"
 
-static void	init()
-{
-	//	memset 0
-	//	check config file if errors
-	return ;
-}
+#include "Debug.hpp"
 
 Config	*parseConfigFile(std::string file, Debug &dfile)
 {
-	Config	*config = new Config(file, dfile);
+	Config	*config;
 	
-	//	call init
-	//	get info from config file
-	//	define outputs before launch
-	init();
+	try
+	{
+		config = new Config(file, dfile);
+	}
+	catch(const std::exception& e)
+	{
+		throw Config::BadFileException();
+	}
+	config->parseContent();
+	try
+	{
+		std::stringstream	strparam;
+		strparam << *config;
+		dfile.append(strparam.str().c_str());
+		dfile.append("Config printed");
+	}
+	catch(const std::exception& e)
+	{
+		Error("Config failed");
+		throw Config::MissingParamException();
+	}
 	return config;
 }
 

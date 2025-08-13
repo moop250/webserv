@@ -2,9 +2,13 @@
 # define CONFIG_HPP
 
 # include "StdLibs.hpp"
+# include "Error.hpp"
 # include "Debug.hpp"
 # include <vector>
 # include <map>
+
+# define BEGIN 0
+# define END 1
 
 typedef enum TokenTypes
 {
@@ -14,9 +18,8 @@ typedef enum TokenTypes
     CLIENT_MAX_BODY_SIZE,  // max request body
     ROOT_PATH,             // root directory for server
     LOCATION,              // start of a location block
-    OTHER_TOKEN,
     TOKEN_TYPE_COUNT       //                       7
-} e_TokenType;
+}   e_TokenType;
 
 typedef enum LocationTokens
 {
@@ -28,9 +31,8 @@ typedef enum LocationTokens
     UPLOAD_STORAGE,         // where uploads are saved
     CGI_EXTENSION,          // CGI extensio
     CGI_PATH,               // path to CGI executable
-    OTHER_LOCATION_TOKEN,
     LOCATION_TOKEN_COUNT    //                          9
-} e_LocationToken;
+}   e_LocationToken;
 
 # define NUM_MAIN_TOKENS TOKEN_TYPE_COUNT
 # define NUM_LOC_TOKENS LOCATION_TOKEN_COUNT
@@ -39,7 +41,7 @@ typedef enum LocationTokens
 typedef struct Location
 {
     std::string                 loc;            // path of location
-    std::vector<std::string>    methods;        // GET, POST, etc.
+    std::string                 methods[5];        // GET, POST, etc.
     std::string                 redirection;    // could be "301 /newpath"
     std::string                 root;           // path mapping for this location
     bool                        autoIndex;      // true/false
@@ -47,7 +49,7 @@ typedef struct Location
     std::string                 uploadDir;      // upload storage
     std::string                 cgi_ext;        // .php, .py
     std::string                 cgi_path;       // path to interpreter
-} t_Location;
+}   t_Location;
 
 typedef struct ServerData
 {
@@ -57,15 +59,19 @@ typedef struct ServerData
     size_t                      client_max_body_size;
     std::string                 root;
     std::vector<t_Location>     locations;
-} t_ServerData;
+}   t_ServerData;
+
+extern const t_Location    default_location_values;
+extern const t_ServerData  default_server_values;
 
 class Config
 {
     Debug                                   *_dfile;
-    t_ServerData                            *_servers;
+    int                                     _nbServers;
+    std::vector<t_ServerData>               _servers;
     std::string                             _content;
-    std::map<std::string, e_LocationToken>  _locTokenMap;
-    std::map<std::string, e_TokenType>      _mainTokenMap;
+    std::string                             _locTokenMap[NUM_LOC_TOKENS + 1];   
+    std::string                             _mainTokenMap[NUM_MAIN_TOKENS + 1];
     void                                    initTokenMaps();
     public:
         Config(std::string fileName, Debug &dfile);
@@ -75,10 +81,24 @@ class Config
 
         Config  &operator=(const Config &);
 
-        bool            checkServerData(int index) const;
-        t_ServerData    getServerData(int index) const;
+        //  setters
         void            setServerData(t_ServerData data);
+
+        //  getters
+//        void            *getServerParam(int serverID, std::string param) const;
+        t_ServerData    getServerData(int serverID) const;
+        int             getNbServers() const;
+    
+        //  active parsing
+        bool            checkServerData(int index) const;
+        void            parseLocation(t_ServerData &serv, std::string &content);
         void            parseContent();
+
+        //  UTILS
+        void    assignToken(t_Location &loc, std::string content, size_t pos, int type);
+        void    assignToken(t_ServerData &serv, std::string &content, size_t pos, int type);
+        size_t  findToken(std::string content, size_t range[2], e_TokenType i);
+        size_t  findToken(std::string content, size_t range[2], e_LocationToken i);
 
         //  generic errors
         class BadFileException : public std::exception
