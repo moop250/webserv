@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/12 23:42:32 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/13 16:23:30 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ RESETNL     = \033[0m\n
 
 SRCS        = tdd.cpp catch_amalgamated.cpp\
 			Request.cpp\
-			parse_request.cpp
+			parse_request.cpp response.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
