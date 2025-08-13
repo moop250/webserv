@@ -1,0 +1,56 @@
+////////////////////////////////////////
+// CONFIGURATION LOGIC UNIT EXPLAINED //
+////////////////////////////////////////
+
+Starting with an example,
+	prototype a server as :
+
+"
+	server {
+		...
+		...
+		...
+	}
+"
+
+It works by the following rules :
+
+1) Define his range by '{}' as :
+	server { ... }
+
+2) Each attribute must be splitted by '\n' as :
+	server { ... '\n' ... }
+
+3) There can be multiple servers as :
+	server { ... }
+	server { ... }
+
+4) The server accepted attributes have to be formated as :
+	- listeners (mutilple host:port): <"listen" port>
+	- server name			: <"server_name" name>
+	- error pages			: <"error_page" nb path>
+	- client allowed size		: <"client_max_body" size>
+	- root path			: <"root" path>
+	
+	- location bloc			: <"location" path { ... }>
+	
+5) The location bloc has to respect the same format as a server
+
+6) There can be multiple location ports in a same server
+
+7) The location accepted attributes have to be formated as :
+	- methods allowed		: <"allow_methods" M1 M2 ... Mi>
+	- HTTP redirection		: <"return ">
+	- file path			: <>
+	- directory listing		: <>
+	- default file			: <>
+	- storage upload		: <>
+	- a CGI extention		: <>
+	- the CGI path			: <>
+
+...)
+	...
+
+N) If one of the precedent rules aren't respected, the programm won't launch
+
+
