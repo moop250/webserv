@@ -6,12 +6,11 @@ server {
 	client_max_body_size 3000000;
 	index index.html;
 	error_page 404 error_pages/404.html;
-	upload_storage /foo
+	upload_storadge /foo
 	cgi_ext foo.php
 	cgi_path /foo
-	allow_methods GET DELETE POST FOO
+	allowed_methods GET DELETE POST FOO
 	location / {
-		allow_methods  DELETE POST GET;
 		autoindex off;
 	}
 

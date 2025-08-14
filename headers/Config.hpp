@@ -20,6 +20,7 @@
         //"location",
 typedef enum TokenTypes
 {
+    HOST,
     LISTEN,              // interface:port        0
     SERVER_NAME,
     ROOT_PATH,           // virtual host name
@@ -53,18 +54,6 @@ typedef enum TokenTypes
 typedef struct s_ServerData t_ServerData;
 typedef struct s_Location   t_Location;
 
-// {
-    // std::string                 loc;            // path of location
-    // std::string                 methods[5];        // GET, POST, etc.
-    // std::string                 redirection;    // could be "301 /newpath"
-    // std::string                 root;           // path mapping for this location
-    // bool                        autoIndex;      // true/false
-    // std::string                 defaultFile;    // index.html
-    // std::string                 uploadDir;      // upload storage
-    // std::string                 cgi_ext;        // .php, .py
-    // std::string                 cgi_path;       // path to interpreter
-// }   t_Location;
-
 struct s_ServerData
 {
     std::map<int, std::string>  error_pages;        // code -> file path
@@ -95,10 +84,9 @@ class Config
 {
     Debug                                   *_dfile;
     int                                     _nbServers;
-    std::vector<t_ServerData>               _servers;
     std::string                             _content;
-//    std::string                             _locTokenMap[NUM_LOC_TOKENS + 1];   
     std::string                             _Tokens[NUM_MAIN_TOKENS + 1];
+    std::vector<t_ServerData>               _servers;
     void                                    initTokenMaps();
     public:
         Config(std::string fileName, Debug &dfile);
@@ -115,6 +103,7 @@ class Config
 //        void            *getServerParam(int serverID, std::string param) const;
         t_ServerData    getServerData(int serverID) const;
         int             getNbServers() const;
+        void            printServers() const;
     
         //  active parsing
         bool            checkServerData(int index) const;
