@@ -13,6 +13,8 @@
 ServerSocket::ServerSocket() {}
 
 ServerSocket::~ServerSocket() {
+	if (this->getSocketCount() <= 0)
+		return;
 	for (int i = this->getSocketCount(); i <= 0; --i) {
 		close(this->getSocketFd(i));
 	}

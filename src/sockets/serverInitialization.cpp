@@ -1,4 +1,5 @@
 #include "../../headers/Colors.hpp"
+#include "../../headers/serverInitialization.hpp"
 #include "../../headers/StdLibs.hpp"
 #include "../../headers/SocketClass.hpp"
 #include <cstddef>
@@ -34,7 +35,7 @@ ServerSocket initalizeServer(Config serverConfig) {
 
 	uniqueComboList = sanitizeConfig(serverConfig);
 
-	for (size_t i = uniqueComboList.size(); i >= 0; --i) {
+	for (int i = uniqueComboList.size(); i >= 0; --i) {
 		socket.initializeNewSocket_(uniqueComboList.at(i));
 	}
 	return socket;
