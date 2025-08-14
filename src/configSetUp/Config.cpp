@@ -44,14 +44,16 @@ void    Config::initTokenMaps()
         _Tokens[i] = mainTokenMap[i];
 }
 
-t_ServerData    getDefaultServ()
+t_ServerData    getDefaultServ(bool with_location)
 {
     t_ServerData    defaultServ = default_server_values;
 
+    defaultServ.locations.push_back(default_location_values);
+    if (!with_location)
+        return defaultServ;
     defaultServ.hosts.push_back("Undefined Host");
     defaultServ.listeners.push_back("Undefinded listeners");
     defaultServ.methods.push_back("GET");
-    defaultServ.locations.push_back(default_location_values);
     return (defaultServ);
 }
 
@@ -73,7 +75,7 @@ Config::Config(std::string fileName, Debug &dfile) :
     _dfile->append("\nServers initialise at 0");
     initTokenMaps();
     _dfile->append("\nToken Maps content initialise\n");
-    _servers.push_back(getDefaultServ());
+    _servers.push_back(getDefaultServ(0));
 }
 
 Config::Config(const Config &conf)
@@ -110,14 +112,6 @@ t_ServerData    Config::getServerData(int serverID) const
         _dfile->append(msg.str().c_str());
         return (_servers.at(serverID));
     }
-    try
-    {
-       return (_servers.at(serverID));
-    }
-    catch(...)
-    {
-        throw MissingParamException();
-    }
 }
 
 int Config::getNbServers() const
@@ -128,29 +122,6 @@ int Config::getNbServers() const
 void    Config::setServerData(t_ServerData data)
 {
     (void)data;
-}
-
-size_t  findCorrCloseBracket(std::string content, size_t start)
-{
-    int  total = 0;
-    int  befor = 0;
-    size_t  next = start;
-
-    return (/*fuck*/ 0);
-    if (start > content.length())
-        return (0);
-    while (content[start])
-        if (content[start++] == '{')
-            total++;
-    for (size_t i = 0; content[i] && befor < start; i++)
-        if (content[i] == '{')
-            befor++;
-    for (; content[next] && befor > 0; next++)
-    {
-        if (content[next] == '}')
-            befor--;
-    }
-    return (next);
 }
 
 void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
@@ -165,14 +136,11 @@ void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBe
     while (rBegin != content.length() && content[rBegin] != '{')
         rBegin++;
     rEnd = content.find('}', rBegin - 1);
-    return ;
-    rEnd = findCorrCloseBracket(content, rBegin);
 }
 
 void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
 {
     //  revoir logique
-    loc = default_location_values;
     pos = 0;
     rBegin = content.find("location", pos);
     if (rBegin == std::string::npos)
@@ -183,8 +151,6 @@ void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin
     while (rBegin != content.length() && content[rBegin] != '{')
         rBegin++;
     rEnd = content.find('}', rBegin);
-    return ;
-    rEnd = findCorrCloseBracket(content, rBegin);
 }
 
 size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
@@ -196,14 +162,14 @@ size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
 
     while (pos != content.length() - 5 && pos != std::string::npos && (!isspace(content[pos - 1]) || !isspace(content[pos + _Tokens[i].length()])))
     {
-        std::cout << "It was " << content[pos - 1] << " and " << content[pos + _Tokens[i].length()] << std::endl;
+//        std::cout << "It was " << content[pos - 1] << " and " << content[pos + _Tokens[i].length()] << std::endl;
         pos += 1;
         pos = content.find(_Tokens[i], pos);
     }
-    std::cout << "Token looking for : " << _Tokens[i]
-        << "\nposition : " << pos
-        << "\nrange begine at " << range[0]
-        << "\nrange ends at " << range[1] << std::endl;
+//    std::cout << "Token looking for : " << _Tokens[i]
+//        << "\nposition : " << pos
+//        << "\nrange begine at " << range[0]
+//        << "\nrange ends at " << range[1] << std::endl;
     if (pos == std::string::npos)
         return (0);
     return (pos);
@@ -211,9 +177,14 @@ size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
 
 void    sanitizeLine(std::string &line)
 {
-    (void)line;
+    int to_remove = 0;
+
+    while (!isspace(line[to_remove]))
+        to_remove++;
+    line.erase(0, to_remove + 1);
     return ;
 }
+
 std::string getTokenLine(const std::string &content, const std::string &token, size_t pos)
 {
     size_t end = content.find('\n', pos);
@@ -221,8 +192,8 @@ std::string getTokenLine(const std::string &content, const std::string &token, s
     if (end == std::string::npos)
         end = content.size();
     std::string line = content.substr(pos, end - pos);
-    std::cout << CYAN << "Line found : " << line << RESET << std::endl;
-    std::cout << "Line length : " << (end - pos) << std::endl;
+//    std::cout << CYAN << "Line found : " << line << RESET << std::endl;
+//    std::cout << "Line length : " << (end - pos) << std::endl;
     return line;
 }
 
@@ -235,42 +206,11 @@ void eraseLine(std::string &content, const std::string &line)
     content.erase(from, line.length());
     if (from < content.size() && content[from] == '\n')
         content.erase(from, 1);
-    std::cout << YELLOW << "line suppressed : " << line << RESET << std::endl;
+//    std::cout << YELLOW << "line suppressed : " << line << RESET << std::endl;
 }
 
 //void    Config::assignToken(t_Location &loc, std::string content, size_t pos, int type)
 //{
-//    std::string tokenLine = "";
-//
-//    tokenLine = getTokenLine(content, _locTokenMap[type], pos);
-//    eraseLine(content, tokenLine);
-//    sanitizeLine(tokenLine);
-//    switch (type)
-//    {
-//        case METHODS:
-//            loc.methods[0] = tokenLine.substr(0, tokenLine.find_first_of(' '));
-//            pos = loc.methods[0].length();
-//           // for (int i = 1; i < 5; i++)
-//           // {
-//           //     if (i != 1)
-//           //         pos += tokenLine
-//           //     loc.methods[i] = tokenLine.substr(find)
-//            break;
-//        case HTTP_REDIRECTION:
-//            break ;
-//        case FILE_PATH:
-//            break ;
-//        case DIR_LISTING:
-//            break ;
-//        case UPLOAD_STORAGE:
-//            break ;
-//        case CGI_EXTENSION:
-//            break ;
-//        case CGI_PATH:
-//            break ;
-//        default:
-//            break;
-//    }
 //}
 
 void    Config::parseLocation(t_ServerData &serv, std::string &content)
@@ -323,6 +263,8 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
         case CLIENT_MAX_BODY_SIZE:
             serv.client_max_body_size = atoi(tokenLine.c_str());
             break ;
+        case METHODS:
+            serv.methods.push_back(tokenLine);
         case LOCATION:
             serv.locations.push_back(default_location_values);
             break ;
@@ -369,6 +311,8 @@ void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos,
         case CLIENT_MAX_BODY_SIZE:
             serv.client_max_body_size = 0;
             break ;
+        case METHODS:
+            serv.methods.push_back("NO METHOD");
         case LOCATION:
             serv.locations.push_back(default_location_values);
             break ;
@@ -394,7 +338,7 @@ void    Config::parseContent()
     _servers.pop_back();    // rm default
     while (!trim.empty())
     {
-        serv = getDefaultServ();
+        serv = getDefaultServ(0);
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         {
             reset(serv, trim, servPos, servRange[0], servRange[1]);
@@ -419,8 +363,8 @@ void    Config::parseContent()
         break ;
     }
     std::cout << trim << std::endl;
-    std::cout << "NB of servers = " << _nbServers << std::endl;
-    std::cout << "//////////////////////\n" << _content << std::endl;
+    //std::cout << "NB of servers = " << _nbServers << std::endl;
+    //std::cout << "//////////////////////\n" << _content << std::endl;
 }
 
 const char  *Config::BadFileException::what() const throw()
