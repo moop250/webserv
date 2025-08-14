@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/13 23:26:52 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/14 17:47:05 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,7 @@ std::string Request::getBody() const {
 	return "";
 }
 size_t Request::getContentLength() const{
-	if (this->method == "POST")
-		return this->contentLength;
-	return 0;
+	return this->contentLength;
 }
 
 

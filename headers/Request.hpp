@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/13 23:27:21 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/14 15:59:17 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 #define REQUEST_HPP
 #include <string>
 #include <map>
-#include <stdexcept>
+#include <stdexcept> // std::out_of_range
+#include <stdlib.h> // strtol()
+#include <limits.h> // LONG_MAX
 
 enum requestType {
 	File,

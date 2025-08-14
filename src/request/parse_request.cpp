@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/13 23:20:23 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/14 17:59:23 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,64 @@ int parse_http_ver(Request& request, std::string& buffer) {
 	return 0;
 }
 
+int parse_headers(Request& request, std::string& buffer) {
+	std::string::size_type	end_pos;
+	std::string::size_type	colon_pos;
+	
+	while (true) {
+		end_pos = buffer.find("\r\n");
+		if (end_pos == std::string::npos || end_pos == 0)
+			break;
+		try {
+			std::string key_value = buffer.substr(0, end_pos);
+			colon_pos = key_value.find(":");
+			if (colon_pos == std::string::npos)
+				return 400;
+			std::string key = key_value.substr(0, colon_pos);
+			if (key_value[colon_pos + 1] == ' ')
+				colon_pos += 2;
+			std::string value = key_value.substr(colon_pos, key_value.size() - 1);
+			request.setHeader(key, value);
+			buffer.erase(0, end_pos + 2);
+		} catch (std::out_of_range& e) {
+			return 400;
+		}
+	}
+	if (request.getHeader("Content-length") != "") {
+		size_t len = static_cast<size_t>(strtol(request.getHeader("Content-length").c_str(), NULL, 10));
+		if (len < 0)
+			return 400;
+		if (len == LONG_MAX) // Compare with server limit !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			return 413;
+		request.setContentLength(len);
+	} else {
+		if (request.getMethod() == "POST")
+			return 411;
+	}
+	return 0;
+}
+
+int parse_body(Request& request, std::string& buffer) {
+	size_t	len;
+
+	len = request.getContentLength();
+	buffer.erase(0, 2);
+	if (static_cast<size_t>(buffer.size()) < len)
+		return 400;
+	try {
+		std::string body = buffer.substr(0, len);
+		request.setBody(body);
+		buffer.erase(0, len);
+	} catch (std::out_of_range& e) {
+			return 400;
+	}
+	return 0;
+}
+
+int parse_request_type(Request& request) {
+	return 0;
+}
+
 int parse_request(std::string& buffer) {
 	Request	request;
 	int		code = 0;
@@ -127,7 +185,19 @@ int parse_request(std::string& buffer) {
 	code = parse_http_ver(request, buffer);
 	if (code != 0)
 		return error_response(code);
+	code = parse_request_type(request);
+	if (code != 0)
+		return error_response(code);
 	if (buffer == "\r\n")
 		return handle_request(request);
-	return 0;
+	code = parse_headers(request, buffer);
+	if (code != 0)
+		return error_response(code);
+	// parse cookie here if do bonus
+	if (buffer == "\r\n")
+		return handle_request(request);
+	code = parse_body(request, buffer);
+	if (code != 0)
+		return error_response(code);
+	return handle_request(request);
 }

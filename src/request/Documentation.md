@@ -11,4 +11,4 @@
 - getFileType() -> Return the request file type in std::string. The file type example is py, html, css, etc.
 - getRequestType() -> Return the request type in int. The request types are 0 = FILE, 1 = CGI, 2 = DIRECTORY and 3 = NONE.
 - getBody() -> Return the request body in case of POST method in std::string. If the request is different than POST or the body is empty. Return an empty std::string instead.
-- getContentLength() -> Return the Content-Length of the request in unsigned long long in case of POST method. If the method is different than POST, return 0 instead.
+- getContentLength() -> Return the Content-Length of the request in size_t.
