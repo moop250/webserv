@@ -9,5 +9,8 @@
 #include <string>
 #include <vector>
 # include "Colors.hpp"
+# include <stdint.h>
+# include <vector>
+# include <map>
 
 #endif

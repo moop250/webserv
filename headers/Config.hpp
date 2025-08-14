@@ -4,62 +4,78 @@
 # include "StdLibs.hpp"
 # include "Error.hpp"
 # include "Debug.hpp"
-# include <vector>
-# include <map>
 
 # define BEGIN 0
 # define END 1
-
+//
+        //"server_name",
+        //"root",
+        //"index",
+        //"autoindex",
+        //"error_page",
+        //"upload_storage",
+        //"cgi_ext",
+        //"cgi_path",
+        //"client_max_body",
+        //"location",
 typedef enum TokenTypes
 {
-    LISTENER,              // interface:port        0
-    SERVER_NAME,           // virtual host name
+    HOST,
+    LISTEN,              // interface:port        0
+    SERVER_NAME,
+    ROOT_PATH,           // virtual host name
+    HTLM_INDEX,
+    AUTOINDEX,
     ERROR_PAGE,            // default error pages
+    UPLOAD_STORAGE,
+    CGI_EXTENTION,
+    CGI_PATH,
     CLIENT_MAX_BODY_SIZE,  // max request body
-    ROOT_PATH,             // root directory for server
+    METHODS,
     LOCATION,              // start of a location block
     TOKEN_TYPE_COUNT       //                       7
 }   e_TokenType;
 
-typedef enum LocationTokens
-{
-    METHODS,                // accepted HTTP methods    0
-    HTTP_REDIRECTION,       // redirection URL or code
-    FILE_PATH,              // local file path
-    DIR_LISTING,            // autoindex on/off
-    DEFAULT_FILE,           // default file for directories
-    UPLOAD_STORAGE,         // where uploads are saved
-    CGI_EXTENSION,          // CGI extensio
-    CGI_PATH,               // path to CGI executable
-    LOCATION_TOKEN_COUNT    //                          9
-}   e_LocationToken;
+//typedef enum LocationTokens
+//{
+//    METHODS,                // accepted HTTP methods    0
+//    HTTP_REDIRECTION,       // redirection URL or code
+//    FILE_PATH,              // local file path
+//    DIR_LISTING,            // autoindex on/off
+//    DEFAULT_FILE,           // default file for directories
+//    UPLOAD_STORAGE,         // where uploads are saved
+//    CGI_EXTENSION,          // CGI extensio
+//    CGI_PATH,               // path to CGI executable
+//    LOCATION_TOKEN_COUNT    //                          9
+//}   e_LocationToken;
 
 # define NUM_MAIN_TOKENS TOKEN_TYPE_COUNT
-# define NUM_LOC_TOKENS LOCATION_TOKEN_COUNT
+//# define NUM_LOC_TOKENS LOCATION_TOKEN_COUNT
+typedef struct s_ServerData t_ServerData;
+typedef struct s_Location   t_Location;
 
-
-typedef struct Location
+struct s_ServerData
 {
-    std::string                 loc;            // path of location
-    std::string                 methods[5];        // GET, POST, etc.
-    std::string                 redirection;    // could be "301 /newpath"
-    std::string                 root;           // path mapping for this location
-    bool                        autoIndex;      // true/false
-    std::string                 defaultFile;    // index.html
-    std::string                 uploadDir;      // upload storage
-    std::string                 cgi_ext;        // .php, .py
-    std::string                 cgi_path;       // path to interpreter
-}   t_Location;
-
-typedef struct ServerData
-{
-    std::vector<std::string>    listeners;          // multiple host:port
-    std::string                 server_name;
     std::map<int, std::string>  error_pages;        // code -> file path
-    size_t                      client_max_body_size;
-    std::string                 root;
     std::vector<t_Location>     locations;
-}   t_ServerData;
+    std::vector<std::string>    listeners;          // multiple host:port
+    std::vector<std::string>    methods;
+    std::vector<std::string>    hosts;
+    std::string                 server_name;
+    std::string                 root;
+    std::string                 index;
+    std::string                 upload_storage;
+    std::string                 cgi_ext;
+    std::string                 cgi_path;
+    size_t                      client_max_body_size;
+    bool                        autoindex;    
+};
+
+ struct s_Location
+ {
+    bool            active;
+    t_ServerData    data;
+ };
 
 extern const t_Location    default_location_values;
 extern const t_ServerData  default_server_values;
@@ -68,10 +84,9 @@ class Config
 {
     Debug                                   *_dfile;
     int                                     _nbServers;
-    std::vector<t_ServerData>               _servers;
     std::string                             _content;
-    std::string                             _locTokenMap[NUM_LOC_TOKENS + 1];   
-    std::string                             _mainTokenMap[NUM_MAIN_TOKENS + 1];
+    std::string                             _Tokens[NUM_MAIN_TOKENS + 1];
+    std::vector<t_ServerData>               _servers;
     void                                    initTokenMaps();
     public:
         Config(std::string fileName, Debug &dfile);
@@ -88,6 +103,7 @@ class Config
 //        void            *getServerParam(int serverID, std::string param) const;
         t_ServerData    getServerData(int serverID) const;
         int             getNbServers() const;
+        void            printServers() const;
     
         //  active parsing
         bool            checkServerData(int index) const;
@@ -95,10 +111,9 @@ class Config
         void            parseContent();
 
         //  UTILS
-        void    assignToken(t_Location &loc, std::string content, size_t pos, int type);
-        void    assignToken(t_ServerData &serv, std::string &content, size_t pos, int type);
-        size_t  findToken(std::string content, size_t range[2], e_TokenType i);
-        size_t  findToken(std::string content, size_t range[2], e_LocationToken i);
+        void            assignToken(t_Location &loc, std::string content, size_t pos, int type);
+        void            assignToken(t_ServerData &serv, std::string &content, size_t pos, int type);
+        size_t          findToken(std::string content, size_t range[2], e_TokenType i);
 
         //  generic errors
         class BadFileException : public std::exception

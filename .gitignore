@@ -32,3 +32,7 @@
 *.app
 
 webserv
+
+# Debugging files
+vgcore.*
+*.log
