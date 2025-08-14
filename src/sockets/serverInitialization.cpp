@@ -18,6 +18,8 @@ static bool compareConfigs(std::string currentPair, std::vector<std::string> all
 static std::vector<std::string> sanitizeConfig(Config serverConfig) {
 	std::vector<std::string> out;
 
+	if (serverConfig.getNbServers() <= 0)
+		throw std::runtime_error("sanitizeConfig error: No Servers in config file");
 	for (int i = serverConfig.getNbServers(); i > 0; --i) {
 		t_ServerData serv = serverConfig.getServerData(i);
 		std::string tmp;
