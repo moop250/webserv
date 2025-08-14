@@ -19,7 +19,7 @@ static std::vector<std::string> sanitizeConfig(Config serverConfig) {
 	std::vector<std::string> out;
 
 	for (int i = serverConfig.getNbServers(); i > 0; --i) {
-		ServerData serv = serverConfig.getServerData(i);
+		t_ServerData serv = serverConfig.getServerData(i);
 		std::string tmp;
 		// appends the string to be "host|port"
 		tmp = serv.listeners.at(0) + "|" + serv.listeners.at(1);
