@@ -1,0 +1,60 @@
+////////////////////////////////////////
+// CONFIGURATION LOGIC UNIT EXPLAINED //
+////////////////////////////////////////
+
+Starting with an example,
+	prototype a server as :
+
+"
+	server {
+		...
+		...
+		...
+	}
+"
+
+It works by the following rules :
+
+1) Define his range by '{}' as :
+	server { ... }
+
+2) Each attribute must be splitted by ';' as :
+	server { ... ; ... }
+
+3) There can be multiple servers as :
+	server { ... }
+	server { ... }
+
+4) The server accepted attributes have to be formated as :
+	- hosts				: <"host" host>
+	- listeners (mutilple host:port): <"listen" port>
+	- server name			: <"server_name" name>
+	- root path			: <"root" path>
+	- index				: <"index" file>
+	- autoindex			: <"autoindex" ON | OFF> 
+	- error pages			: <"error_page" nb path>
+	- upload storage		: <"upload_storage" path>
+	- CGI extention			: <"cgi_ext" file.py | file.php>
+	- CGI PATH			: <"cgi_path" path>
+	- client allowed size		: <"client_max_body" size>
+	- Methods allowed		: <"allow_methods" M1 M2 ... Mi>
+	- location bloc			: <"location" path { ... }>
+	
+5) The location bloc has to respect the same format as a server
+
+6) There can be multiple location ports in a same server
+
+7) The location accepted attributes are the same as server except :
+	- hosts
+	- listen
+	- location
+	- server name
+
+8) if no argument is given to webserv a default cinfiguration take place
+	
+...)
+	...
+
+N) If one of the precedent rules aren't respected, the programm won't launch
+
+
