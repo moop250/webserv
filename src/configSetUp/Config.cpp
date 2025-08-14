@@ -135,7 +135,7 @@ void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBe
     }
     while (rBegin != content.length() && content[rBegin] != '{')
         rBegin++;
-    rEnd = content.find('}', rBegin - 1);
+    rEnd = content.find('{', rBegin + 1);
 }
 
 void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
@@ -150,7 +150,7 @@ void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin
     }
     while (rBegin != content.length() && content[rBegin] != '{')
         rBegin++;
-    rEnd = content.find('}', rBegin);
+    rEnd = content.find('{', rBegin + 1);
 }
 
 size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
@@ -187,7 +187,7 @@ void    sanitizeLine(std::string &line)
 
 std::string getTokenLine(const std::string &content, const std::string &token, size_t pos)
 {
-    size_t end = content.find('\n', pos);
+    size_t end = content.find(';', pos);
 
     if (end == std::string::npos)
         end = content.size();
@@ -204,9 +204,8 @@ void eraseLine(std::string &content, const std::string &line)
     if (from == std::string::npos)
         return;    
     content.erase(from, line.length());
-    if (from < content.size() && content[from] == '\n')
+    if (from < content.size() && content[from] == ';')
         content.erase(from, 1);
-//    std::cout << YELLOW << "line suppressed : " << line << RESET << std::endl;
 }
 
 //void    Config::assignToken(t_Location &loc, std::string content, size_t pos, int type)
@@ -233,6 +232,7 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
     {
         case HOST:
             serv.hosts.push_back(tokenLine);
+            break ;
         case LISTEN:
             serv.listeners.push_back(tokenLine);
             break ;
@@ -265,6 +265,7 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             break ;
         case METHODS:
             serv.methods.push_back(tokenLine);
+            break ;
         case LOCATION:
             serv.locations.push_back(default_location_values);
             break ;
@@ -281,6 +282,9 @@ void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos,
     (void)pos;
      switch (type)
     {
+        case HOST:
+            serv.hosts.push_back("UNDEFINED");
+                break ;
         case LISTEN:
             serv.listeners.push_back("UNDEFINED");
             break ;
@@ -313,6 +317,7 @@ void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos,
             break ;
         case METHODS:
             serv.methods.push_back("NO METHOD");
+            break ;
         case LOCATION:
             serv.locations.push_back(default_location_values);
             break ;
@@ -363,8 +368,6 @@ void    Config::parseContent()
         break ;
     }
     std::cout << trim << std::endl;
-    //std::cout << "NB of servers = " << _nbServers << std::endl;
-    //std::cout << "//////////////////////\n" << _content << std::endl;
 }
 
 const char  *Config::BadFileException::what() const throw()
