@@ -88,6 +88,11 @@ int main(int ac, char** av)
 	else
 		config = parseConfigFile("configFiles/default.config", dfile);
 
+	t_ServerData serv = config->getServerData(0);
+	std::cout << YELLOW << serv.hosts.at(0) << '\n'
+		<< serv.listeners.at(1) << '\n'
+		<< serv.client_max_body_size << '\n'
+		<< serv.index << '\n' << RESET;
 	ErrorDebug(dfile, "Config file parsing uncomplete");
 
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
