@@ -96,7 +96,7 @@ int main(int ac, char** av)
 	try {
 		socket = initalizeServer(config);
 	} catch (std::exception &e) {
-		std::cout << e.what() << std::endl;
+		std::cout << RED << e.what() << std::endl;
 	}
 	ErrorDebug(dfile, "Server Setup Incomplete");
 
