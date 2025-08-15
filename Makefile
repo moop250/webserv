@@ -15,7 +15,7 @@ NAME        = webserv
 
 CC          = c++
 DBUG	     = -fsanitize=address
-BFLAGS       = -Wall -Wextra -Werror -std=c++98
+BFLAGS       = -Wall -Wextra -Werror -g3 -std=c++98
 
 OBJDIR      = .obj
 INCLDIR     = headers
@@ -32,7 +32,8 @@ SRCS        = src/main.cpp \
 	      src/utils/Colors.cpp src/utils/Debug.cpp src/utils/Error.cpp \
 	      src/configSetUp/Config.cpp \
               src/configSetUp/setUp.cpp \
-              src/sockets/testSocket.cpp
+              src/sockets/SocketClass.cpp \
+			  src/sockets/serverInitialization.cpp 
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
