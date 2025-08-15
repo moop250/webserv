@@ -58,9 +58,7 @@ struct s_ServerData
 {
     std::map<int, std::string>  error_pages;        // code -> file path
     std::vector<t_Location>     locations;
- //   std::vector<std::string>    listeners;          // multiple host:port
     std::vector<std::string>    methods;
-//    std::vector<std::string>    hosts;
     std::string                 host;
     std::string                 port;
     std::string                 server_name;
@@ -77,6 +75,7 @@ struct s_ServerData
  {
     bool            active;
     t_ServerData    data;
+    std::string     path;
  };
 
 extern const t_Location    default_location_values;

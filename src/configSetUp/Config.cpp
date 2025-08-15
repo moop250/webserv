@@ -51,7 +51,6 @@ t_ServerData    getDefaultServ(bool with_location)
     defaultServ.locations.push_back(default_location_values);
     if (!with_location)
         return defaultServ;
-    defaultServ.methods.push_back("GET");
     return (defaultServ);
 }
 
@@ -97,13 +96,7 @@ t_ServerData    Config::getServerData(int serverID) const
     if (_servers.empty())
         return (default_server_values);
     else
-    {
-        //std::stringstream msg;
-//
-        //msg << "Server N* " << serverID << " not empty\nData : \n";
-        //_dfile->append(msg.str().c_str());
         return (_servers.at(serverID));
-    }
 }
 
 int Config::getNbServers() const
@@ -176,6 +169,8 @@ std::string getTokenLine(const std::string &content, const std::string &token, s
 {
     size_t end = content.find(';', pos);
 
+    if (token == "location")
+        end = content.find('{', pos);
     if (end == std::string::npos)
         end = content.size();
     std::string line = content.substr(pos, end - pos);
@@ -201,20 +196,61 @@ void eraseLine(std::string &content, const std::string &line)
 
 void    Config::parseLocation(t_ServerData &serv, std::string &content)
 {
+   // t_Location  loc;
+    
     serv.locations.push_back(default_location_values);
+    return ;
+    
+    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+
+    return ;
+}
+
+size_t  findNextSpace(std::string line, size_t &from)
+{
+    size_t  here = from;
+
+    while (!isspace(line[here]))
+        here++;
+    return here;
+}
+
+size_t  getNb(std::string line, std::string token)
+{
+    size_t  nb = 0;
+    std::string extract = line.substr(0, findNextSpace(line, nb));
+
+    nb = atoll(extract.c_str());
+    return (nb);
+}
+
+std::string getStr(std::string &line, std::string token)
+{
+    size_t  start = 0, end = 0;
+    std::string str = "";
+
+    while (str[start] && !isalpha(line[start]))
+        start++;
+    str = line.substr(start, findNextSpace(line, start));
+    std::cout << "str is : " << str << '\n';
+    eraseLine(line, str);
+    return str;
 }
 
 void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
 {
     std::string tokenLine = "default token line";
-    std::string path = "no path";
-    int         nb = 404;
+    std::string str = "UNDEFINED";
+    int         nb = -1;
 
     tokenLine = getTokenLine(content, _Tokens[type], pos);
-    eraseLine(content, tokenLine);
+    if (serv.locations.at(0).path != default_location_values.path && type == LOCATION)
+        eraseLine(content, tokenLine);
+    else if (type != LOCATION)
+        eraseLine(content, tokenLine);
     sanitizeLine(tokenLine);
- //   std::cout << ROSE << "line : " << tokenLine << std::endl << RESET;
- //   std::cout << "type : " << type << std::endl;
+    std::cout << ROSE << "line : " << tokenLine << std::endl << RESET;
+    std::cout << "type : " << type << std::endl;
     switch (type)
     {
         case HOST:
@@ -236,7 +272,9 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             (tokenLine == "ON" ? serv.autoindex = true : serv.autoindex = false);
             break ;
         case ERROR_PAGE:
-            serv.error_pages.insert(std::make_pair(nb, path));
+            nb = getNb(tokenLine, _Tokens[type]);
+            str = getStr(tokenLine, _Tokens[type]);
+            serv.error_pages.insert(std::make_pair(nb, str));
             break ;
         case UPLOAD_STORAGE:
             serv.upload_storage = tokenLine;
@@ -248,16 +286,22 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             serv.cgi_path = tokenLine;
             break ;
         case CLIENT_MAX_BODY_SIZE:
-            serv.client_max_body_size = atoi(tokenLine.c_str());
+            serv.client_max_body_size = atoll(tokenLine.c_str());
             break ;
         case METHODS:
-            serv.methods.push_back(tokenLine);
+            for (int i = 0; !str.empty(); i++)
+            {
+                std::cout << "method loop\n";
+                str = getStr(tokenLine, _Tokens[METHODS]);
+                serv.methods.push_back(str);
+            }
             break ;
         case LOCATION:
-            serv.locations.push_back(default_location_values);
-            break ;
-        //    parseLocation(serv, content);
+            serv.locations.at(0).path = tokenLine;
+          //  serv.locations.push_back(default_location_values);
           //  break ;
+            parseLocation(serv, content);
+            break ;
         default:
             break ;
     }
@@ -337,12 +381,19 @@ void    Config::parseContent()
             reset(serv, trim, servPos, servRange[0], servRange[1]);
             if (servRange[0] == std::string::npos)
                 break ;
-            if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
-                assignDefaultToken(serv, trim, servPos, i);
-            else
+            while (1)
             {
-                tokensFound++;
-                assignToken(serv, trim, servPos, i);
+                if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
+                {
+                    if (i == LOCATION)
+                        assignDefaultToken(serv, trim, servPos, i);
+                    break ;
+                }
+                else
+                {
+                    tokensFound++;
+                    assignToken(serv, trim, servPos, i);
+                }
             }
         }
         if (!tokensFound)
@@ -408,7 +459,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
         {
             static int iteration = 0;
             stream << "\tLocations :" << iteration++  << '\n'
-                << "\t\tLocation ID             :" << std::to_string(i->data.locations.size()) << '\n'
+                << "\t\tLocation path           :" << i->path << '\n'
                 << "\t\tRoot path               : " << i->data.root << '\n'
                 << "\t\tAuto index status       : " << (i->data.autoindex ? "On" : "OFF") << '\n'
                 << "\t\tHTLM index file         : " << i->data.index << '\n'
