@@ -59,14 +59,13 @@ Config::Config(std::string fileName, Debug &dfile) :
     _dfile(&dfile), _nbServers(0)
 {
     std::ifstream   readFile(fileName.c_str());
-    char            buf[10000];
+    char            buf[100000];
 
-    //  read config file
-    for (int i = 0; i < 10000; i++)
+    for (int i = 0; i < 100000; i++)
         buf[i] = 0;
-    // check buffersize ?
-    readFile.read(buf, sizeof(readFile));
+    readFile.read(buf, 100000);
     _content = buf;
+    _dfile->append(buf);
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
 }
@@ -99,10 +98,10 @@ t_ServerData    Config::getServerData(int serverID) const
         return (default_server_values);
     else
     {
-        std::stringstream msg;
-
-        msg << "Server N* " << serverID << " not empty\nData : \n";
-        _dfile->append(msg.str().c_str());
+        //std::stringstream msg;
+//
+        //msg << "Server N* " << serverID << " not empty\nData : \n";
+        //_dfile->append(msg.str().c_str());
         return (_servers.at(serverID));
     }
 }
@@ -323,7 +322,7 @@ void    Config::parseContent()
     t_ServerData    serv;
     size_t          servPos;
     size_t          servRange[2] = {0, 0};
-
+    int             tokensFound = 0;
   //  std::stringstream   dbug;
 
     if (trim.empty())
@@ -331,6 +330,7 @@ void    Config::parseContent()
     _servers.pop_back();    // rm default
     while (!trim.empty())
     {
+        tokensFound = 0;
         serv = getDefaultServ(0);
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         {
@@ -340,12 +340,16 @@ void    Config::parseContent()
             if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
                 assignDefaultToken(serv, trim, servPos, i);
             else
+            {
+                tokensFound++;
                 assignToken(serv, trim, servPos, i);
+            }
         }
+        if (!tokensFound)
+            break ;
         _servers.push_back(serv);
         trim.erase(trim.find("server"), 8);
         _nbServers++;
-        break ;
     }
 }
 
@@ -380,6 +384,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
 
     for (int i = 0; i < conf.getNbServers(); i++)
     {
+        stream << "Server n* " << i << '\n';
         print = conf.getServerData(i);
         stream // << "\tHost name      : " << print.hosts.at(0) << '\n'
                 << "\tServer name    : " << print.server_name << '\n'
