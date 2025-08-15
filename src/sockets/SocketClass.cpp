@@ -15,7 +15,7 @@ ServerSocket::ServerSocket() {}
 ServerSocket::~ServerSocket() {
 	if (this->getSocketCount() <= 0)
 		return;
-	for (int i = this->getSocketCount(); i <= 0; --i) {
+	for (int i = 0; i < this->getSocketCount(); ++i) {
 		close(this->getSocketFd(i));
 	}
 }
@@ -35,14 +35,13 @@ void ServerSocket::initializeNewSocket_(std::string combo) {
 	if ((status = getaddrinfo(host.c_str(), port.c_str(), &info, &res)) < 0)
 		{throw std::runtime_error("getaddrinfo error:" + std::string(strerror(errno)));}
 	socketfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (!socketfd)
+	if (socketfd < 0)
 		{throw std::runtime_error("Socket initialization error:" + std::string(strerror(errno)));}
 	if ((status = bind(socketfd, res->ai_addr, res->ai_addrlen)) < 0)
 		{throw std::runtime_error("Socket binding error:" + std::string(strerror(errno)));}
 
 	freeaddrinfo(res);
 	
-	// Start listenting to the socket
 	if (listen(socketfd,BACKLOG) < 0)
 		{throw std::runtime_error("Socket listen error:" + std::string(strerror(errno)));}
 
