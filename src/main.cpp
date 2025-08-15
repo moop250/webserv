@@ -11,7 +11,7 @@
 
 #include "Config.hpp"
 #include "Error.hpp"
-
+#include "serverInitialization.hpp"
 #include "Debug.hpp"
 
 Config	*parseConfigFile(std::string file, Debug &dfile)
@@ -80,6 +80,7 @@ int main(int ac, char** av)
 {
 	Debug	dfile;
 	Config	*config = NULL;
+	ServerSocket socket;
 
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
@@ -97,6 +98,11 @@ int main(int ac, char** av)
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
 	setUpServer(config);
+	try {
+		socket = initalizeServer(config);
+	} catch (std::exception &e) {
+		std::cout << e.what() << std::endl;
+	}
 	
 	ErrorDebug(dfile, "Server Setup Incomplete");
 

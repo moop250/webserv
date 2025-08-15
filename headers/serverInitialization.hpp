@@ -3,6 +3,6 @@
 
 # include "SocketClass.hpp"
 
-ServerSocket initalizeServer(Config serverConfig);
+ServerSocket initalizeServer(Config *serverConfig);
 
 #endif // SERVER_INITIALIZATION_HPP

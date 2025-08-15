@@ -21,20 +21,23 @@ ServerSocket::~ServerSocket() {
 }
 
 void ServerSocket::initializeNewSocket_(std::string combo) {
-	int socketfd = -1;
+	int socketfd = -1, status = -1;
 	struct addrinfo	info, *res;
 	int del = combo.find("|");
 	std::string		host = combo.substr(0, del),
 					port = combo.substr(del + 1, combo.length());
 
+	memset(&info, 0, sizeof(info));
+
 	info.ai_family = AF_INET;
 	info.ai_socktype = SOCK_STREAM;
 
-	if (getaddrinfo(host.empty() ? NULL : host.c_str(), port.c_str(), &info, &res))
+	if ((status = getaddrinfo(host.c_str(), port.c_str(), &info, &res)) < 0)
 		{throw std::runtime_error("getaddrinfo error:" + std::string(strerror(errno)));}
-	if (socket(AF_INET, SOCK_STREAM, 0))
+	socketfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (!socketfd)
 		{throw std::runtime_error("Socket initialization error:" + std::string(strerror(errno)));}
-	if (bind(socketfd, res->ai_addr, res->ai_addrlen))
+	if ((status = bind(socketfd, res->ai_addr, res->ai_addrlen)) < 0)
 		{throw std::runtime_error("Socket binding error:" + std::string(strerror(errno)));}
 
 	freeaddrinfo(res);
