@@ -24,7 +24,6 @@ static std::vector<std::string> sanitizeConfig(Config *serverConfig) {
 	if (serverConfig->getNbServers() <= 0)
 		throw std::runtime_error("sanitizeConfig error: No Servers in config file");
 	for (int i = 0; i < serverConfig->getNbServers(); ++i) {
-		std::cout << "HELLO1";
 		t_ServerData serv = serverConfig->getServerData(i);
 		std::string tmp;
 		// appends the string to be "host|port"

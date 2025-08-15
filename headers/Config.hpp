@@ -68,7 +68,8 @@ struct s_ServerData
     std::string                 cgi_ext;
     std::string                 cgi_path;
     size_t                      client_max_body_size;
-    bool                        autoindex;    
+    bool                        autoindex;
+    bool                        isLoc;
 };
 
  struct s_Location
