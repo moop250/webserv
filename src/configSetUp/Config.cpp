@@ -186,7 +186,7 @@ void eraseLine(std::string &content, const std::string &line)
     if (from == std::string::npos)
         return;    
     content.erase(from, line.length());
-    if (from < content.size() && content[from] == ';')
+    if (from < content.size() && (content[from] == ';' || isspace(content[from])))
         content.erase(from, 1);
 }
 
@@ -196,7 +196,7 @@ void eraseLine(std::string &content, const std::string &line)
 
 void    Config::parseLocation(t_ServerData &serv, std::string &content)
 {
-   // t_Location  loc;
+    t_Location  loc;
     
     serv.locations.push_back(default_location_values);
     return ;
@@ -233,7 +233,7 @@ std::string getStr(std::string &line, std::string token)
         start++;
     str = line.substr(start, findNextSpace(line, start));
     std::cout << "str is : " << str << '\n';
-    eraseLine(line, str);
+    std::cout << YELLOW << "New line : " << line << std::endl << RESET;
     return str;
 }
 
@@ -289,10 +289,11 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             serv.client_max_body_size = atoll(tokenLine.c_str());
             break ;
         case METHODS:
-            for (int i = 0; !str.empty(); i++)
+            for (int i = 0; !tokenLine.empty(); i++)
             {
                 std::cout << "method loop\n";
                 str = getStr(tokenLine, _Tokens[METHODS]);
+                eraseLine(tokenLine, str);
                 serv.methods.push_back(str);
             }
             break ;
@@ -468,7 +469,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\t\tCgi path to interpreter : " << i->data.cgi_path << '\n'
                 << "\t\tMethods allowed : ";
             for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); ++i)
-                stream << *i << '\n';
+                stream << *i << ' ';
             stream << "\n\n";
         }
         stream << "\n\n";
