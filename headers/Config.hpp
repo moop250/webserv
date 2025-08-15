@@ -147,4 +147,14 @@ class Config
 
 std::ostream    &operator<<(std::ostream &stream, Config &conf);
 
+void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd);
+void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd);
+void    sanitizeLine(std::string &line);
+std::string getTokenLine(const std::string &content, const std::string &token, size_t pos);
+void eraseLine(std::string &content, const std::string &line);
+size_t  findNextSpace(std::string line, size_t &from);
+size_t  getNb(std::string line, std::string token);
+std::string getStr(std::string &line, std::string token);
+void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type);
+
 #endif
