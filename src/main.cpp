@@ -88,6 +88,7 @@ int main(int ac, char** av)
 	else
 		config = parseConfigFile("configFiles/default.config", dfile);
 
+	std::cout << "End pars\n";
 	ErrorDebug(dfile, "Config file parsing uncomplete");
 
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
@@ -98,6 +99,8 @@ int main(int ac, char** av)
 	} catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
 	}
+
+	std::cout << socket.getSocketCount() << std::endl;
 	ErrorDebug(dfile, "Server Setup Incomplete");
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");

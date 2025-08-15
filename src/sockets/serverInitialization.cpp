@@ -11,7 +11,7 @@
 static bool compareConfigs(std::string currentPair, std::vector<std::string> allPairs) {
 	if (allPairs.empty())
 		return true;
-	for (size_t i = 0; i <= allPairs.size(); ++i) {
+	for (size_t i = 0; i < allPairs.size(); ++i) {
 		if (allPairs.at(i) == currentPair)
 			return false;
 	}
@@ -24,10 +24,12 @@ static std::vector<std::string> sanitizeConfig(Config *serverConfig) {
 	if (serverConfig->getNbServers() <= 0)
 		throw std::runtime_error("sanitizeConfig error: No Servers in config file");
 	for (int i = 0; i < serverConfig->getNbServers(); ++i) {
+		std::cout << "HELLO1";
 		t_ServerData serv = serverConfig->getServerData(i);
 		std::string tmp;
 		// appends the string to be "host|port"
 		tmp = serv.host + "|" + serv.port;
+		std::cout << tmp << '\n';
 		if (compareConfigs(tmp, out))
 			out.push_back(tmp);
 	}
