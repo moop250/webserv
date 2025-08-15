@@ -27,7 +27,7 @@ static std::vector<std::string> sanitizeConfig(Config *serverConfig) {
 		t_ServerData serv = serverConfig->getServerData(i);
 		std::string tmp;
 		// appends the string to be "host|port"
-		tmp = serv.hosts.at(0) + "|" + serv.listeners.at(0);
+		tmp = serv.host + "|" + serv.port;
 		if (compareConfigs(tmp, out))
 			out.push_back(tmp);
 	}

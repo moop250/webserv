@@ -51,8 +51,6 @@ t_ServerData    getDefaultServ(bool with_location)
     defaultServ.locations.push_back(default_location_values);
     if (!with_location)
         return defaultServ;
-    defaultServ.hosts.push_back("Undefined Host");
-    defaultServ.listeners.push_back("Undefinded listeners");
     defaultServ.methods.push_back("GET");
     return (defaultServ);
 }
@@ -69,12 +67,7 @@ Config::Config(std::string fileName, Debug &dfile) :
     // check buffersize ?
     readFile.read(buf, sizeof(readFile));
     _content = buf;
-	_dfile->append("\ncontent of config file read\nContent :\n");
-    _dfile->append(buf);
-
-    _dfile->append("\nServers initialise at 0");
     initTokenMaps();
-    _dfile->append("\nToken Maps content initialise\n");
     _servers.push_back(getDefaultServ(0));
 }
 
@@ -162,14 +155,9 @@ size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
 
     while (pos != content.length() - 5 && pos != std::string::npos && (!isspace(content[pos - 1]) || !isspace(content[pos + _Tokens[i].length()])))
     {
-//        std::cout << "It was " << content[pos - 1] << " and " << content[pos + _Tokens[i].length()] << std::endl;
         pos += 1;
         pos = content.find(_Tokens[i], pos);
     }
-//    std::cout << "Token looking for : " << _Tokens[i]
-//        << "\nposition : " << pos
-//        << "\nrange begine at " << range[0]
-//        << "\nrange ends at " << range[1] << std::endl;
     if (pos == std::string::npos)
         return (0);
     return (pos);
@@ -226,15 +214,15 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
     tokenLine = getTokenLine(content, _Tokens[type], pos);
     eraseLine(content, tokenLine);
     sanitizeLine(tokenLine);
-    std::cout << ROSE << "line : " << tokenLine << std::endl << RESET;
-    std::cout << "type : " << type << std::endl;
+ //   std::cout << ROSE << "line : " << tokenLine << std::endl << RESET;
+ //   std::cout << "type : " << type << std::endl;
     switch (type)
     {
         case HOST:
-            serv.hosts.push_back(tokenLine);
+            serv.host = tokenLine;
             break ;
         case LISTEN:
-            serv.listeners.push_back(tokenLine);
+            serv.port = tokenLine;
             break ;
         case SERVER_NAME:
             serv.server_name = tokenLine;
@@ -283,10 +271,10 @@ void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos,
      switch (type)
     {
         case HOST:
-            serv.hosts.push_back("UNDEFINED");
+            serv.host = "UNDEFINED";
                 break ;
         case LISTEN:
-            serv.listeners.push_back("UNDEFINED");
+            serv.port ="UNDEFINED";
             break ;
         case SERVER_NAME:
             serv.server_name = "UNDEFINED";
@@ -336,7 +324,7 @@ void    Config::parseContent()
     size_t          servPos;
     size_t          servRange[2] = {0, 0};
 
-    std::stringstream   dbug;
+  //  std::stringstream   dbug;
 
     if (trim.empty())
         return _servers.push_back(default_server_values);
@@ -349,25 +337,16 @@ void    Config::parseContent()
             reset(serv, trim, servPos, servRange[0], servRange[1]);
             if (servRange[0] == std::string::npos)
                 break ;
-            dbug << "Server range begin at " << servRange[BEGIN]
-                << " and ends at " << servRange[END] << '\n';
-            dbug << "Token treated is " << _Tokens[i] << '\n';
-            _dfile->append(dbug.str().c_str());
-            dbug.str("");
-            dbug.clear();
             if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
                 assignDefaultToken(serv, trim, servPos, i);
             else
                 assignToken(serv, trim, servPos, i);
         }
-        _dfile->append("Pushing data to server's config member");
         _servers.push_back(serv);
-        _dfile->append("Push success");
         trim.erase(trim.find("server"), 8);
         _nbServers++;
         break ;
     }
-    std::cout << trim << std::endl;
 }
 
 const char  *Config::BadFileException::what() const throw()
@@ -399,7 +378,6 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
 {
     t_ServerData    print;
 
-    std::cout << ROSE << "PRINTING OPERATOR\n";
     for (int i = 0; i < conf.getNbServers(); i++)
     {
         print = conf.getServerData(i);
@@ -412,17 +390,14 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\tCgi external   : " << print.cgi_ext << '\n'
                 << "\tCgi path       : " << print.cgi_path << '\n'
                 << "\tMax client siz : " << print.client_max_body_size << std::endl;
-        std::cout << "OK\n";
         stream << "\tMethods : ";
         for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); i++)
             stream << " " << *i;
         stream << '\n';
-        stream << "\tHosts : ";
-        for (std::vector<std::string>::iterator i = print.hosts.begin(); i != print.hosts.end(); i++)
-            stream << " " << *i;
-        stream << '\n' << "\tListeners : ";
-        for (std::vector<std::string>::iterator i = print.listeners.begin(); i != print.listeners.end(); i++)
-            stream << " " << *i;
+        stream << "\tHost : ";
+        stream << print.host;
+        stream << '\n' << "\tListeners (port) : ";
+        stream << print.port;
         stream << "\n";
         for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); i++)
         {

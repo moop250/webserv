@@ -58,9 +58,11 @@ struct s_ServerData
 {
     std::map<int, std::string>  error_pages;        // code -> file path
     std::vector<t_Location>     locations;
-    std::vector<std::string>    listeners;          // multiple host:port
+ //   std::vector<std::string>    listeners;          // multiple host:port
     std::vector<std::string>    methods;
-    std::vector<std::string>    hosts;
+//    std::vector<std::string>    hosts;
+    std::string                 host;
+    std::string                 port;
     std::string                 server_name;
     std::string                 root;
     std::string                 index;
