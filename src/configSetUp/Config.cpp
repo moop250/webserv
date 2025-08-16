@@ -213,6 +213,15 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
     }
 }
 
+void    parseLocs(std::string content)
+{
+    t_Location  loc = default_location_values;
+    size_t      nextServer = content.find("server");
+    size_t begin = content.find('{'), end = content.find('}');
+    std::cout << "begin : " << begin << " end : " << end << content << std::endl;
+
+}
+
 void    Config::parseContent()
 {
     std::string     trim = _content;
@@ -255,6 +264,7 @@ void    Config::parseContent()
         trim.erase(trim.find("server"), 8);
         _nbServers++;
     }
+    parseLocs(trim);
 }
 
 const char  *Config::BadFileException::what() const throw()
