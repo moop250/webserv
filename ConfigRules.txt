@@ -50,7 +50,9 @@ It works by the following rules :
 	- location
 	- server name
 
-8) if no argument is given to webserv a default cinfiguration take place
+8) A token is formated as <token>
+
+9) if no argument is given to webserv a default cinfiguration take place
 	
 ...)
 	...

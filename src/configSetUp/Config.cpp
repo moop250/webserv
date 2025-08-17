@@ -24,19 +24,19 @@ void    Config::printServers() const
 void    Config::initTokenMaps()
 {
     static const char *mainTokenMap[] = {
-        "host",
-        "listen",
-        "server_name",
-        "root",
-        "index",
-        "autoindex",
-        "error_page",
-        "upload_storage",
-        "cgi_ext",
-        "cgi_path",
-        "client_max_body_size",
-        "allow_methods",
-        "location",
+        "<host>",
+        "<listen>",
+        "<server_name>",
+        "<root>",
+        "<html_index>",
+        "<autoindex>",
+        "<error_page>",
+        "<upload_storage>",
+        "<cgi_ext>",
+        "<cgi_path>",
+        "<client_max_body_size>",
+        "<allow>",
+        "<location>",
         NULL
     };
     
@@ -115,12 +115,6 @@ size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
 
     if (pos == std::string::npos || pos <= range[BEGIN] || pos >= range[END])
         return (0);
-
-    while (pos != content.length() - 5 && pos != std::string::npos && (!isspace(content[pos - 1]) || !isspace(content[pos + _Tokens[i].length()])))
-    {
-        pos += 1;
-        pos = content.find(_Tokens[i], pos);
-    }
     if (pos == std::string::npos)
         return (0);
     return (pos);
@@ -174,7 +168,7 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             serv.index = tokenLine;
             break ;
         case AUTOINDEX:
-            (tokenLine == "ON" ? serv.autoindex = true : serv.autoindex = false);
+            serv.autoindex = (tokenLine == "ON" || tokenLine == "on");
             break ;
         case ERROR_PAGE:
             nb = getNb(tokenLine, _Tokens[type]);
@@ -196,7 +190,6 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
         case METHODS:
             for (int i = 0; !tokenLine.empty(); i++)
             {
-                std::cout << "method loop\n";
                 str = getStr(tokenLine, _Tokens[METHODS]);
                 eraseLine(tokenLine, str);
                 serv.methods.push_back(str);
@@ -204,9 +197,6 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             break ;
         case LOCATION:
             serv.locations.at(0).path = tokenLine;
-          //  serv.locations.push_back(default_location_values);
-          //  break ;
-            parseLocation(serv, content);
             break ;
         default:
             break ;
@@ -218,8 +208,9 @@ void    parseLocs(std::string content)
     t_Location  loc = default_location_values;
     size_t      nextServer = content.find("server");
     size_t begin = content.find('{'), end = content.find('}');
-    std::cout << "begin : " << begin << " end : " << end << content << std::endl;
 
+
+    std::cout << "begin : " << begin << " end : " << end << content << std::endl;
 }
 
 void    Config::parseContent()
@@ -240,11 +231,11 @@ void    Config::parseContent()
         serv = getDefaultServ(0);
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         {
-            reset(serv, trim, servPos, servRange[0], servRange[1]);
-            if (servRange[0] == std::string::npos)
-                break ;
             while (1)
             {
+                reset(serv, trim, servPos, servRange[0], servRange[1]);
+                if (servRange[0] == std::string::npos)
+                    break ;
                 if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
                 {
                     if (i == LOCATION)
@@ -256,6 +247,8 @@ void    Config::parseContent()
                     tokensFound++;
                     assignToken(serv, trim, servPos, i);
                 }
+            //    if (i != LOCATION)
+            //        break ;
             }
         }
         if (!tokensFound)

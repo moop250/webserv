@@ -1,21 +1,5 @@
 #include "Config.hpp"
 
-
-inline size_t match_brace(const std::string &s, size_t lbrace_pos)
-{
-    if (lbrace_pos == std::string::npos || lbrace_pos >= s.size() || s[lbrace_pos] != '{')
-        return std::string::npos;
-    int depth = 0;
-    for (size_t i = lbrace_pos; i < s.size(); ++i) {
-        if (s[i] == '{') ++depth;
-        else if (s[i] == '}') {
-            --depth;
-            if (depth == 0) return i;
-        }
-    }
-    return std::string::npos;
-}
-
 void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
 {
     pos = 0;
@@ -27,9 +11,10 @@ void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBe
     }
     while (rBegin != content.length() && content[rBegin] != '{')
         rBegin++;
-//    rEnd = match_brace(content, rBegin);
-//    return ;
-    rEnd = content.find('{', rBegin + 1);
+    if (content.find("location", rBegin) < rEnd - 10)
+        rEnd = content.find("location", rBegin);
+    else
+        rEnd = content.find('{', rBegin + 1);
 }
 
 void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
@@ -53,7 +38,9 @@ void    sanitizeLine(std::string &line)
 
     while (!isspace(line[to_remove]))
         to_remove++;
-    line.erase(0, to_remove + 1);
+    while (isspace(line[to_remove]))
+        to_remove++;
+    line.erase(0, to_remove);
     return ;
 }
 
