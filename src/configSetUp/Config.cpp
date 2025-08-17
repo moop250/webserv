@@ -36,7 +36,7 @@ void    Config::initTokenMaps()
         "<cgi_path>",
         "<client_max_body_size>",
         "<allow>",
-        "<location>",
+        "location",
         NULL
     };
     
@@ -67,6 +67,8 @@ Config::Config(std::string fileName, Debug &dfile) :
     _dfile->append(buf);
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
+    if (_content.empty())
+        throw Config::BadFileException();
 }
 
 Config::Config(const Config &conf)
@@ -124,16 +126,94 @@ size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
 //{
 //}
 
+void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, int type)
+{
+    std::string tokenLine = "default token line";
+    std::string str = "UNDEFINED";
+    int         nb = -1;
+
+    tokenLine = getTokenLine(content, _Tokens[type], pos);
+    eraseLine(content, tokenLine);
+    sanitizeLine(tokenLine);
+    std::cout << ROSE << "line : " << tokenLine << std::endl << RESET;
+    std::cout << "type : " << type << std::endl;
+    switch (type)
+    {
+        case ROOT_PATH:
+            loc.data.root = tokenLine;
+            break ;
+        case HTLM_INDEX:
+            loc.data.index = tokenLine;
+            break ;
+        case AUTOINDEX:
+            loc.data.autoindex = (tokenLine == "ON" || tokenLine == "on");
+            break ;
+        case ERROR_PAGE:
+            nb = getNb(tokenLine, _Tokens[type]);
+            str = getStr(tokenLine, _Tokens[type]);
+            loc.data.error_pages.insert(std::make_pair(nb, str));
+            break ;
+        case UPLOAD_STORAGE:
+            loc.data.upload_storage = tokenLine;
+            break ;
+        case CGI_EXTENTION:
+            loc.data.cgi_ext = tokenLine;
+            break ;
+        case CGI_PATH:
+            loc.data.cgi_path = tokenLine;
+            break ;
+        case CLIENT_MAX_BODY_SIZE:
+            loc.data.client_max_body_size = atoll(tokenLine.c_str());
+            break ;
+        case METHODS:
+            for (int i = 0; !tokenLine.empty(); i++)
+            {
+                str = getStr(tokenLine, _Tokens[METHODS]);
+                eraseLine(tokenLine, str);
+                loc.data.methods.push_back(str);
+            }
+            break ;
+        default:
+            break ;
+    }
+}
+
 void    Config::parseLocation(t_ServerData &serv, std::string &content)
 {
-    t_Location  loc;
-    
-    serv.locations.push_back(default_location_values);
-    return ;
-    
-    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+    t_Location  loc = default_location_values;
+    size_t      range[2];
+    size_t      pos;
 
-    return ;
+    std::cout << GREEN << "INTO PARSE LOCATION" << std::endl << RESET;
+//    std::cout << "BEGIN : " << content.find("location")
+  //      << "\nEND : " << range[1] << '\n';
+//    while (1)
+  //  {
+    //    tokensFound = 0;
+    std::string eraseStr = "";
+
+    range[0] = content.find("location");
+    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+    {
+        range[1] = content.find("}");
+        if (range[0] == std::string::npos || range[0] > range[1])
+            break ;
+        if (!(pos = findToken(content, range, static_cast<e_TokenType>(i))))
+            continue ;
+        else
+        {
+            std::cout << GREEN << "Location Token found !\n" << RESET;
+            assignToken(loc, content, pos, static_cast<e_TokenType>(i));
+        }
+        eraseStr = content.substr(content.find('}'), 2);
+        eraseLine(content, eraseStr);
+    }
+    size_t  to = content.find(content.find("location"));
+    eraseStr = getTokenLine(content, "location", content.find("location"));
+    eraseLine(content, eraseStr);
+    serv.locations.push_back(loc);
+//        if (!serv.locations.empty())
+//        serv.locations.pop_back();
 }
 
 void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
@@ -197,20 +277,11 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             break ;
         case LOCATION:
             serv.locations.at(0).path = tokenLine;
+            parseLocation(serv, content);
             break ;
         default:
             break ;
     }
-}
-
-void    parseLocs(std::string content)
-{
-    t_Location  loc = default_location_values;
-    size_t      nextServer = content.find("server");
-    size_t begin = content.find('{'), end = content.find('}');
-
-
-    std::cout << "begin : " << begin << " end : " << end << content << std::endl;
 }
 
 void    Config::parseContent()
@@ -220,7 +291,6 @@ void    Config::parseContent()
     size_t          servPos;
     size_t          servRange[2] = {0, 0};
     int             tokensFound = 0;
-  //  std::stringstream   dbug;
 
     if (trim.empty())
         return _servers.push_back(default_server_values);
@@ -229,6 +299,8 @@ void    Config::parseContent()
     {
         tokensFound = 0;
         serv = getDefaultServ(0);
+        //if (serv.locations.empty())
+        //    serv.locations.pop_back();
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         {
             while (1)
@@ -244,11 +316,10 @@ void    Config::parseContent()
                 }
                 else
                 {
+                    std::cout << GREEN << "Serv token found !\n" << RESET;
                     tokensFound++;
                     assignToken(serv, trim, servPos, i);
                 }
-            //    if (i != LOCATION)
-            //        break ;
             }
         }
         if (!tokensFound)
@@ -257,7 +328,6 @@ void    Config::parseContent()
         trim.erase(trim.find("server"), 8);
         _nbServers++;
     }
-    parseLocs(trim);
 }
 
 const char  *Config::BadFileException::what() const throw()

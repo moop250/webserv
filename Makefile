@@ -14,7 +14,7 @@
 NAME        = webserv
 
 CC          = c++
-DBUG	     = -fsanitize=address
+DBUG	     = -g#-fsanitize=address
 BFLAGS       = -Wall -Wextra -Werror -g3 -std=c++98
 
 OBJDIR      = .obj
