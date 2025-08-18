@@ -17,6 +17,16 @@ struct Color
 	Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255);
 	static Color	Reset();
 	std::string		getANSICode() const;
+	public:
+		std::string	blue();
+		std::string	red();
+		std::string	green();
+		std::string	black();
+		std::string	yellow();
+		std::string	purple();
+		std::string	cyan();
+		std::string	white();
+		std::string	reset();
 };
 
 std::ostream& operator<<(std::ostream& os, const Color& color);

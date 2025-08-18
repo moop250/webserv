@@ -2,13 +2,15 @@
 
 t_ServerData    getDefaultServ(bool with_location)
 {
+    Color   c;
+
     const t_ServerData  default_server_values = {
-        .server_name = "UNDEFINED",
-        .root = "UNDEFINED",
-        .index = "UNDEFINED",
-        .upload_storage = "UNDEFINED",
-        .cgi_ext = "UNDEFINED",
-        .cgi_path = "UNDEFINED",
+        .server_name = c.red() + "UNDEFINED" + c.reset(),
+        .root = c.red() + "UNDEFINED" + c.reset(),
+        .index = c.red() + "UNDEFINED" + c.reset(),
+        .upload_storage = c.red() + "UNDEFINED" + c.reset(),
+        .cgi_ext = c.red() + "UNDEFINED" + c.reset(),
+        .cgi_path = c.red() + "UNDEFINED" + c.reset(),
         .client_max_body_size = 1,
         .autoindex = false
     };
