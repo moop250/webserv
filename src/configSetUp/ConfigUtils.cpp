@@ -1,5 +1,83 @@
 #include "Config.hpp"
 
+t_ServerData    getDefaultServ(bool with_location)
+{
+    const t_ServerData  default_server_values = {
+        .server_name = "No server name",
+        .root = "/",
+        .index = "No file.html undefined",
+        .upload_storage = "Upload dir undefined",
+        .cgi_ext = "cgi extention undefined",
+        .cgi_path = "cgi path undefined",
+        .client_max_body_size = 1,
+        .autoindex = false
+    };
+
+    const t_Location    default_location_values = {
+        .active = false,
+        .data = default_server_values
+    };
+
+    t_ServerData    defaultServ = default_server_values;
+
+    defaultServ.locations.push_back(default_location_values);
+    if (!with_location)
+        return defaultServ;
+    return (defaultServ);
+}
+
+void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type)
+{
+    (void)content;
+    (void)pos;
+     switch (type)
+    {
+        case HOST:
+            serv.host = "UNDEFINED";
+                break ;
+        case LISTEN:
+            serv.port ="UNDEFINED";
+            break ;
+        case SERVER_NAME:
+            serv.server_name = "UNDEFINED";
+            break ;
+        case ROOT_PATH:
+            serv.root = "UNDEFINED";
+            break ;
+        case HTLM_INDEX:
+            serv.index = "UNDEFINED";
+            break ;
+        case AUTOINDEX:
+            serv.autoindex = false;
+            break ;
+        case ERROR_PAGE:
+            serv.error_pages.insert(std::make_pair(404, "UNDEFINED"));
+            break ;
+        case UPLOAD_STORAGE:
+            serv.upload_storage = "UNDEFINED";
+            break ;
+        case CGI_EXTENTION:
+            serv.cgi_ext = "UNDEFINED";
+            break ;
+        case CGI_PATH:
+            serv.cgi_path = "UNDEFINED";
+            break ;
+        case CLIENT_MAX_BODY_SIZE:
+            serv.client_max_body_size = 0;
+            break ;
+        case METHODS:
+            serv.methods.push_back("NO METHOD");
+            break ;
+        case LOCATION:
+            serv.locations.push_back(getDefaultServ(1).locations.at(0));
+            break ;
+        //    parseLocation(serv, content);
+          //  break ;
+        default:
+            break ;
+    }
+}
+
 std::ostream    &operator<<(std::ostream &stream, Config &conf)
 {
     t_ServerData    print;

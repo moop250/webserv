@@ -72,15 +72,12 @@ struct s_ServerData
     bool                        isLoc;
 };
 
- struct s_Location
- {
-    bool            active;
-    t_ServerData    data;
-    std::string     path;
- };
-
-extern const t_Location    default_location_values;
-extern const t_ServerData  default_server_values;
+struct s_Location
+{
+   bool            active;
+   t_ServerData    data;
+   std::string     path;
+};
 
 class Config
 {
@@ -156,5 +153,6 @@ size_t  findNextSpace(std::string line, size_t &from);
 size_t  getNb(std::string line, std::string token);
 std::string getStr(std::string &line, std::string token);
 void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type);
+t_ServerData    getDefaultServ(bool with_location);
 
 #endif
