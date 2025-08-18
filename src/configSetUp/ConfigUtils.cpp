@@ -3,12 +3,12 @@
 t_ServerData    getDefaultServ(bool with_location)
 {
     const t_ServerData  default_server_values = {
-        .server_name = "No server name",
-        .root = "/",
-        .index = "No file.html undefined",
-        .upload_storage = "Upload dir undefined",
-        .cgi_ext = "cgi extention undefined",
-        .cgi_path = "cgi path undefined",
+        .server_name = "UNDEFINED",
+        .root = "UNDEFINED",
+        .index = "UNDEFINED",
+        .upload_storage = "UNDEFINED",
+        .cgi_ext = "UNDEFINED",
+        .cgi_path = "UNDEFINED",
         .client_max_body_size = 1,
         .autoindex = false
     };
@@ -81,13 +81,13 @@ void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos,
 std::ostream    &operator<<(std::ostream &stream, Config &conf)
 {
     t_ServerData    print;
+    int iteration = 0;
 
     for (int i = 0; i < conf.getNbServers(); i++)
     {
         stream << "Server n* " << i << '\n';
         print = conf.getServerData(i);
-        stream // << "\tHost name      : " << print.hosts.at(0) << '\n'
-                << "\tServer name    : " << print.server_name << '\n'
+        stream  << "\tServer name    : " << print.server_name << '\n'
                 << "\tRoot path      : " << print.root << '\n'
                 << "\tIndex file     : " << print.index << '\n'
                 << "\tAuto index     : " << (print.autoindex ? "On" : "OFF") << '\n'
@@ -95,20 +95,24 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\tCgi external   : " << print.cgi_ext << '\n'
                 << "\tCgi path       : " << print.cgi_path << '\n'
                 << "\tMax client siz : " << print.client_max_body_size << std::endl;
-        stream << "\tMethods : ";
+        stream << "\tMethods        : ";
         for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); i++)
             stream << " " << *i;
         stream << '\n';
-        stream << "\tHost : ";
+        stream << "\tHost           : ";
         stream << print.host;
-        stream << '\n' << "\tListeners (port) : ";
+        stream << '\n' << "\tListeners      : ";
         stream << print.port;
         stream << "\n";
+        stream << "\terror pages    : \n";
+        for (std::map<int, std::string>::iterator j = print.error_pages.begin(); j != print.error_pages.end(); j++)
+            stream << "\t\tnb : " << j->first << " second : " << j->second << '\n';
+        stream << '\n';
+        iteration = 0;
         for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); i++)
         {
-            static int iteration = 0;
-            stream << "\tLocations :" << iteration++  << '\n'
-                << "\t\tLocation path           :" << i->path << '\n'
+            stream << "\tLocations : " << iteration++  << '\n'
+                << "\t\tLocation path           : " << i->path << '\n'
                 << "\t\tRoot path               : " << i->data.root << '\n'
                 << "\t\tAuto index status       : " << (i->data.autoindex ? "On" : "OFF") << '\n'
                 << "\t\tHTLM index file         : " << i->data.index << '\n'

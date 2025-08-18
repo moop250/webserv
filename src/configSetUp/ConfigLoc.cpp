@@ -53,10 +53,14 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
 void    Config::parseLocation(t_ServerData &serv, std::string &content, std::string tokenLine)
 {
     t_Location  loc = getDefaultServ(1).locations.at(0);
+    std::string path = "";
     size_t      range[2];
     size_t      pos;
 
     range[0] = content.find("location");
+    path = content.substr(range[0], content.find('{', range[0]) - range[0] - 1);
+    sanitizeLine(path);
+    loc.path = path;
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
     {
         range[1] = content.find("}");

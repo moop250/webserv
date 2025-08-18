@@ -33,7 +33,9 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             serv.autoindex = (tokenLine == "ON" || tokenLine == "on");
             break ;
         case ERROR_PAGE:
-            nb = getNb(tokenLine, _Tokens[type]);
+            str = getStr(tokenLine, _Tokens[type]);
+            eraseLine(tokenLine, str);
+            nb = atoi(str.c_str());
             str = getStr(tokenLine, _Tokens[type]);
             serv.error_pages.insert(std::make_pair(nb, str));
             break ;
@@ -109,29 +111,4 @@ void    Config::parseContent()
         _nbServers++;
     }
     std::cout <<BLUE <<  trim << RESET << '\n';
-}
-
-const char  *Config::BadFileException::what() const throw()
-{
-    return "File given is empty or does not exist";
-}
-
-const char  *Config::MissingParamException::what() const throw()
-{
-    return "Missing parameter in configuration file";
-}
-
-const char  *Config::BadParamException::what() const throw()
-{
-    return "Parameter in configuration file is weird and was in consequence not handled";
-}
-
-const char  *Config::ParseErrorExemption::what() const throw()
-{
-    return "I did some shit somewhere";
-}
-
-const char  *Config::OutOfBoundsExeption::what() const throw()
-{
-    return "Data to be reach is out of bounds";
 }
