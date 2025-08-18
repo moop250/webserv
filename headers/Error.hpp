@@ -7,6 +7,7 @@
 class Error
 {
 	public:
+	//	Error(const char *error);
 		Error(const char* error = "Undefined error", const char* function = NULL, const char *file = NULL, int line = 0);
 };
 
