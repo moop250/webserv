@@ -109,7 +109,7 @@ class Config
     
         //  active parsing
         bool            checkServerData(int index) const;
-        void            parseLocation(t_ServerData &serv, std::string &content);
+        void            parseLocation(t_ServerData &serv, std::string &content, std::string getTokenLine);
         void            parseContent();
 
         //  UTILS

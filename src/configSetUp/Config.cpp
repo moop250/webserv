@@ -132,6 +132,7 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
     std::string str = "UNDEFINED";
     int         nb = -1;
 
+    std::cout << "Looking for loc token\n";
     tokenLine = getTokenLine(content, _Tokens[type], pos);
     eraseLine(content, tokenLine);
     sanitizeLine(tokenLine);
@@ -176,22 +177,16 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
         default:
             break ;
     }
+    std::cout << "Loc token assigned\n";
 }
 
-void    Config::parseLocation(t_ServerData &serv, std::string &content)
+void    Config::parseLocation(t_ServerData &serv, std::string &content, std::string tokenLine)
 {
     t_Location  loc = default_location_values;
     size_t      range[2];
     size_t      pos;
 
     std::cout << GREEN << "INTO PARSE LOCATION" << std::endl << RESET;
-//    std::cout << "BEGIN : " << content.find("location")
-  //      << "\nEND : " << range[1] << '\n';
-//    while (1)
-  //  {
-    //    tokensFound = 0;
-    std::string eraseStr = "";
-
     range[0] = content.find("location");
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
     {
@@ -205,15 +200,14 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content)
             std::cout << GREEN << "Location Token found !\n" << RESET;
             assignToken(loc, content, pos, static_cast<e_TokenType>(i));
         }
-        eraseStr = content.substr(content.find('}'), 2);
-        eraseLine(content, eraseStr);
+        std::cout << "Loc loop\n";
     }
-    size_t  to = content.find(content.find("location"));
-    eraseStr = getTokenLine(content, "location", content.find("location"));
-    eraseLine(content, eraseStr);
+    std::cout << "Pushing loc into serv\n";
+    eraseLine(content, tokenLine);
+    eraseLine(content, "{");
+    eraseLine(content, "}");
     serv.locations.push_back(loc);
-//        if (!serv.locations.empty())
-//        serv.locations.pop_back();
+    std::cout << BLUE << content << RESET << "\nOut for parse  Location\n";
 }
 
 void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
@@ -223,11 +217,12 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
     int         nb = -1;
 
     tokenLine = getTokenLine(content, _Tokens[type], pos);
-    if (serv.locations.at(0).path != default_location_values.path && type == LOCATION)
+    std::cout << "Looking for serv token\n" << tokenLine << '\n';
+    if (type != LOCATION)
+    {
         eraseLine(content, tokenLine);
-    else if (type != LOCATION)
-        eraseLine(content, tokenLine);
-    sanitizeLine(tokenLine);
+        sanitizeLine(tokenLine);
+    }
     std::cout << ROSE << "line : " << tokenLine << std::endl << RESET;
     std::cout << "type : " << type << std::endl;
     switch (type)
@@ -276,12 +271,12 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
             }
             break ;
         case LOCATION:
-            serv.locations.at(0).path = tokenLine;
-            parseLocation(serv, content);
+            parseLocation(serv, content, tokenLine);
             break ;
         default:
             break ;
     }
+    std::cout << (content.find("location") != std::string::npos ? "loc found" : "loc not found") << std::endl; 
 }
 
 void    Config::parseContent()
@@ -299,8 +294,6 @@ void    Config::parseContent()
     {
         tokensFound = 0;
         serv = getDefaultServ(0);
-        //if (serv.locations.empty())
-        //    serv.locations.pop_back();
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         {
             while (1)
@@ -320,14 +313,17 @@ void    Config::parseContent()
                     tokensFound++;
                     assignToken(serv, trim, servPos, i);
                 }
+                std::cout << (trim.find("location") != std::string::npos ? "loc found" : "loc not found") << std::endl; 
             }
         }
+        std::cout << "Pushing server\n";
         if (!tokensFound)
             break ;
         _servers.push_back(serv);
         trim.erase(trim.find("server"), 8);
         _nbServers++;
     }
+    std::cout <<BLUE <<  trim << RESET << '\n';
 }
 
 const char  *Config::BadFileException::what() const throw()
