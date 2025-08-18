@@ -95,3 +95,12 @@ size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
         return (0);
     return (pos);
 }
+
+void    Config::sanitize()
+{
+    for (int i = 0; i < _nbServers; i++)
+    {
+        _servers.at(i).locations.pop_back();
+        _servers.at(i).locations.erase(_servers.at(i).locations.begin());
+    }
+}

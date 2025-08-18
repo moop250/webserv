@@ -28,6 +28,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 		throw Config::BadFileException();
 	}
 	config->parseContent();
+	config->sanitize();
 	try
 	{
 		std::stringstream	strparam;

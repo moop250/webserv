@@ -113,6 +113,7 @@ class Config
         void            assignToken(t_Location &loc, std::string &content, size_t pos, int type);
         void            assignToken(t_ServerData &serv, std::string &content, size_t pos, int type);
         size_t          findToken(std::string content, size_t range[2], e_TokenType i);
+        void            sanitize();
 
         //  generic errors
         class BadFileException : public std::exception
