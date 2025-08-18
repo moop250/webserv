@@ -53,8 +53,6 @@ std::string getTokenLine(const std::string &content, const std::string &token, s
     if (end == std::string::npos)
         end = content.size();
     std::string line = content.substr(pos, end - pos);
-//    std::cout << CYAN << "Line found : " << line << RESET << std::endl;
-//    std::cout << "Line length : " << (end - pos) << std::endl;
     return line;
 }
 
@@ -96,8 +94,6 @@ std::string getStr(std::string &line, std::string token)
     while (str[start] && !isalpha(line[start]))
         start++;
     str = line.substr(start, findNextSpace(line, start));
-    std::cout << "str is : " << str << '\n';
-    std::cout << YELLOW << "New line : " << line << std::endl << RESET;
     return str;
 }
 

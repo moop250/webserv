@@ -122,22 +122,15 @@ size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
     return (pos);
 }
 
-//void    Config::assignToken(t_Location &loc, std::string content, size_t pos, int type)
-//{
-//}
-
 void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, int type)
 {
     std::string tokenLine = "default token line";
     std::string str = "UNDEFINED";
     int         nb = -1;
 
-    std::cout << "Looking for loc token\n";
     tokenLine = getTokenLine(content, _Tokens[type], pos);
     eraseLine(content, tokenLine);
     sanitizeLine(tokenLine);
-    std::cout << ROSE << "line : " << tokenLine << std::endl << RESET;
-    std::cout << "type : " << type << std::endl;
     switch (type)
     {
         case ROOT_PATH:
@@ -177,7 +170,6 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
         default:
             break ;
     }
-    std::cout << "Loc token assigned\n";
 }
 
 void    Config::parseLocation(t_ServerData &serv, std::string &content, std::string tokenLine)
@@ -186,7 +178,6 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content, std::str
     size_t      range[2];
     size_t      pos;
 
-    std::cout << GREEN << "INTO PARSE LOCATION" << std::endl << RESET;
     range[0] = content.find("location");
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
     {
@@ -196,18 +187,12 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content, std::str
         if (!(pos = findToken(content, range, static_cast<e_TokenType>(i))))
             continue ;
         else
-        {
-            std::cout << GREEN << "Location Token found !\n" << RESET;
             assignToken(loc, content, pos, static_cast<e_TokenType>(i));
-        }
-        std::cout << "Loc loop\n";
     }
-    std::cout << "Pushing loc into serv\n";
     eraseLine(content, tokenLine);
     eraseLine(content, "{");
     eraseLine(content, "}");
     serv.locations.push_back(loc);
-    std::cout << BLUE << content << RESET << "\nOut for parse  Location\n";
 }
 
 void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos, int type)
@@ -217,14 +202,11 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
     int         nb = -1;
 
     tokenLine = getTokenLine(content, _Tokens[type], pos);
-    std::cout << "Looking for serv token\n" << tokenLine << '\n';
     if (type != LOCATION)
     {
         eraseLine(content, tokenLine);
         sanitizeLine(tokenLine);
     }
-    std::cout << ROSE << "line : " << tokenLine << std::endl << RESET;
-    std::cout << "type : " << type << std::endl;
     switch (type)
     {
         case HOST:
@@ -276,7 +258,6 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
         default:
             break ;
     }
-    std::cout << (content.find("location") != std::string::npos ? "loc found" : "loc not found") << std::endl; 
 }
 
 void    Config::parseContent()
@@ -310,21 +291,17 @@ void    Config::parseContent()
                 }
                 else
                 {
-                    std::cout << GREEN << "Serv token found !\n" << RESET;
                     tokensFound++;
                     assignToken(serv, trim, servPos, i);
                 }
-                std::cout << (trim.find("location") != std::string::npos ? "loc found" : "loc not found") << std::endl; 
             }
         }
-        std::cout << "Pushing server\n";
         if (!tokensFound)
             break ;
         _servers.push_back(serv);
         size_t to = trim.find('}');
         trim.erase(0, to + 1);
         _nbServers++;
-        std::cout <<ROSE << "New content for new server\n" << trim << '\n' << RESET;
     }
     std::cout <<BLUE <<  trim << RESET << '\n';
 }
