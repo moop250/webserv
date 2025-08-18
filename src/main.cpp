@@ -17,10 +17,13 @@
 Config	*parseConfigFile(std::string file, Debug &dfile)
 {
 	Config	*config;
+	std::stringstream	msg;
 	
 	config = new Config(file, dfile);
 	config->parseContent();
 	config->sanitize();
+	msg << *config;
+	dfile.append(msg.str().c_str());
 	return config;
 }
 

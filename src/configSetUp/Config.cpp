@@ -35,14 +35,20 @@ Config::Config(std::string fileName, Debug &dfile) :
     std::string     buf;
 
     if (readFile.is_open())
+    {
         while (std::getline(readFile, buf))
+        {
             _content.append(buf);
+            _content.append(" ");
+        }
+    }
     else
     {
         _content = "";
         Error("File is empty or does not exist");
         return ;
     }
+    _content.append("                                ");
     _dfile->append(buf.c_str());
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
