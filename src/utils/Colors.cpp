@@ -37,6 +37,51 @@ std::string Color::getANSICode() const
     }
 }
 
+std::string Color::blue()
+{
+    return "\e[0;34m";
+}
+
+std::string Color::red()
+{
+    return "\e[0;31m";
+}
+
+std::string Color::green()
+{
+    return "\e[0;32m";
+}
+
+std::string Color::yellow()
+{
+    return "\e[0;33m";
+}
+
+std::string Color::purple()
+{
+    return "\e[0;35m";
+}
+
+std::string Color::cyan()
+{
+    return "\e[0;36m";
+}
+
+std::string Color::white()
+{
+    return "\e[0;37m";
+}
+
+std::string Color::black()
+{
+    return "\e[0;30m";
+}
+
+std::string Color::reset()
+{
+    return "\e[0m";
+}
+
 std::ostream& operator<<(std::ostream& os, const Color& color)
 {
     return os << color.getANSICode();

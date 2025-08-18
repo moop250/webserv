@@ -58,9 +58,7 @@ struct s_ServerData
 {
     std::map<int, std::string>  error_pages;        // code -> file path
     std::vector<t_Location>     locations;
- //   std::vector<std::string>    listeners;          // multiple host:port
     std::vector<std::string>    methods;
-//    std::vector<std::string>    hosts;
     std::string                 host;
     std::string                 port;
     std::string                 server_name;
@@ -70,17 +68,16 @@ struct s_ServerData
     std::string                 cgi_ext;
     std::string                 cgi_path;
     size_t                      client_max_body_size;
-    bool                        autoindex;    
+    bool                        autoindex;
+    bool                        isLoc;
 };
 
- struct s_Location
- {
-    bool            active;
-    t_ServerData    data;
- };
-
-extern const t_Location    default_location_values;
-extern const t_ServerData  default_server_values;
+struct s_Location
+{
+   bool            active;
+   t_ServerData    data;
+   std::string     path;
+};
 
 class Config
 {
@@ -109,13 +106,14 @@ class Config
     
         //  active parsing
         bool            checkServerData(int index) const;
-        void            parseLocation(t_ServerData &serv, std::string &content);
+        void            parseLocation(t_ServerData &serv, std::string &content, std::string getTokenLine);
         void            parseContent();
 
         //  UTILS
-        void            assignToken(t_Location &loc, std::string content, size_t pos, int type);
+        void            assignToken(t_Location &loc, std::string &content, size_t pos, int type);
         void            assignToken(t_ServerData &serv, std::string &content, size_t pos, int type);
         size_t          findToken(std::string content, size_t range[2], e_TokenType i);
+        void            sanitize();
 
         //  generic errors
         class BadFileException : public std::exception
@@ -146,5 +144,16 @@ class Config
 };
 
 std::ostream    &operator<<(std::ostream &stream, Config &conf);
+
+void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd);
+void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd);
+void    sanitizeLine(std::string &line);
+std::string getTokenLine(const std::string &content, const std::string &token, size_t pos);
+void eraseLine(std::string &content, const std::string &line);
+size_t  findNextSpace(std::string line, size_t &from);
+size_t  getNb(std::string line, std::string token);
+std::string getStr(std::string &line, std::string token);
+void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type);
+t_ServerData    getDefaultServ(bool with_location);
 
 #endif

@@ -14,7 +14,7 @@
 NAME        = webserv
 
 CC          = c++
-DBUG	     = -fsanitize=address
+DBUG	     = -g#-fsanitize=address
 BFLAGS       = -Wall -Wextra -Werror -g3 -std=c++98
 
 OBJDIR      = .obj
@@ -29,11 +29,14 @@ RESET       = \033[0m
 RESETNL     = \033[0m\n
 
 SRCS        = src/main.cpp \
-	      src/utils/Colors.cpp src/utils/Debug.cpp src/utils/Error.cpp \
-	      src/configSetUp/Config.cpp \
-              src/configSetUp/setUp.cpp \
-              src/sockets/SocketClass.cpp \
-			  src/sockets/serverInitialization.cpp 
+			src/utils/Colors.cpp src/utils/Debug.cpp src/utils/Error.cpp \
+	      	src/configSetUp/Config.cpp \
+            src/configSetUp/ConfigUtils.cpp \
+			src/configSetUp/TokenUtils.cpp \
+			src/configSetUp/ConfigServ.cpp \
+			src/configSetUp/ConfigLoc.cpp \
+            src/sockets/SocketClass.cpp \
+			src/sockets/serverInitialization.cpp 
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
