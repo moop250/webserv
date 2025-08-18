@@ -24,7 +24,23 @@ bool checkBracket(std::string content)
 
 bool checkBadTokens(std::string content)
 {
-    (void)content;
+    std::string line = content;
+    std::string tokens[TOKEN_TYPE_COUNT] = {
+        "<>", "<>", "<>", "<>", "<>",
+        "<>", "<>", "<>", "<>", "<>",
+        "<>"
+    };
+
+    while (!line.empty())
+    {
+    //    line = getline(content);
+        if (line.find("<") != std::string::npos || line.find(">") != std::string::npos)
+        {
+            //  s;
+            return OK;
+        }
+        return KO;
+    }
     return OK;
 }
 
@@ -48,7 +64,6 @@ bool    checkEmpty(std::string content)
 
     while (start != std::string::npos)
     {
-
         //  check
         return KO;
     }

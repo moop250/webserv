@@ -18,29 +18,9 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 {
 	Config	*config;
 	
-	try
-	{
-		config = new Config(file, dfile);
-	}
-	catch(const std::exception& e)
-	{
-		Error("here at : ", __func__, __FILE__, __LINE__);
-		throw Config::BadFileException();
-	}
+	config = new Config(file, dfile);
 	config->parseContent();
 	config->sanitize();
-	try
-	{
-		std::stringstream	strparam;
-		strparam << *config;
-		dfile.append(strparam.str().c_str());
-		dfile.append("Config printed");
-	}
-	catch(const std::exception& e)
-	{
-		Error("Config", __func__, __FILE__, __LINE__);
-		throw Config::MissingParamException();
-	}
 	return config;
 }
 
@@ -87,7 +67,7 @@ int main(int ac, char** av)
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
 	else
-		config = parseConfigFile("configFiles/default.config", dfile);
+		config = parseConfigFile("configFiles/goodConfigs/default.config", dfile);
 
 	ErrorDebug(dfile, "Config file parsing uncomplete");
 
@@ -95,7 +75,6 @@ int main(int ac, char** av)
 
 	setUpServer(config);
 	try {
-		socket = initalizeServer(config);
 	} catch (std::exception &e) {
 		std::cout << RED << e.what() << RESET << std::endl;
 	}

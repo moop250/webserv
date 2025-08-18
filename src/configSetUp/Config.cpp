@@ -32,17 +32,20 @@ Config::Config(std::string fileName, Debug &dfile) :
     _dfile(&dfile), _nbServers(0)
 {
     std::ifstream   readFile(fileName.c_str());
-    char            buf[100000];
+    std::string     buf;
 
-    for (int i = 0; i < 100000; i++)
-        buf[i] = 0;
-    readFile.read(buf, 100000);
-    _content = buf;
-    _dfile->append(buf);
+    if (readFile.is_open())
+        while (std::getline(readFile, buf))
+            _content.append(buf);
+    else
+    {
+        _content = "";
+        Error("File is empty or does not exist");
+        return ;
+    }
+    _dfile->append(buf.c_str());
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
-    if (_content.empty())
-        throw Config::BadFileException();
 }
 
 Config::Config(const Config &conf)
