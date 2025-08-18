@@ -98,11 +98,13 @@ void    Config::parseContent()
                 }
                 else
                 {
+                //    std::cout << "Token found : " << _Tokens[i] << '\n';
                     tokensFound++;
                     assignToken(serv, trim, servPos, i);
                 }
             }
         }
+      //  std::cout << trim << std::endl;
         if (!tokensFound)
             break ;
         _servers.push_back(serv);

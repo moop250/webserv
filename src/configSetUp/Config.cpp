@@ -39,7 +39,7 @@ Config::Config(std::string fileName, Debug &dfile) :
         while (std::getline(readFile, buf))
         {
             _content.append(buf);
-            _content.append(" ");
+            _content.append("\n");
         }
     }
     else
@@ -48,7 +48,6 @@ Config::Config(std::string fileName, Debug &dfile) :
         Error("File is empty or does not exist");
         return ;
     }
-    _content.append("                                ");
     _dfile->append(buf.c_str());
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
@@ -94,7 +93,7 @@ void    Config::setServerData(t_ServerData data)
     (void)data;
 }
 
-size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
+size_t  Config::findToken(std::string &content, size_t range[2], e_TokenType i)
 {
     size_t  pos = content.find(_Tokens[i], range[BEGIN]);
 
@@ -102,6 +101,21 @@ size_t  Config::findToken(std::string content, size_t range[2], e_TokenType i)
         return (0);
     if (pos == std::string::npos)
         return (0);
+    size_t  tmp = pos;
+    while (tmp > 0 && (content[tmp] != ';' || content[tmp] != '{'))
+    {
+        if (content[tmp] == '#')
+        {
+            pos = tmp;
+            while (pos < content.length() && (content[pos] != ';' && content[pos] != '}' && content[pos] != '{'))
+                pos++;
+            std::cout << YELLOW << content.substr(tmp, pos - tmp) << RESET;
+            std::cout << "Line erased\n";
+            content.erase(tmp, pos - tmp);
+            return (0);
+        }
+        tmp--;
+    }
     return (pos);
 }
 
