@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/14 17:59:22 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/18 20:49:35 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "catch_amalgamated.hpp"
 #include "Request.hpp"
 #include "request_handler.hpp"
+#include "support_file.hpp"
 
 // ------------------- Request class Default ---------------------
 
@@ -27,10 +28,11 @@ TEST_CASE("Request class default constructor") {
 	REQUIRE(requestDefault.getHttpVersion() == "");
 	REQUIRE(requestDefault.getHeader("nothing") == "");
 	REQUIRE(requestDefault.getCookie("Cookie1") == "");
-	REQUIRE(requestDefault.getFileType() == "");
+	REQUIRE(requestDefault.getCgiType() == "");
 	REQUIRE(requestDefault.getRequestType() == None);
 	REQUIRE(requestDefault.getBody() == "");
 	REQUIRE(requestDefault.getContentLength() == 0);
+	REQUIRE(requestDefault.getContentType() == "");
 }
 
 // ------------------- Request Parsing Error ---------------------
@@ -121,10 +123,10 @@ TEST_CASE("Header section doesn't have Content-length with POST", "[Header Error
 	REQUIRE(buffer == "\r\n{\n\"username\": \"user123\",\n\"password\": \"securepassword\"\n}\r\n");
 	REQUIRE(code == 411);
 }
-TEST_CASE("Body with smaller size then Content-length", "[Body Error]") {
+TEST_CASE("Body with smaller size than Content-length", "[Body Error]") {
 	Request request;
 	std::string buffer = 
-			"POST /test/demo_form.php?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-length: 150\r\n\r\n{\n\"username\": \"user123\",\n\"password\": \"securepassword\"\n}\r\n";
+			"POST /test/demo_form.php?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-Length: 150\r\n\r\n{\n\"username\": \"user123\",\n\"password\": \"securepassword\"\n}\r\n";
 	parse_method(request, buffer);
 	parse_URL(request, buffer);
 	parse_http_ver(request, buffer);
@@ -133,6 +135,8 @@ TEST_CASE("Body with smaller size then Content-length", "[Body Error]") {
 	int code = parse_body(request, buffer);
 	REQUIRE(code == 400);
 }
+
+
 
 // ------------------- Request Parsing Success ---------------------
 
@@ -235,7 +239,7 @@ TEST_CASE("Header no body", "[Success]") {
 TEST_CASE("Header with body", "[Success]") {
 	Request request;
 	std::string buffer = 
-			"POST /test/demo_form.php?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-length: 49\r\n\r\n{ username: user123,\npassword: securepassword }\r\n";
+			"POST /test/demo_form.php?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-Length: 49\r\n\r\n{ username: user123,\npassword: securepassword }\r\n";
 	parse_method(request, buffer);
 	REQUIRE(request.getMethod() == "POST");
 	parse_URL(request, buffer);
@@ -244,9 +248,9 @@ TEST_CASE("Header with body", "[Success]") {
 	REQUIRE(request.getHeader("Host") == "www.example.com");
 	REQUIRE(request.getHeader("User-Agent") == "CustomClient/1.0");
 	REQUIRE(request.getHeader("Connection") == "close");
-	REQUIRE(request.getHeader("Content-length") == "49");
+	REQUIRE(request.getHeader("Content-Length") == "49");
 	REQUIRE(buffer == "\r\n{ username: user123,\npassword: securepassword }\r\n");
-	REQUIRE(request.getContentLength() == 49);
+	REQUIRE(static_cast<int>(request.getContentLength()) == 49);
 	REQUIRE(code == 0);
 	code = parse_body(request, buffer);
 	REQUIRE(request.getBody() == "{ username: user123,\npassword: securepassword }\r\n");
@@ -256,22 +260,23 @@ TEST_CASE("Header with body", "[Success]") {
 TEST_CASE("Request type is Directory", "[Success]") {
 	Request request;
 	std::string buffer = 
-			"GET /test/ HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-length: 49\r\n\r\n{ username: user123,\npassword: securepassword }\r\n";
+			"GET /home/nguyen/webserv/src/request/ HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-length: 49\r\n\r\n{ username: user123,\npassword: securepassword }\r\n";
 	parse_method(request, buffer);
 	parse_URL(request, buffer);
-	REQUIRE(request.getPath() == "/test/");
+	REQUIRE(request.getPath() == "/home/nguyen/webserv/src/request/");
 	int code = parse_request_type(request);
 	REQUIRE(code == 0);
 	REQUIRE(request.getRequestType() == Directory);
 }
-// TEST_CASE("Request type is CGI", "[Success]") {
-// 	Request request;
-// 	std::string buffer = 
-// 			"GET /test/demo_form.php?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-length: 49\r\n\r\n{ username: user123,\npassword: securepassword }\r\n";
-// 	parse_method(request, buffer);
-// 	parse_URL(request, buffer);
-// 	REQUIRE(request.getPath() == "/test/demo_form.php");
-// 	int code = parse_request_type(request);
-// 	REQUIRE(code == 0);
-// 	REQUIRE(request.getRequestType() == CGI);
-// }
+TEST_CASE("Request type is CGI", "[Success]") {
+	Request request;
+	std::string buffer =
+			"GET /home/nguyen/webserv/nguyenTest/test.java?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-length: 49\r\n\r\n{ username: user123,\npassword: securepassword }\r\n";
+	parse_method(request, buffer);
+	parse_URL(request, buffer);
+	REQUIRE(request.getPath() == "/home/nguyen/webserv/nguyenTest/test.java");
+	int code = parse_request_type(request);
+	REQUIRE(code == 0);
+	REQUIRE(request.getRequestType() == CGI);
+	REQUIRE(request.getCgiType() == ".java");
+}

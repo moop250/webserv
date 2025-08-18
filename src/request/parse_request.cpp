@@ -6,12 +6,13 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/14 17:59:23 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/18 20:48:15 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "request_handler.hpp"
+#include "support_file.hpp"
 
 int parse_method(Request& request, std::string& buffer) {
 	std::string::size_type	position;
@@ -79,7 +80,7 @@ int parse_URL(Request& request, std::string& buffer) {
 				request.setQuery(query);
 				url.erase(query_pos, url_pos);
 			}
-			request.setPath(url);
+			request.setPath(url); // Check if path is redirected before set!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			buffer.erase(0, url_pos + 1);
 			return 0;
 		}
@@ -135,13 +136,20 @@ int parse_headers(Request& request, std::string& buffer) {
 			return 400;
 		}
 	}
-	if (request.getHeader("Content-length") != "") {
-		size_t len = static_cast<size_t>(strtol(request.getHeader("Content-length").c_str(), NULL, 10));
+	std::string contentLength = request.getHeader("Content-Length");
+	if (contentLength != "") {
+		size_t len = static_cast<size_t>(strtol(contentLength.c_str(), NULL, 10));
 		if (len < 0)
 			return 400;
-		if (len == LONG_MAX) // Compare with server limit !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		if (len == LONG_MAX) // Compare with server limit !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			return 413;
 		request.setContentLength(len);
+		std::string type = request.getHeader("Content-Type");
+		if (type != "") {
+			request.setContentType(type);
+		} else {
+			request.setContentType("application/octet-stream");
+		}
 	} else {
 		if (request.getMethod() == "POST")
 			return 411;
@@ -166,7 +174,27 @@ int parse_body(Request& request, std::string& buffer) {
 	return 0;
 }
 
+void parse_cgiType(Request& request) {
+	std::string path = request.getPath();
+	std::string extension = path.substr(path.rfind('.'));
+	if (isCGI(extension) == true) {
+		request.setRequestType(CGI);
+		request.setCgiType(extension);
+	} else
+		request.setRequestType(File);
+}
+
 int parse_request_type(Request& request) {
+	struct stat	fileStat;
+
+	if (stat(request.getPath().c_str(), &fileStat) == -1)
+		return 500;
+	if (S_ISDIR(fileStat.st_mode)) {
+		request.setRequestType(Directory);
+	} else if (S_ISREG(fileStat.st_mode)) {
+		parse_cgiType(request);
+	} else
+		return 400;
 	return 0;
 }
 

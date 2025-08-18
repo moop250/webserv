@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/14 17:47:05 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/18 20:47:38 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,8 @@ std::string Request::getCookie(const std::string& key) const {
 		return (it -> second);
 	return "";
 }
-std::string Request::getFileType() const {
-		return this->fileType;
+std::string Request::getCgiType() const {
+		return this->cgiType;
 }
 int Request::getRequestType() const {
 	return this->requestType;
@@ -60,10 +60,12 @@ std::string Request::getBody() const {
 		return this->body;
 	return "";
 }
-size_t Request::getContentLength() const{
+size_t Request::getContentLength() const {
 	return this->contentLength;
 }
-
+std::string Request::getContentType() const {
+	return this->contentType;
+}
 
 // ----------------- SETTERS ----------------------
 
@@ -89,8 +91,8 @@ void Request::setHeader(const std::string& key, const std::string& value) {
 void Request::setCookie(const std::string& key, const std::string& value) {
 	this->cookies[key] = value;
 }
-Request& Request::setFileType(const std::string& fileType) {
-	this->fileType = fileType;
+Request& Request::setCgiType(const std::string& cgiType) {
+	this->cgiType = cgiType;
 	return *this;
 }
 Request& Request::setRequestType(const int type) {
@@ -103,5 +105,9 @@ Request& Request::setBody(const std::string& body) {
 }
 Request& Request::setContentLength(const size_t len) {
 	this->contentLength = len;
+	return *this;
+}
+Request& Request::setContentType(const std::string type) {
+	this->contentType = type;
 	return *this;
 }
