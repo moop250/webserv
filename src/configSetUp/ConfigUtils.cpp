@@ -128,12 +128,8 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
             if (i->data.methods.empty())
                 stream << RED << "UNDEFINED" << RESET;
             else
-                stream << GREEN << "PRINTING METHODS" << RESET;
-        //    std::cerr << "hello";
-        //    if (i->data.methods.empty())
-        //        continue ;
-        //    for (std::vector<std::string>::iterator j = i->data.methods.begin(); j != i->data.methods.end(); ++i)
-        //        stream << *j << ' ';
+                for (int j = 0; j < i->data.methods.size(); j++)
+                    stream << i->data.methods.at(j) << " ";
             stream << "\n\n";
         }
         stream << "\n\n";

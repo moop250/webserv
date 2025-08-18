@@ -6,12 +6,9 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
     std::string str = "UNDEFINED";
     int         nb = -1;
 
-//    std::cout << GREEN << "TOKEN FOUND :: type --> " << YELLOW << _Tokens[type] << RESET << '\n';
     tokenLine = getTokenLine(content, _Tokens[type], pos);
     eraseLine(content, tokenLine);
-//    std::cout << "line : " << WHITE << tokenLine << std::endl;
     sanitizeLine(tokenLine);
-//    std::cout << "sanitized line : " << tokenLine << std::endl;
     switch (type)
     {
         case ROOT_PATH:
@@ -45,7 +42,6 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
             {
                 str = getStr(tokenLine, _Tokens[METHODS]);
                 eraseLine(tokenLine, str);
-                std::cout << GREEN << "NEW METHOD : " << str << '\n' <<RESET;
                 loc.data.methods.push_back(str);
             }
             break ;
