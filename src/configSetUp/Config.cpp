@@ -292,9 +292,10 @@ void    Config::parseContent()
     _servers.pop_back();    // rm default
     while (!trim.empty())
     {
+
         tokensFound = 0;
         serv = getDefaultServ(0);
-        for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+        for (int i = 0; i < TOKEN_TYPE_COUNT + 1; i++)
         {
             while (1)
             {
@@ -320,8 +321,10 @@ void    Config::parseContent()
         if (!tokensFound)
             break ;
         _servers.push_back(serv);
-        trim.erase(trim.find("server"), 8);
+        size_t to = trim.find('}');
+        trim.erase(0, to + 1);
         _nbServers++;
+        std::cout <<ROSE << "New content for new server\n" << trim << '\n' << RESET;
     }
     std::cout <<BLUE <<  trim << RESET << '\n';
 }
