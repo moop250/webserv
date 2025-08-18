@@ -107,8 +107,11 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
         stream << print.port;
         stream << "\n";
         stream << "\terror pages    : \n";
-        for (std::map<int, std::string>::iterator j = print.error_pages.begin(); j != print.error_pages.end(); j++)
-            stream << "\t\tnb : " << j->first << " second : " << j->second << '\n';
+        if (print.error_pages.empty())
+            stream << RED << "\t\tUNDEFINED" << RESET;
+        else 
+            for (std::map<int, std::string>::iterator j = print.error_pages.begin(); j != print.error_pages.end(); j++)
+                stream << "\t\tnb : " << j->first << " second : " << j->second << '\n';
         stream << '\n';
         iteration = 0;
         for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); i++)
@@ -121,9 +124,16 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\t\tUpload storage          : " << i->data.upload_storage << '\n'
                 << "\t\tCgi external entity     : " << i->data.cgi_ext << '\n'
                 << "\t\tCgi path to interpreter : " << i->data.cgi_path << '\n'
-                << "\t\tMethods allowed : ";
-            for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); ++i)
-                stream << *i << ' ';
+                << "\t\tMethods allowed         : ";
+            if (i->data.methods.empty())
+                stream << RED << "UNDEFINED" << RESET;
+            else
+                stream << GREEN << "PRINTING METHODS" << RESET;
+        //    std::cerr << "hello";
+        //    if (i->data.methods.empty())
+        //        continue ;
+        //    for (std::vector<std::string>::iterator j = i->data.methods.begin(); j != i->data.methods.end(); ++i)
+        //        stream << *j << ' ';
             stream << "\n\n";
         }
         stream << "\n\n";
