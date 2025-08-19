@@ -82,13 +82,14 @@ void    Config::parseContent()
     {
         tokensFound = 0;
         serv = getDefaultServ(0);
+        servRange[0] = trim.find("server");
         for (int i = 0; i < TOKEN_TYPE_COUNT + 1; i++)
         {
             while (1)
             {
-                reset(serv, trim, servPos, servRange[0], servRange[1]);
                 if (servRange[0] == std::string::npos)
                     break ;
+                servRange[1] = trim.find("{", trim.find("{") + 1);
                 if (!(servPos = findToken(trim, servRange, static_cast<e_TokenType>(i))))
                 {
                     if (i == LOCATION)
@@ -98,7 +99,10 @@ void    Config::parseContent()
                 else
                 {
                     tokensFound++;
-                    assignToken(serv, trim, servPos, i);
+                    if (servPos != -1)
+                        assignToken(serv, trim, servPos, i);
+                    else
+                        assignDefaultToken(serv, trim, servPos, i);
                 }
             }
         }

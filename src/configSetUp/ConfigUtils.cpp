@@ -30,24 +30,26 @@ t_ServerData    getDefaultServ(bool with_location)
 
 void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type)
 {
+    Color   c;
+    std::string msg = c.red() + "UNDEFINED" + c.reset();
     (void)content;
     (void)pos;
      switch (type)
     {
         case HOST:
-            serv.host = "UNDEFINED";
+            serv.host = msg;
                 break ;
         case LISTEN:
-            serv.port ="UNDEFINED";
+            serv.port = msg;
             break ;
         case SERVER_NAME:
-            serv.server_name = "UNDEFINED";
+            serv.server_name = msg;
             break ;
         case ROOT_PATH:
-            serv.root = "UNDEFINED";
+            serv.root = msg;
             break ;
         case HTLM_INDEX:
-            serv.index = "UNDEFINED";
+            serv.index = msg;
             break ;
         case AUTOINDEX:
             serv.autoindex = false;
@@ -56,19 +58,19 @@ void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos,
             serv.error_pages.insert(std::make_pair(404, "UNDEFINED"));
             break ;
         case UPLOAD_STORAGE:
-            serv.upload_storage = "UNDEFINED";
+            serv.upload_storage = msg;
             break ;
         case CGI_EXTENTION:
-            serv.cgi_ext = "UNDEFINED";
+            serv.cgi_ext = msg;
             break ;
         case CGI_PATH:
-            serv.cgi_path = "UNDEFINED";
+            serv.cgi_path = msg;
             break ;
         case CLIENT_MAX_BODY_SIZE:
             serv.client_max_body_size = 0;
             break ;
         case METHODS:
-            serv.methods.push_back("NO METHOD");
+        //    serv.methods.push_back("U");
             break ;
         case LOCATION:
             serv.locations.push_back(getDefaultServ(1).locations.at(0));

@@ -1,37 +1,5 @@
 #include "Config.hpp"
 
-void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
-{
-    pos = 0;
-    rBegin = content.find("server");
-    if (rBegin == std::string::npos)
-    {
-        rEnd = rBegin;
-        return ;
-    }
-    while (rBegin != content.length() && content[rBegin] != '{')
-        rBegin++;
-    if (content.find("location", rBegin) < rEnd - 10)
-        rEnd = content.find("location", rBegin);
-    else
-        rEnd = content.find('{', rBegin + 1);
-}
-
-void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd)
-{
-    //  revoir logique
-    pos = 0;
-    rBegin = content.find("location", pos);
-    if (rBegin == std::string::npos)
-    {
-        rEnd = rBegin;
-        return ;
-    }
-    while (rBegin != content.length() && content[rBegin] != '{')
-        rBegin++;
-    rEnd = content.find('{', rBegin + 1);
-}
-
 void    sanitizeLine(std::string &line)
 {
     int to_remove = 0;
