@@ -44,7 +44,6 @@ size_t  findNextSpace(std::string line, size_t &from)
     return here;
 }
 
-
 size_t  getNb(std::string line, std::string token)
 {
     size_t  nb = 0;

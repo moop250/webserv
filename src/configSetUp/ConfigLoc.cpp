@@ -70,14 +70,12 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content, std::str
         {
             if (i == LOCATION)
                 assignDefaultToken(loc.data, content, pos, i);
-            break ;
         }
         else
         {
             if (pos != -1)
-                assignToken(serv, content, pos, i);
+                assignToken(loc, content, pos, i);
         }
-
     }
     eraseLine(content, tokenLine);
     eraseLine(content, "{");
