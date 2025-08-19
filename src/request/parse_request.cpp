@@ -13,11 +13,12 @@
 #include "Request.hpp"
 #include "request_handler.hpp"
 #include "support_file.hpp"
-
+ 
+/* do #define error_nb instead of 400, 404, etc... , less harder to understand */
 int parse_method(Request& request, std::string& buffer) {
 	std::string::size_type	position;
 
-	position = buffer.find(" ");
+	position = buffer.find(" ");	//	multiple spaces can be problematic ?
 	if (position == std::string::npos)
 		return 400;
 	try {
@@ -54,7 +55,7 @@ int parse_URL(Request& request, std::string& buffer) {
 	std::string::size_type	path_pos;
 	std::string::size_type	query_pos;
 
-	url_pos = buffer.find(" ");
+	url_pos = buffer.find(" ");	// multiple spaces, same as parse_method()
 	if (url_pos == std::string::npos)
 		return 400;
 	try {
@@ -95,7 +96,7 @@ int parse_URL(Request& request, std::string& buffer) {
 int parse_http_ver(Request& request, std::string& buffer) {
 	std::string::size_type	http_pos;
 
-	http_pos = buffer.find("\r\n");
+	http_pos = buffer.find("\r\n");	//	\r caractere windows, incompatibilite multiplateforme ?
 	if (http_pos == std::string::npos)
 		return 400;
 	try {
@@ -104,7 +105,7 @@ int parse_http_ver(Request& request, std::string& buffer) {
 			return 505;
 		else if (http_ver == "HTTP/1.1") {
 			request.setHttpVersion(http_ver);
-			buffer.erase(0, http_pos + 2);
+			buffer.erase(0, http_pos + 2);	// why + 2 ? if for spaces, not safe i think
 			return 0;
 		}
 		return 400;
@@ -119,7 +120,7 @@ int parse_headers(Request& request, std::string& buffer) {
 	std::string::size_type	colon_pos;
 	
 	while (true) {
-		end_pos = buffer.find("\r\n");
+		end_pos = buffer.find("\r\n");	//	\r pareil que dans http_ver
 		if (end_pos == std::string::npos || end_pos == 0)
 			break;
 		try {
@@ -128,7 +129,7 @@ int parse_headers(Request& request, std::string& buffer) {
 			if (colon_pos == std::string::npos)
 				return 400;
 			std::string key = key_value.substr(0, colon_pos);
-			if (key_value[colon_pos + 1] == ' ')
+			if (key_value[colon_pos + 1] == ' ')	// use isspace() maybe ?
 				colon_pos += 2;
 			std::string value = key_value.substr(colon_pos, key_value.size() - 1);
 			request.setHeader(key, value);
@@ -138,7 +139,7 @@ int parse_headers(Request& request, std::string& buffer) {
 		}
 	}
 	std::string contentLength = request.getHeader("Content-Length");
-	if (contentLength != "") {
+	if (contentLength != "") {	// contentLength.empty() is c++-ier
 		size_t len = static_cast<size_t>(strtol(contentLength.c_str(), NULL, 10));
 		if (len == LONG_MAX) // Compare with server limit !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			return 413;
@@ -197,6 +198,7 @@ int parse_request_type(Request& request) {
 	return 0;
 }
 
+/* maybe an array of functions is more readable */
 int parse_request(std::string& buffer) {
 	Request	request;
 	int		code = 0;
