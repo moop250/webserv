@@ -110,9 +110,9 @@ size_t  Config::findToken(std::string &content, size_t range[2], e_TokenType i)
             while (pos < content.length() && (content[pos] != ';' && content[pos] != '}' && content[pos] != '{'))
                 pos++;
             std::cout << "Line ignored :\n";
-            std::cout << YELLOW << content.substr(tmp, pos - tmp) << RESET;
+            std::cout << YELLOW << content.substr(tmp, pos - tmp + 1) << RESET << '\n';
             content.erase(tmp, pos - tmp);
-            return (0);
+            return (-1);
         }
         tmp--;
     }

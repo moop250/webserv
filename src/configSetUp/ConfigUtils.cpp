@@ -68,7 +68,7 @@ void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos,
             serv.client_max_body_size = 0;
             break ;
         case METHODS:
-            serv.methods.push_back("NO METHOD");
+        //    serv.methods.push_back("U");
             break ;
         case LOCATION:
             serv.locations.push_back(getDefaultServ(1).locations.at(0));

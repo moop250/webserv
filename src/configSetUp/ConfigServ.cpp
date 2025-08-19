@@ -99,7 +99,10 @@ void    Config::parseContent()
                 else
                 {
                     tokensFound++;
-                    assignToken(serv, trim, servPos, i);
+                    if (servPos != -1)
+                        assignToken(serv, trim, servPos, i);
+                    else
+                        assignDefaultToken(serv, trim, servPos, i);
                 }
             }
         }
