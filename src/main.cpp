@@ -72,12 +72,10 @@ int main(int ac, char** av)
 	else
 		config = parseConfigFile("configFiles/goodConfigs/default.config", dfile);
 
-	ErrorDebug(dfile, "Config file parsing uncomplete");
-
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
 	setUpServer(config);
-	try {
+	try { initalizeServer(config);
 	} catch (std::exception &e) {
 		std::cout << RED << e.what() << RESET << std::endl;
 	}

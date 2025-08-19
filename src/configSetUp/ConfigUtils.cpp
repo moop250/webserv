@@ -113,7 +113,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
             stream << RED << "\t\tUNDEFINED" << RESET;
         else 
             for (std::map<int, std::string>::iterator j = print.error_pages.begin(); j != print.error_pages.end(); j++)
-                stream << "\t\tnb : " << j->first << " second : " << j->second << '\n';
+                stream << "\t\t" << j->first << " <==> " << j->second << '\n';
         stream << '\n';
         iteration = 0;
         for (std::vector<t_Location>::iterator i = print.locations.begin(); i != print.locations.end(); i++)
