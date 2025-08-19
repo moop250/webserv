@@ -2,6 +2,9 @@
 #include "../../headers/serverInitialization.hpp"
 #include "../../headers/StdLibs.hpp"
 #include "../../headers/SocketClass.hpp"
+#include <new>
+#include <poll.h>
+#include <sys/poll.h>
 
 static bool compareConfigs(std::string currentPair, std::vector<std::string> allPairs) {
 	if (allPairs.empty())
@@ -38,4 +41,15 @@ ServerSocket initalizeServer(Config *serverConfig) {
 		socket.initializeNewSocket_(uniqueComboList.at(i));
 	}
 	return socket;
+};
+
+struct pollfd *initPoll(ServerSocket socket) {
+	struct pollfd *out = new struct pollfd[socket.getSocketCount()];
+
+	for (int i = 0; i < socket.getSocketCount(); ++i) {
+		out[i].fd = socket.getSocketFd(i);
+		out[i].events = POLLIN;
+	}
+
+	return out;
 };
