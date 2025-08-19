@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/18 20:42:25 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/18 22:55:46 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ FLAGS       = -Wall -Wextra -Werror -std=c++98
 FLAGS =
 
 OBJDIR      = .obj
-INCLDIR     = ../../headers
+INCLDIR     = ../headers
 
 RM          = rm -rf
 
@@ -29,8 +29,9 @@ RESET       = \033[0m
 RESETNL     = \033[0m\n
 
 SRCS        = tdd.cpp catch_amalgamated.cpp\
-			Request.cpp support_file.cpp\
-			parse_request.cpp handle_request.cpp error_response.cpp
+			request/Request.cpp request/support_file.cpp\
+			request/parse_request.cpp response/handle_request.cpp\
+			response/error_response.cpp response/Response.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 

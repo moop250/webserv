@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/18 20:49:35 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/18 23:44:25 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <string>
 #include "catch_amalgamated.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 #include "request_handler.hpp"
 #include "support_file.hpp"
 
@@ -279,4 +280,45 @@ TEST_CASE("Request type is CGI", "[Success]") {
 	REQUIRE(code == 0);
 	REQUIRE(request.getRequestType() == CGI);
 	REQUIRE(request.getCgiType() == ".java");
+}
+TEST_CASE("Request type is File", "[Success]") {
+	Request request;
+	std::string buffer =
+			"GET /home/nguyen/webserv/headers/Colors.hpp?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-length: 49\r\n\r\n{ username: user123,\npassword: securepassword }\r\n";
+	parse_method(request, buffer);
+	parse_URL(request, buffer);
+	REQUIRE(request.getPath() == "/home/nguyen/webserv/headers/Colors.hpp");
+	int code = parse_request_type(request);
+	REQUIRE(code == 0);
+	REQUIRE(request.getRequestType() == File);
+	REQUIRE(request.getCgiType() == "");
+}
+
+
+
+// ------------------- Response class Default ---------------------
+
+TEST_CASE("Response class default constructor") {
+	Response response;
+
+	REQUIRE(response.getHttpVersion() == "HTTP/1.1");
+	REQUIRE(response.getCode() == 0);
+	REQUIRE(response.getCodeMessage() == "");
+	REQUIRE(response.getErrorPagePath() == "");
+	REQUIRE(response.getHeader("nothing") == "");
+	REQUIRE(response.getBody() == "");
+	REQUIRE(response.getContentLength() == 0);
+	REQUIRE(response.getContentType() == "");
+}
+TEST_CASE("Response format") {
+	Response response;
+	
+	response.setCode(200);
+	response.setCodeMessage("OK");
+	response.setHeader("Server", "42WebServ/0.1.0");
+	response.setHeader("Year", "2025");
+	response.setHeader("Content-Length", "133");
+	response.setHeader("Content-Type", "text/plain");
+	response.setBody("Hello, this is a http response");
+	REQUIRE(response.constructResponse() =="HTTP/1.1 200 OK\r\nServer: 42WebServ/0.1.0\r\nYear: 2025\r\nContent-Length: 133\r\nContent-Type: text/plain\r\n\r\nHello, this is a http response");
 }

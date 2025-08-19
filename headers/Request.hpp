@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/14 15:59:17 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/18 22:53:51 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <stdexcept> // std::out_of_range
 #include <stdlib.h> // strtol()
 #include <limits.h> // LONG_MAX
+#include <sys/stat.h>
 
 enum requestType {
 	File,
@@ -33,10 +34,11 @@ class Request {
 		std::string							httpVersion;
 		std::map<std::string, std::string>	headers;
 		std::map<std::string, std::string>	cookies;
-		std::string							fileType;
+		std::string							cgiType;
 		int									requestType;
 		std::string							body;
 		size_t								contentLength;
+		std::string							contentType;
 
 	public:
 		Request();
@@ -48,10 +50,11 @@ class Request {
 		std::string	getHttpVersion() const;
 		std::string	getHeader(const std::string& key) const;
 		std::string	getCookie(const std::string& key) const;
-		std::string	getFileType() const;
+		std::string	getCgiType() const;
 		int			getRequestType() const;
 		std::string	getBody() const;
 		size_t		getContentLength() const;
+		std::string	getContentType() const;
 
 		Request&	setMethod(const std::string& method);
 		Request&	setPath(const std::string& path);
@@ -59,10 +62,11 @@ class Request {
 		Request&	setHttpVersion(const std::string& version);
 		void		setHeader(const std::string& key, const std::string& value);
 		void		setCookie(const std::string& key, const std::string& value);
-		Request&	setFileType(const std::string& fileType);
+		Request&	setCgiType(const std::string& cgiType);
 		Request&	setRequestType(const int type);
 		Request&	setBody(const std::string& body);
 		Request&	setContentLength(const size_t len);
+		Request&	setContentType(const std::string& type);
 
 		// void	setEnv();
 };

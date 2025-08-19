@@ -6,11 +6,12 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/18 20:47:38 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/18 22:50:52 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+
 
 // -------- CONSTRUCTORS/DESTRUCTORS --------------
 
@@ -21,6 +22,7 @@ Request::Request() {
 Request::~Request() {
 	
 }
+
 
 
 // ----------------- GETTERS ----------------------
@@ -67,6 +69,8 @@ std::string Request::getContentType() const {
 	return this->contentType;
 }
 
+
+
 // ----------------- SETTERS ----------------------
 
 Request& Request::setMethod(const std::string& method) {
@@ -107,7 +111,7 @@ Request& Request::setContentLength(const size_t len) {
 	this->contentLength = len;
 	return *this;
 }
-Request& Request::setContentType(const std::string type) {
+Request& Request::setContentType(const std::string& type) {
 	this->contentType = type;
 	return *this;
 }
