@@ -101,8 +101,6 @@ void    Config::parseContent()
                     tokensFound++;
                     if (servPos != -1)
                         assignToken(serv, trim, servPos, i);
-                //    else
-                //        assignDefaultToken(serv, trim, servPos, i);
                 }
             }
         }

@@ -67,9 +67,17 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content, std::str
         if (range[0] == std::string::npos || range[0] > range[1])
             break ;
         if (!(pos = findToken(content, range, static_cast<e_TokenType>(i))))
-            continue ;
+        {
+            if (i == LOCATION)
+                assignDefaultToken(loc.data, content, pos, i);
+            break ;
+        }
         else
-            assignToken(loc, content, pos, static_cast<e_TokenType>(i));
+        {
+            if (pos != -1)
+                assignToken(serv, content, pos, i);
+        }
+
     }
     eraseLine(content, tokenLine);
     eraseLine(content, "{");
