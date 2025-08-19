@@ -30,8 +30,8 @@ typedef enum TokenTypes
     UPLOAD_STORAGE,
     CGI_EXTENTION,
     CGI_PATH,
-    CLIENT_MAX_BODY_SIZE,  // max request body
     METHODS,
+    CLIENT_MAX_BODY_SIZE,  // max request body
     LOCATION,              // start of a location block
     TOKEN_TYPE_COUNT       //                       7
 }   e_TokenType;

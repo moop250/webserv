@@ -57,7 +57,6 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content, std::str
     size_t      range[2];
     size_t      pos;
 
-//    std::cout << "INTO PARSE LOCATION\n";
     range[0] = content.find("location");
     path = content.substr(range[0], content.find('{', range[0]) - range[0] - 1);
     sanitizeLine(path);
