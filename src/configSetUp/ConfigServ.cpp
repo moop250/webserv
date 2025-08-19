@@ -80,7 +80,6 @@ void    Config::parseContent()
     _servers.pop_back();    // rm default
     while (!trim.empty())
     {
-
         tokensFound = 0;
         serv = getDefaultServ(0);
         for (int i = 0; i < TOKEN_TYPE_COUNT + 1; i++)

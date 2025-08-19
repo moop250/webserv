@@ -30,8 +30,8 @@ typedef enum TokenTypes
     UPLOAD_STORAGE,
     CGI_EXTENTION,
     CGI_PATH,
-    CLIENT_MAX_BODY_SIZE,  // max request body
     METHODS,
+    CLIENT_MAX_BODY_SIZE,  // max request body
     LOCATION,              // start of a location block
     TOKEN_TYPE_COUNT       //                       7
 }   e_TokenType;
@@ -112,7 +112,7 @@ class Config
         //  UTILS
         void            assignToken(t_Location &loc, std::string &content, size_t pos, int type);
         void            assignToken(t_ServerData &serv, std::string &content, size_t pos, int type);
-        size_t          findToken(std::string content, size_t range[2], e_TokenType i);
+        size_t          findToken(std::string &content, size_t range[2], e_TokenType i);
         void            sanitize();
 
         //  generic errors
