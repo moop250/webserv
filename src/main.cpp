@@ -75,7 +75,7 @@ int main(int ac, char** av)
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
 	setUpServer(config);
-	try { initalizeServer(config);
+	try {
 	} catch (std::exception &e) {
 		std::cout << RED << e.what() << RESET << std::endl;
 	}

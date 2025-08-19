@@ -39,7 +39,7 @@ size_t  findNextSpace(std::string line, size_t &from)
 {
     size_t  here = from;
 
-    while (!isspace(line[here]))
+    while (line[here] && !isspace(line[here]))
         here++;
     return here;
 }
