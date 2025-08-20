@@ -20,10 +20,17 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	std::stringstream	msg;
 	
 	config = new Config(file, dfile);
-	config->parseContent();
-	config->sanitize();
-	msg << *config;
-	dfile.append(msg.str().c_str());
+	try {
+		config->parseContent();
+		config->sanitize();
+		msg << *config;
+		dfile.append(msg.str().c_str());
+	} catch (...) {
+//		ConfigError	error(config);
+//		Error(error->getErrorLine().c_str());
+		delete config;
+		return NULL;
+	}
 	return config;
 }
 
@@ -62,7 +69,7 @@ void	free(Config *conf)
 
 int main(int ac, char** av)
 {
-	Debug	dfile;
+	Debug	dfile("General.log");
 	Config	*config = NULL;
 	ServerSocket socket;
 

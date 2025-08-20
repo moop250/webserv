@@ -12,7 +12,7 @@ static std::string  getTime()
     return (msg);
 }
 
-Debug::Debug()
+Debug::Debug(std::string name)
 {
     std::stringstream   header;
     const std::string   t = getTime();

@@ -81,6 +81,8 @@ struct s_Location
 
 class Config
 {
+    bool                                    _valid;
+    std::string                             _errorLine;
     Debug                                   *_dfile;
     int                                     _nbServers;
     std::string                             _content;
@@ -88,6 +90,7 @@ class Config
     std::vector<t_ServerData>               _servers;
     void                                    initTokenMaps();
     public:
+        Config();
         Config(std::string fileName, Debug &dfile);
         Config(const Config &);
         ~Config();
@@ -102,7 +105,8 @@ class Config
 //        void            *getServerParam(int serverID, std::string param) const;
         t_ServerData    getServerData(int serverID) const;
         int             getNbServers() const;
-        void            printServers() const;
+        std::string     getErrorLine() const;
+//        bool            isValid() const;
     
         //  active parsing
         bool            checkServerData(int index) const;
@@ -113,6 +117,7 @@ class Config
         void            assignToken(t_Location &loc, std::string &content, size_t pos, int type);
         void            assignToken(t_ServerData &serv, std::string &content, size_t pos, int type);
         size_t          findToken(std::string &content, size_t range[2], e_TokenType i);
+        bool            checkContent();
         void            sanitize();
 
         //  generic errors

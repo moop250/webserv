@@ -1,10 +1,5 @@
 #include "Config.hpp"
 
-void    Config::printServers() const
-{
-    return ;
-}
-
 void    Config::initTokenMaps()
 {
     static const char *mainTokenMap[] = {
@@ -28,8 +23,14 @@ void    Config::initTokenMaps()
         _Tokens[i] = mainTokenMap[i];
 }
 
+Config::Config() :
+    _valid(1), _errorLine("")
+{
+    std::cerr << "You are not supposed to use config without any file to look after\n";
+}
+
 Config::Config(std::string fileName, Debug &dfile) :
-    _dfile(&dfile), _nbServers(0)
+    _valid(1), _errorLine(""), _dfile(&dfile), _nbServers(0)
 {
     std::ifstream   readFile(fileName.c_str());
     std::string     buf;
@@ -92,6 +93,16 @@ void    Config::setServerData(t_ServerData data)
 {
     (void)data;
 }
+
+std::string Config::getErrorLine() const
+{
+    return _errorLine;
+}
+
+//bool    Config::isValid() const
+//{
+//    return _valid;
+//}
 
 size_t  Config::findToken(std::string &content, size_t range[2], e_TokenType i)
 {
