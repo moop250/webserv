@@ -38,7 +38,7 @@ ServerSocket initalizeServer(Config *serverConfig) {
 	uniqueComboList = sanitizeConfig(serverConfig);
 
 	for (size_t i = 0; i < uniqueComboList.size(); i++) {
-		socket.initializeNewSocket_(uniqueComboList.at(i));
+		socket.initializeNewSocket(uniqueComboList.at(i));
 	}
 	return socket;
 };

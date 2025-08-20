@@ -20,7 +20,7 @@ ServerSocket::~ServerSocket() {
 	}
 }
 
-void ServerSocket::initializeNewSocket_(std::string combo) {
+void ServerSocket::initializeNewSocket(std::string combo) {
 	int socketfd = -1, status = -1;
 	struct addrinfo	info, *res;
 	int del = combo.find("|");
@@ -45,13 +45,17 @@ void ServerSocket::initializeNewSocket_(std::string combo) {
 	if (listen(socketfd,BACKLOG) < 0)
 		{throw std::runtime_error("Socket listen error:" + std::string(strerror(errno)));}
 
-	this->socketFd_.push_back(socketfd);
+	this->serverSocketFd_.push_back(socketfd);
 };
 
 int ServerSocket::getSocketFd(int pos) {
-	return this->socketFd_.at(pos);
+	return this->serverSocketFd_.at(pos);
 }
 
 int ServerSocket::getSocketCount() {
-	return this->socketFd_.size();
+	return this->serverSocketFd_.size();
+}
+
+int ServerSocket::getTotalSocketCount() {
+	return this->serverSocketFd_.size() + this->clientSocketFd_.size();
 }
