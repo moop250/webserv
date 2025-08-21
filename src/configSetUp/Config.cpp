@@ -27,6 +27,25 @@ Config::Config() {
     std::cerr << "You are not supposed to use config without any file to look after\n";
 }
 
+void    formatContent(std::string &buf)
+{
+    size_t            pos = 0;
+    size_t            lastpos;
+    static const char *tokens[3] = {
+        "{", "}", ";"
+    };
+
+    for (int i = 0; i < 3; i++)
+    {
+        pos = 0, lastpos = 0;
+        while ((pos = buf.find(tokens[i], lastpos)) != std::string::npos)
+        {
+            buf.insert(pos + 1, 1, '\n');
+            lastpos = pos + 2;
+        }
+    }
+}
+
 Config::Config(std::string fileName, Debug &dfile) :
     _dfile(&dfile), _nbServers(0)
 {
@@ -36,10 +55,7 @@ Config::Config(std::string fileName, Debug &dfile) :
     if (readFile.is_open())
     {
         while (std::getline(readFile, buf))
-        {
             _content.append(buf);
-            _content.append("\n");
-        }
     }
     else
     {
@@ -47,10 +63,10 @@ Config::Config(std::string fileName, Debug &dfile) :
         Error("File is empty or does not exist");
         return ;
     }
-    std::cout << _content;
     _dfile->append(buf.c_str());
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
+    formatContent(_content);
 }
 
 Config::Config(const Config &conf)

@@ -54,10 +54,6 @@ It works by the following rules :
 9) Same for the error pages and the methos allowed. If undefined
 	methods allowed will be GET DELETE POS. If undefined error page
 	a 404 not found will be throw (i think...)
-
-10) If each server, location or token line isn't splitted with each other
-	by a '\n'. Unexpected beavior can happen because the Error checker
-	will lose some fiability. (for the moment)
  
 ...)
 	...

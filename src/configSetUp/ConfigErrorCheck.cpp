@@ -19,7 +19,7 @@ int    getLineType(std::string line)
 
 std::string suggsestToken(std::string tokens[TOKEN_TYPE_COUNT], std::string line)
 {
-    return ("YEYEYEYEYE");
+    return ("YEYEYEYEYE");  // compare sum of chars and the least difference becomes suggsested token bitch
 }
 
 void    ConfigError::explicitTheError()
