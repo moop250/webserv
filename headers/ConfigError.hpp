@@ -3,6 +3,10 @@
 
 # include "Config.hpp"
 
+# define CONFIG_CHECKERS 4
+# define LINE_CHECKERS 4
+# define KO 0
+# define OK 1
 enum e_lineType
 {
     SER_LINE,
@@ -19,21 +23,23 @@ class ConfigError : public Config
         std::string _errorLine;
         bool        _isValid;
     public:     //  pivot
-        bool        checkContent();
+        bool        checkConfig();
         int         getLineType();
-    private:    //  main checkers
+    private:    //  config checkers
         bool        checkBrackets();
         bool        checkNbServers();
         bool        checkLinesFormat();
         bool        checkTokens();
-                //  error checkers
-        bool        eof();
-        bool        token();
-        bool        bracket();
-        bool        foo();
+                //  line checkers
+        bool        eof(std::string);
+        bool        token(std::string);
+        bool        bracket(std::string);
+        bool        foo(std::string);
     private:    //  util type var
-        e_lineType  line;
-        bool        (*checkers[5])();
+        e_lineType  _line;
+        bool        (ConfigError::*checkers[CONFIG_CHECKERS])(void);
+        bool        (ConfigError::*lineCheckers[LINE_CHECKERS])(std::string);
+        std::string errors[CONFIG_CHECKERS + LINE_CHECKERS];
     public:
         ConfigError();
         ConfigError(const Config &);

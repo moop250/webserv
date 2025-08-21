@@ -26,12 +26,12 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	config->sanitize();
 	msg << *config;
 	dfile.append(msg.str().c_str());
-	return (config);
+//	return (config);
 //	} catch (...) {
-//	ConfigError	error(*config);
-//	if (error.isConfigValid())
-//		return (config);
-//	std::cerr << RED << "Program stopped\n" << RESET;
+	ConfigError	error(*config);
+	if (error.isConfigValid())
+		return (config);
+	std::cerr << RED << "Program stopped\n" << RESET;
 	delete config;
 	return NULL;
 }

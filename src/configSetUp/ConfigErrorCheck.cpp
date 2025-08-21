@@ -1,5 +1,22 @@
 #include "ConfigError.hpp"
 
+bool ConfigError::checkBrackets()
+{
+    int open = 0, close = 0;
+    size_t  len = _content.length();
+
+    for (size_t i = 0; i < len; i++)
+    {
+        if (_content[i] == '{')
+            open++;
+        if (_content[i] == '}')
+            close++;
+    }
+    if (open != close)
+        return KO;
+    return OK;
+}
+
 bool    getLineType(std::string line)
 {
     //  loc type
@@ -8,37 +25,6 @@ bool    getLineType(std::string line)
     //  bracket type
     //  commented type
     //  empty type
-    return 1;
-}
-
-static bool isFormatValid(int type, std::string content, std::string line)
-{
-   // std::string line = content;
-//
-   // (void)line;
-    return 1;
-}
-
-static bool    isTokenValid(int type, std::string content, std::string line)
-{
-    size_t  found = 0;
-    const char *tokens[TOKEN_TYPE_COUNT] = {
-        "<host>", "<listen>", "<server_name>", "<root>",
-        "<html_index>", "<autoindex>", "<error_page>", "<upload_storage>",
-        "<cgi_ext>", "<cgi_path>", "<client_max_body_size>", "<allow>",
-        "location",
-    };
-
-    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
-        if ((found = line.find(tokens[i])) != std::string::npos)
-            break ;
-    if (found == LOCATION || line.find("server") != std::string::npos)
-        return 1;
-    return 0;
-}
-
-static bool    isEndLineValid(int type, std::string content, std::string line)
-{
     return 1;
 }
 
@@ -73,18 +59,59 @@ void    explicitTheError(int error, std::string tokens[TOKEN_TYPE_COUNT], std::s
     return ;
 }
 
-//bool    ConfigError::foo()
-//{
-//    return KO;
-//}
-
-bool    ConfigError::checkContent()
+//  lines check
+bool    ConfigError::eof(std::string line)
 {
-   // bool    (*ConfigError::checkers[5])() = {
-   //     foo, fii, faa, fuu, foo
-   // };
+    std::cout << "In eof\n"; 
+    return KO;
+}
+
+bool    ConfigError::token(std::string line)
+{
+    std::cout << "In tokens\n"; 
+
+    return KO;
+}
+
+bool    ConfigError::bracket(std::string line)
+{
+    std::cout << "In brackets\n"; 
+    return KO;
+}
+
+bool    ConfigError::foo(std::string line)
+{
+    std::cout << "In foo\n"; 
+    return KO;
+}
+
+bool    ConfigError::checkNbServers()
+{
+    std::cout << "In checknbservers\n"; 
+    return KO;
+}
+
+bool    ConfigError::checkLinesFormat()
+{
+    std::cout << "In checklineformat\n"; 
+    return (KO);
+}
+
+bool    ConfigError::checkTokens()
+{
+    std::cout << "In checktokens\n"; 
+    return (KO);
+}
+
+bool    ConfigError::checkConfig()
+{
+    bool    status;
 
     if (_content.empty())
-        return 0;
-
+        throw ConfigError::BadFileException();
+    for (int i = 0; i < CONFIG_CHECKERS; i++)
+    if ((status = (this->*checkers[i])()))
+            continue ;
+    std::cout << "Config Checked\n";
+    return (KO);
 }

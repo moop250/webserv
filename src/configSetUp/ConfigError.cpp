@@ -1,34 +1,37 @@
 #include "ConfigError.hpp"
 
-ConfigError::ConfigError() : Config(), _isValid(1), _errorLine("")
+ConfigError::ConfigError() :
+    Config(), _suggsestedToken(""), _isValid(1), _errorLine(""), _line(EMPTY)
 {
 }
 
-# define KO 0
-# define OK 1
-
-bool checkBracket(std::string content)
+ConfigError::ConfigError(const Config &c) :
+    Config(c), _suggsestedToken(""), _isValid(1), _errorLine(""), _line(EMPTY)
 {
-    int open = 0, close = 0;
-    size_t  len = content.length();
+    static bool (ConfigError::*CheckersArr[CONFIG_CHECKERS])() = {
+        &ConfigError::checkBrackets,
+        &ConfigError::checkNbServers,
+        &ConfigError::checkLinesFormat,
+        &ConfigError::checkTokens
+    };
+    static bool    (ConfigError::*LineArr[LINE_CHECKERS])(std::string) = {
+        &ConfigError::eof,
+        &ConfigError::token,
+        &ConfigError::bracket,
+        &ConfigError::foo
+    };
+    static const char *msg[CONFIG_CHECKERS + LINE_CHECKERS] = {
+        "Unmatching bracket. Missing '{' or '}'", "No server specified in config file",
+        "Line does not match format", "Missing token", "eof", "token", "bracket", "foo"
+    };
 
-    for (size_t i = 0; i < len; i++)
-    {
-        if (content[i] == '{')
-            open++;
-        if (content[i] == '}')
-            close++;
-    }
-    if (open != close)
-        return KO;
-    return OK;
-}
-
-ConfigError::ConfigError(const Config &c) : Config(c), _isValid(1), _errorLine("")
-{
-    _isValid = 1;
-    return ;
-    _isValid = checkContent();
+    for (int i = 0; i < CONFIG_CHECKERS; i++)
+        checkers[i] = CheckersArr[i];
+    for (int i = 0; i < LINE_CHECKERS; i++)
+        lineCheckers[i] = LineArr[i];
+    for (int i = 0; i < CONFIG_CHECKERS + LINE_CHECKERS; i++)
+        errors[i] = msg[i];
+    _isValid = checkConfig();
     return ;
 }
 
