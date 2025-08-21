@@ -7,6 +7,7 @@
 # define LINE_CHECKERS 4
 # define KO 0
 # define OK 1
+
 enum e_lineType
 {
     SER_LINE,
@@ -21,6 +22,8 @@ class ConfigError : public Config
     private:    //  logic status
         std::string _suggsestedToken;
         std::string _errorLine;
+        int         _error;
+        int         _fmtError;
         bool        _isValid;
     public:     //  pivot
         bool        checkConfig();
@@ -40,6 +43,7 @@ class ConfigError : public Config
         bool        (ConfigError::*checkers[CONFIG_CHECKERS])(void);
         bool        (ConfigError::*lineCheckers[LINE_CHECKERS])(std::string);
         std::string errors[CONFIG_CHECKERS + LINE_CHECKERS];
+        void        explicitTheError();
     public:
         ConfigError();
         ConfigError(const Config &);

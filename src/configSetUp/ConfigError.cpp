@@ -11,8 +11,8 @@ ConfigError::ConfigError(const Config &c) :
     static bool (ConfigError::*CheckersArr[CONFIG_CHECKERS])() = {
         &ConfigError::checkBrackets,
         &ConfigError::checkNbServers,
-        &ConfigError::checkLinesFormat,
-        &ConfigError::checkTokens
+        &ConfigError::checkTokens,
+        &ConfigError::checkLinesFormat
     };
     static bool    (ConfigError::*LineArr[LINE_CHECKERS])(std::string) = {
         &ConfigError::eof,
@@ -32,7 +32,6 @@ ConfigError::ConfigError(const Config &c) :
     for (int i = 0; i < CONFIG_CHECKERS + LINE_CHECKERS; i++)
         errors[i] = msg[i];
     _isValid = checkConfig();
-    return ;
 }
 
 ConfigError::ConfigError(const ConfigError &ce) : Config(ce), _isValid(1), _errorLine("")
