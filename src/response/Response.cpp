@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 10:12:53 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 11:56:36 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ std::string Response::headersToString() {
 	}
 	return header;
 }
+
 std::string Response::constructResponse() {
 	if (this->httpVersion == "" || this->code == 0 || this->codeMessage == "")
 		return "";
@@ -50,6 +51,26 @@ std::string Response::constructResponse() {
 			+ headers
 			+ "\r\n"
 			+ this->body);
+}
+
+// Untested
+int Response::sendResponse(int fd_client) {
+	const char*	response;
+	int			sent_total;
+	int			bytes_left;
+	int			sent;
+
+	response = this->constructResponse().c_str();
+	bytes_left = this->constructResponse().size();
+	sent_total = 0;
+	while (sent_total < bytes_left) {
+		sent = send(fd_client, response, bytes_left, 0);
+		if (sent == -1)
+			break;
+		sent_total += sent;
+		bytes_left -= sent;
+	}
+	return sent;
 }
 
 std::ostream& operator <<(std::ostream& o, Response& response) {

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/18 22:50:52 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 16:39:34 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 Request::Request() {
 	this->requestType = None;
 	this->contentLength = 0;
+	this->keepAlive = false;
 }
 Request::~Request() {
 	
@@ -68,7 +69,9 @@ size_t Request::getContentLength() const {
 std::string Request::getContentType() const {
 	return this->contentType;
 }
-
+bool Request::getKeepAlive() const {
+	return this->keepAlive;
+}
 
 
 // ----------------- SETTERS ----------------------
@@ -113,5 +116,9 @@ Request& Request::setContentLength(const size_t len) {
 }
 Request& Request::setContentType(const std::string& type) {
 	this->contentType = type;
+	return *this;
+}
+Request& Request::setKeepAlive(const bool state) {
+	this->keepAlive = state;
 	return *this;
 }

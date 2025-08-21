@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/21 09:43:42 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/21 17:04:48 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,6 +28,12 @@ RESET       = \033[0m
 RESETNL     = \033[0m\n
 
 SRCS        = src/main.cpp \
+			src/utils/Colors.cpp src/utils/Debug.cpp src/utils/Error.cpp \
+	      	src/configSetUp/Config.cpp \
+            src/configSetUp/ConfigUtils.cpp \
+			src/configSetUp/TokenUtils.cpp \
+			src/configSetUp/ConfigServ.cpp \
+			src/configSetUp/ConfigLoc.cpp \
 			src/request/Request.cpp src/request/support_file.cpp src/request/parse_request.cpp \
 			src/response/handle_request.cpp src/response/error_response.cpp src/response/Response.cpp
 

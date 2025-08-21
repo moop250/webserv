@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/18 22:55:46 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/21 17:17:14 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,10 +28,19 @@ LBLUE       = \033[0;36m
 RESET       = \033[0m
 RESETNL     = \033[0m\n
 
-SRCS        = tdd.cpp catch_amalgamated.cpp\
-			request/Request.cpp request/support_file.cpp\
-			request/parse_request.cpp response/handle_request.cpp\
-			response/error_response.cpp response/Response.cpp
+SRCS        = tdd.cpp catch_amalgamated.cpp \
+	      	configSetUp/Config.cpp \
+            configSetUp/ConfigUtils.cpp \
+			configSetUp/TokenUtils.cpp \
+			configSetUp/ConfigServ.cpp \
+			configSetUp/ConfigLoc.cpp \
+			utils/Colors.cpp \
+			utils/Debug.cpp \
+			utils/Error.cpp \
+			request/Request.cpp request/support_file.cpp \
+			request/parse_request.cpp response/handle_request.cpp \
+			response/error_response.cpp response/Response.cpp \
+			request/fake_receive.cpp \
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 

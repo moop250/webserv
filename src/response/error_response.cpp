@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 10:40:40 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 18:15:44 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,23 +16,25 @@
 
 
 
-int error_response(int code) {
+int error_response(int code, int fd_client) {
 	Response	response;
 
+	(void)fd_client;
+	
 	switch (code) {
-		case 400:
+		case BAD_REQUEST:
 			return 400; // Bad Request
-		case 404:
+		case NOT_FOUND:
 			return 404; // Not Found
-		case 405:
+		case METHOD_NOT_ALLOWED:
 			return 405; // Method Not Allowed
-		case 411:
+		case LENGTH_REQUIRED:
 			return 411; // Length Required
-		case 413:
+		case CONTENT_TOO_LARGE:
 			return 413; // Content Too Large
-		case 501:
+		case NOT_IMPLEMENTED:
 			return 501; // Not Implemented
-		case 505:
+		case HTTP_VERSION_MISMATCH:
 			return 505; // HTTP Version Not Supported
 		default:
 			return 500; // Internal Server Error

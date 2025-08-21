@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:18:51 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 10:10:56 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 11:55:13 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <utility>
 #include <iostream>
 #include <sstream>
+#include <sys/socket.h>
 #include "Request.hpp"
 #include "support_file.hpp"
 
@@ -55,6 +56,7 @@ class Response {
 
 		std::string	headersToString();
 		std::string	constructResponse();
+		int			sendResponse(int fd_client);
 };
 
 std::ostream& operator <<(std::ostream& o, Response& response);
