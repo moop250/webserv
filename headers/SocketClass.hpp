@@ -13,6 +13,7 @@ class ServerSocket {
 
 	private:
 		std::vector<int>	serverSocketFd_;
+		std::vector<int>	serverPort_;
 		std::vector<int>	clientSocketFd_;
 
 
@@ -21,6 +22,8 @@ class ServerSocket {
 		~ServerSocket();
 
 		int		getSocketFd(int pos);
+		int		getClientFd(int pos);
+		int		getSockerPort(int pos);
 		int		getSocketCount(void);
 		int		getTotalSocketCount(void);
 		void	initializeNewSocket(std::string combo);

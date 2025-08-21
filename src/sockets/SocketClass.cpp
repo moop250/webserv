@@ -46,6 +46,7 @@ void ServerSocket::initializeNewSocket(std::string combo) {
 		{throw std::runtime_error("Socket listen error:" + std::string(strerror(errno)));}
 
 	this->serverSocketFd_.push_back(socketfd);
+	this->serverPort_.push_back(atoi(port.c_str()));
 };
 
 int ServerSocket::getSocketFd(int pos) {
@@ -58,4 +59,12 @@ int ServerSocket::getSocketCount() {
 
 int ServerSocket::getTotalSocketCount() {
 	return this->serverSocketFd_.size() + this->clientSocketFd_.size();
+}
+
+int ServerSocket::getClientFd(int pos) {
+	return this->clientSocketFd_.at(pos);
+}
+
+int ServerSocket::getSockerPort(int pos) {
+	return this->serverPort_.at(pos);
 }
