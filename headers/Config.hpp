@@ -7,17 +7,7 @@
 
 # define BEGIN 0
 # define END 1
-//
-        //"server_name",
-        //"root",
-        //"index",
-        //"autoindex",
-        //"error_page",
-        //"upload_storage",
-        //"cgi_ext",
-        //"cgi_path",
-        //"client_max_body",
-        //"location",
+
 typedef enum TokenTypes
 {
     HOST,
@@ -35,19 +25,6 @@ typedef enum TokenTypes
     LOCATION,              // start of a location block
     TOKEN_TYPE_COUNT       //                       7
 }   e_TokenType;
-
-//typedef enum LocationTokens
-//{
-//    METHODS,                // accepted HTTP methods    0
-//    HTTP_REDIRECTION,       // redirection URL or code
-//    FILE_PATH,              // local file path
-//    DIR_LISTING,            // autoindex on/off
-//    DEFAULT_FILE,           // default file for directories
-//    UPLOAD_STORAGE,         // where uploads are saved
-//    CGI_EXTENSION,          // CGI extensio
-//    CGI_PATH,               // path to CGI executable
-//    LOCATION_TOKEN_COUNT    //                          9
-//}   e_LocationToken;
 
 # define NUM_MAIN_TOKENS TOKEN_TYPE_COUNT
 //# define NUM_LOC_TOKENS LOCATION_TOKEN_COUNT
@@ -120,15 +97,13 @@ class Config
 
 std::ostream    &operator<<(std::ostream &stream, Config &conf);
 
-void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd);
-void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd);
-void    sanitizeLine(std::string &line);
-std::string getTokenLine(const std::string &content, const std::string &token, size_t pos);
-void eraseLine(std::string &content, const std::string &line);
-size_t  findNextSpace(std::string line, size_t &from);
-size_t  getNb(std::string line, std::string token);
-std::string getStr(std::string &line, std::string token);
-void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type);
+void            sanitizeLine(std::string &line);
+std::string     getTokenLine(const std::string &content, const std::string &token, size_t pos);
+void            eraseLine(std::string &content, const std::string &line);
+size_t          findNextSpace(std::string line, size_t &from);
+size_t          getNb(std::string line, std::string token);
+std::string     getStr(std::string &line, std::string token);
+void            assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type);
 t_ServerData    getDefaultServ(bool with_location);
 
 #endif

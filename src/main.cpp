@@ -21,13 +21,10 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	std::stringstream	msg;
 	
 	config = new Config(file, dfile);
-//	try {
 	config->parseContent();
 	config->sanitize();
 	msg << *config;
 	dfile.append(msg.str().c_str());
-//	return (config);
-//	} catch (...) {
 	ConfigError	error(*config);
 	if (error.isConfigValid())
 		return (config);
@@ -82,6 +79,7 @@ int main(int ac, char** av)
 		config = parseConfigFile("configFiles/goodConfigs/default.config", dfile);
 	if (!config)
 		return (-1);
+
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
 	setUpServer(config);

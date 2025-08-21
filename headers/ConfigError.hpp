@@ -10,12 +10,31 @@
 
 enum e_lineType
 {
-    SER_LINE,
-    LOC_LINE,
-    TOK_LINE,
-    BRACKET,
-    EMPTY
+    LINE_LOC,
+    LINE_SERV,
+    LINE_BRACK1,
+    LINE_BRACK2,
+    LINE_COMMENT,
+    LINE_TOK,
+    LINE_EMPTY,
 };
+
+enum e_config_errors
+{
+    ERROR_BRACKET,
+    ERROR_NB_SERVER,
+    ERROR_LINE_FORMAT,
+    ERROR_TOKENS,
+};
+
+enum e_format_errors
+{
+    FMT_EOF,
+    FMT_TOKEN,
+    FMT_BRACKET,
+    FMT_FOO
+};
+
 
 class ConfigError : public Config
 {

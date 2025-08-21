@@ -1,12 +1,12 @@
 #include "ConfigError.hpp"
 
 ConfigError::ConfigError() :
-    Config(), _suggsestedToken(""), _isValid(1), _errorLine(""), _line(EMPTY)
+    Config(), _suggsestedToken(""), _isValid(1), _errorLine(""), _line(LINE_EMPTY)
 {
 }
 
 ConfigError::ConfigError(const Config &c) :
-    Config(c), _suggsestedToken(""), _isValid(1), _errorLine(""), _line(EMPTY)
+    Config(c), _suggsestedToken(""), _isValid(1), _errorLine(""), _line(LINE_EMPTY)
 {
     static bool (ConfigError::*CheckersArr[CONFIG_CHECKERS])() = {
         &ConfigError::checkBrackets,

@@ -47,6 +47,7 @@ Config::Config(std::string fileName, Debug &dfile) :
         Error("File is empty or does not exist");
         return ;
     }
+    std::cout << _content;
     _dfile->append(buf.c_str());
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
