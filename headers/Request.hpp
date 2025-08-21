@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/18 22:53:51 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 11:15:11 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,15 @@
 #include <stdlib.h> // strtol()
 #include <limits.h> // LONG_MAX
 #include <sys/stat.h>
+
+#define BAD_REQUEST 400
+#define NOT_FOUND 404
+#define METHOD_NOT_ALLOWED 405
+#define LENGTH_REQUIRED 411
+#define CONTENT_TOO_LARGE 413
+#define NOT_IMPLEMENTED 501
+#define HTTP_VERSION_MISMATCH 505
+#define INTERNAL_ERROR 500
 
 enum requestType {
 	File,
