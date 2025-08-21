@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:18:51 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/19 16:02:56 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 10:10:56 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+#include <sstream>
 #include "Request.hpp"
 #include "support_file.hpp"
 
@@ -25,7 +26,7 @@ class Response {
 		int													code;
 		std::string											codeMessage;
 		std::string											errorPagePath;
-		std::vector<std::pair<std::string, std::string>>	headers;
+		std::vector<std::pair<std::string, std::string> >	headers;
 		std::string											body;
 		size_t												contentLength;
 		std::string											contentType;

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/19 16:18:41 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 10:12:53 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ Response::~Response() {
 
 std::string Response::headersToString() {
 	std::string header;
-	for (int i = 0; i < this->headers.size(); i++) {
+	for (size_t i = 0; i < this->headers.size(); i++) {
 		header += this->headers[i].first;
 		header += ": ";
 		header += this->headers[i].second;
@@ -39,8 +39,13 @@ std::string Response::headersToString() {
 	return header;
 }
 std::string Response::constructResponse() {
+	if (this->httpVersion == "" || this->code == 0 || this->codeMessage == "")
+		return "";
 	std::string headers = this->headersToString();
-	std::string code = std::to_string(this->code);
+	std::string code;
+	std::ostringstream temp;
+	temp << this->code;
+	code = temp.str();
 	return (this->httpVersion + " " + code + " " + this->codeMessage + "\r\n"
 			+ headers
 			+ "\r\n"
@@ -68,7 +73,7 @@ std::string Response::getErrorPagePath() const {
 	return this->errorPagePath;
 }
 std::string Response::getHeader(const std::string& key) const {
-	for (int i = 0; i < this->headers.size(); i++) {
+	for (size_t i = 0; i < this->headers.size(); i++) {
 		if (this->headers[i].first == key)
 			return this->headers[i].second;
 	}

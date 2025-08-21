@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/18 22:57:52 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 10:00:37 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ int parse_method(Request& request, std::string& buffer) {
 	try {
 		std::string method = buffer.substr(0, position);
 		if (method == "GET" || method == "POST" || method == "DELETE") {
+			// check with allowed methods here, return 405 if not allowed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			request.setMethod(method);
 			buffer.erase(0, position + 1);
 			return 0;
@@ -139,8 +140,6 @@ int parse_headers(Request& request, std::string& buffer) {
 	std::string contentLength = request.getHeader("Content-Length");
 	if (contentLength != "") {
 		size_t len = static_cast<size_t>(strtol(contentLength.c_str(), NULL, 10));
-		if (len < 0)
-			return 400;
 		if (len == LONG_MAX) // Compare with server limit !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			return 413;
 		request.setContentLength(len);

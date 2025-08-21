@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/12 17:58:47 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/21 09:43:42 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,8 @@ RESET       = \033[0m
 RESETNL     = \033[0m\n
 
 SRCS        = src/main.cpp \
-			src/request/Request.cpp
+			src/request/Request.cpp src/request/support_file.cpp src/request/parse_request.cpp \
+			src/response/handle_request.cpp src/response/error_response.cpp src/response/Response.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 

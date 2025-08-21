@@ -1,8 +1,8 @@
-### Request handler documentation:
+# Request handler documentation:
 
 
 ## Request class methods:
-# Getter:
+Getter:
 - `getMethod()` -> Return the resquest method in std::string.
 - `getPath()` -> Return the request path in std::string.
 - `getQuery()` -> Return the query in std::string.
@@ -17,7 +17,7 @@
 
 
 ## Response class methods:
-# Getter:
+Getter:
 - `getHttpVersion()` -> Return the response HTTP version in std::string.
 - `getCode()` -> Return the response code in int.
 - `getCodeMessage()` -> Return the response code message in std::string.
@@ -27,6 +27,6 @@
 - `getContentLength()` -> Return the response body Content-Length in int.
 - `getContentType()` -> Return the response Content-Type in std::string.
 
-# Method:
+Method:
 - `headersToString()` -> Convert the response header into string. Return std::string.
 - `constructResponse()` -> Construct a HTTP response from a response object. Return std::string.

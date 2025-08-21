@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/18 23:44:25 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 10:41:06 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -272,10 +272,10 @@ TEST_CASE("Request type is Directory", "[Success]") {
 TEST_CASE("Request type is CGI", "[Success]") {
 	Request request;
 	std::string buffer =
-			"GET /home/nguyen/webserv/nguyenTest/test.java?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-length: 49\r\n\r\n{ username: user123,\npassword: securepassword }\r\n";
+			"GET /home/nguyen/webserv/cgi/test.java?user=random&pass=1234 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: CustomClient/1.0\r\nAccept: */*\r\nConnection: close\r\nContent-length: 49\r\n\r\n{ username: user123,\npassword: securepassword }\r\n";
 	parse_method(request, buffer);
 	parse_URL(request, buffer);
-	REQUIRE(request.getPath() == "/home/nguyen/webserv/nguyenTest/test.java");
+	REQUIRE(request.getPath() == "/home/nguyen/webserv/cgi/test.java");
 	int code = parse_request_type(request);
 	REQUIRE(code == 0);
 	REQUIRE(request.getRequestType() == CGI);
