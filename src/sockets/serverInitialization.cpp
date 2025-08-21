@@ -44,7 +44,7 @@ ServerSocket initalizeServer(Config *serverConfig) {
 };
 
 struct pollfd *initPoll(ServerSocket socket) {
-	struct pollfd *out = new struct pollfd[socket.getSocketCount()];
+	struct pollfd *out = new struct pollfd[socket.getTotalSocketCount()];
 
 	for (int i = 0; i < socket.getSocketCount(); ++i) {
 		out[i].fd = socket.getSocketFd(i);
