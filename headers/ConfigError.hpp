@@ -46,7 +46,6 @@ class ConfigError : public Config
         bool        _isValid;
     public:     //  pivot
         bool        checkConfig();
-        int         getLineType();
     private:    //  config checkers
         bool        checkBrackets();
         bool        checkNbServers();

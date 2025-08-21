@@ -1,18 +1,18 @@
 #include "ConfigError.hpp"
 
-int    getLineType(std::string line)
+e_lineType    getLineType(std::string line)
 {
     size_t      pos = 0;
     static const char *tokens[7] = {
         "location", "server", "{", "}", "#", "<", ""
     };
     
-    std::cout << "Line is ; " << line << '\n';
+    std::cout << "Line is : " << line << '\n';
     for (int type = 0; type < LINE_EMPTY; type++)
     {
         pos = line.find(tokens[type]);
         if (pos != std::string::npos)
-            return (type);
+            return (static_cast<e_lineType>(type));
     }
     return LINE_EMPTY;
 }
@@ -77,6 +77,7 @@ bool    ConfigError::eof(std::string line)
         case LINE_TOK:
             break ;
         case LINE_EMPTY:
+            std::cout << YELLOW <<  "WTF IS THIS : " << line << RESET << '\n';
             break ;
         default:
             break ;
@@ -204,6 +205,7 @@ bool    ConfigError::checkLinesFormat()
     while (std::getline(content, _errorLine))
     {
         _fmtError = 0;
+        _line = getLineType(_errorLine);
         for (; _fmtError < FMT_FOO; _fmtError++)
             if ((this->*lineCheckers[_fmtError])(_errorLine))
                 break ;
@@ -211,7 +213,7 @@ bool    ConfigError::checkLinesFormat()
             return (KO);
     }
     std::cout << "In checklineformat\n"; 
-    return (KO);
+    return (OK);
 }
 
 bool    ConfigError::checkConfig()
