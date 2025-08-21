@@ -35,7 +35,8 @@ SRCS        = src/main.cpp \
 			src/configSetUp/TokenUtils.cpp \
 			src/configSetUp/ConfigServ.cpp \
 			src/configSetUp/ConfigLoc.cpp \
-			src/configSetUp/errorCheck.cpp \
+			src/configSetUp/ConfigError.cpp \
+			src/configSetUp/ConfigErrorCheck.cpp \
             src/sockets/SocketClass.cpp \
 			src/sockets/serverInitialization.cpp 
 

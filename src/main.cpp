@@ -10,6 +10,7 @@
 /* Following https://ncona.com/2019/04/building-a-simple-server-with-cpp/ to try and get a better understanding of how sockets work*/
 
 #include "Config.hpp"
+#include "ConfigError.hpp"
 #include "Error.hpp"
 #include "serverInitialization.hpp"
 #include "Debug.hpp"
@@ -20,18 +21,19 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	std::stringstream	msg;
 	
 	config = new Config(file, dfile);
-	try {
-		config->parseContent();
-		config->sanitize();
-		msg << *config;
-		dfile.append(msg.str().c_str());
-	} catch (...) {
-//		ConfigError	error(config);
-//		Error(error->getErrorLine().c_str());
-		delete config;
-		return NULL;
-	}
-	return config;
+//	try {
+	config->parseContent();
+	config->sanitize();
+	msg << *config;
+	dfile.append(msg.str().c_str());
+	return (config);
+//	} catch (...) {
+//	ConfigError	error(*config);
+//	if (error.isConfigValid())
+//		return (config);
+//	std::cerr << RED << "Program stopped\n" << RESET;
+	delete config;
+	return NULL;
 }
 
 void	setUpServer(Config *config)
@@ -78,7 +80,8 @@ int main(int ac, char** av)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
 	else
 		config = parseConfigFile("configFiles/goodConfigs/default.config", dfile);
-
+	if (!config)
+		return (-1);
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
 	setUpServer(config);

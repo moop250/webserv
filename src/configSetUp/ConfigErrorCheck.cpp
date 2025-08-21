@@ -1,26 +1,4 @@
-#include "Config.hpp"
-
-#ifndef KO
-# define KO 0
-# define OK 1
-#endif
-
-bool checkBracket(std::string content)
-{
-    int open = 0, close = 0;
-    size_t  len = content.length();
-
-    for (size_t i = 0; i < len; i++)
-    {
-        if (content[i] == '{')
-            open++;
-        if (content[i] == '}')
-            close++;
-    }
-    if (open != close)
-        return KO;
-    return OK;
-}
+#include "ConfigError.hpp"
 
 bool    getLineType(std::string line)
 {
@@ -30,7 +8,7 @@ bool    getLineType(std::string line)
     //  bracket type
     //  commented type
     //  empty type
-    return OK;
+    return 1;
 }
 
 static bool isFormatValid(int type, std::string content, std::string line)
@@ -38,7 +16,7 @@ static bool isFormatValid(int type, std::string content, std::string line)
    // std::string line = content;
 //
    // (void)line;
-    return OK;
+    return 1;
 }
 
 static bool    isTokenValid(int type, std::string content, std::string line)
@@ -55,13 +33,13 @@ static bool    isTokenValid(int type, std::string content, std::string line)
         if ((found = line.find(tokens[i])) != std::string::npos)
             break ;
     if (found == LOCATION || line.find("server") != std::string::npos)
-        return OK;
-    return KO;
+        return 1;
+    return 0;
 }
 
 static bool    isEndLineValid(int type, std::string content, std::string line)
 {
-    return OK;
+    return 1;
 }
 
 std::string suggsestToken(std::string tokens[TOKEN_TYPE_COUNT], std::string line)
@@ -95,41 +73,18 @@ void    explicitTheError(int error, std::string tokens[TOKEN_TYPE_COUNT], std::s
     return ;
 }
 
-bool    Config::checkContent()
+//bool    ConfigError::foo()
+//{
+//    return KO;
+//}
+
+bool    ConfigError::checkContent()
 {
-    std::string         line = "";
-    std::stringstream   content;
-    std::string         errors[3] = {
-        "Token not valid",
-        "Format not rexpected",
-        "Empty server or location"
-    };
-    static bool         (*funcs[3])(int, std::string, std::string) = {
-        isTokenValid,
-        isEndLineValid,
-        isFormatValid
-    };
+   // bool    (*ConfigError::checkers[5])() = {
+   //     foo, fii, faa, fuu, foo
+   // };
 
     if (_content.empty())
-        Error("Directory or empty file was given");
-    if (!checkBracket(_content))
-        Error("Unmatching brackets : '{' or '}' expected");
-    content << _content;
-    while (std::getline(content, line))
-    {
-        int lineType = getLineType(line);
-        for (int i = 0; i < 3; i++)
-        {
-            bool check = funcs[i](lineType, _content, line);
-            if (check == KO)
-            {
-                std::cerr << "In configuration file :\n"
-                    << ROSE << line << '\n' << RESET;
-                Error(errors[i].c_str());
-                explicitTheError(i, _Tokens, _content, line);
-                return KO;
-            }
-        }
-    }
-    return OK; 
+        return 0;
+
 }

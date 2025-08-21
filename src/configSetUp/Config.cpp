@@ -23,14 +23,12 @@ void    Config::initTokenMaps()
         _Tokens[i] = mainTokenMap[i];
 }
 
-Config::Config() :
-    _valid(1), _errorLine("")
-{
+Config::Config() {
     std::cerr << "You are not supposed to use config without any file to look after\n";
 }
 
 Config::Config(std::string fileName, Debug &dfile) :
-    _valid(1), _errorLine(""), _dfile(&dfile), _nbServers(0)
+    _dfile(&dfile), _nbServers(0)
 {
     std::ifstream   readFile(fileName.c_str());
     std::string     buf;
@@ -56,7 +54,12 @@ Config::Config(std::string fileName, Debug &dfile) :
 
 Config::Config(const Config &conf)
 {
-    (void)conf;
+    this->_dfile = conf._dfile;
+    this->_nbServers = conf._nbServers;
+    this->_content = conf._content;
+    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+        this->_Tokens[i] = conf._Tokens[i];
+    this->_servers = conf._servers;
     return ;
 }
 
@@ -94,16 +97,6 @@ void    Config::setServerData(t_ServerData data)
     (void)data;
 }
 
-std::string Config::getErrorLine() const
-{
-    return _errorLine;
-}
-
-//bool    Config::isValid() const
-//{
-//    return _valid;
-//}
-
 size_t  Config::findToken(std::string &content, size_t range[2], e_TokenType i)
 {
     size_t  pos = content.find(_Tokens[i], range[BEGIN]);
@@ -137,30 +130,4 @@ void    Config::sanitize()
         _servers.at(i).locations.pop_back();
         _servers.at(i).locations.erase(_servers.at(i).locations.begin());
     }
-}
-
-
-const char  *Config::BadFileException::what() const throw()
-{
-    return "File given is empty or does not exist";
-}
-
-const char  *Config::MissingParamException::what() const throw()
-{
-    return "Missing parameter in configuration file";
-}
-
-const char  *Config::BadParamException::what() const throw()
-{
-    return "Parameter in configuration file is weird and was in consequence not handled";
-}
-
-const char  *Config::ParseErrorExemption::what() const throw()
-{
-    return "I did some shit somewhere";
-}
-
-const char  *Config::OutOfBoundsExeption::what() const throw()
-{
-    return "Data to be reach is out of bounds";
 }
