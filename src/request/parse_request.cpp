@@ -6,79 +6,13 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 18:19:21 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:34:14 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "request_handler.hpp"
 #include "support_file.hpp"
-
-// std::string extract_URL(std::string& url, std::string::size_type query_pos) {
-// 	std::string query;
-
-// 	try {
-// 		query = url.substr(query_pos + 1, url.size() - 1);
-// 		return query;
-// 	} catch (std::out_of_range& e) {
-// 		return "";
-// 	}
-// }
-
-// int parse_URL(Request& request, std::string& buffer) {
-// 	std::string::size_type	url_pos;
-// 	std::string::size_type	path_pos;
-// 	std::string::size_type	query_pos;
-
-// 	url_pos = buffer.find(" ");
-// 	if (url_pos == std::string::npos)
-// 		return BAD_REQUEST;
-// 	std::string url = buffer.substr(0, url_pos);
-// 	if (url[0] == '/' || !url.compare(0, 7, "http://") || !url.compare(0, 8, "https://")) {
-// 		if (!url.compare(0, 7, "http://")) {
-// 			path_pos = url.find("/", 8);
-// 			if (path_pos == std::string::npos)
-// 				return BAD_REQUEST;
-// 			url.erase(0, path_pos);
-// 		}
-// 		else if (!url.compare(0, 8, "https://")) {
-// 			path_pos = url.find("/", 9);
-// 			if (path_pos == std::string::npos)
-// 				return BAD_REQUEST;
-// 			url.erase(0, path_pos);
-// 		}
-// 		query_pos = url.find("?");
-// 		if (query_pos != std::string::npos) {
-// 			std::string query = extract_URL(url, query_pos);
-// 			if (query == "") {
-// 				return BAD_REQUEST;
-// 			}
-// 			request.setQuery(query);
-// 			url.erase(query_pos, url_pos);
-// 		}
-// 		request.setPath(url); // Check if path is redirected before set!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// 		buffer.erase(0, url_pos + 1);
-// 		return 0;
-// 	}
-// 	return BAD_REQUEST;
-// }
-
-// int parse_http_ver(Request& request, std::string& buffer) {
-// 	std::string::size_type	http_pos;
-
-// 	http_pos = buffer.find("\r\n");
-// 	if (http_pos == std::string::npos)
-// 		return BAD_REQUEST;
-// 	std::string http_ver = buffer.substr(0, http_pos);
-// 	if (http_ver == "HTTP/1.0" || http_ver == "HTTP/2.0" || http_ver == "HTTP/3.0")
-// 		return HTTP_VERSION_MISMATCH;
-// 	else if (http_ver == "HTTP/1.1") {
-// 		request.setHttpVersion(http_ver);
-// 		buffer.erase(0, http_pos + 2);
-// 		return 0;
-// 	}
-// 	return BAD_REQUEST;
-// }
 
 // int parse_headers(Request& request, std::string& buffer) {
 // 	std::string::size_type	end_pos;
@@ -159,6 +93,75 @@
 // 	return 0;
 // }
 
+int parse_http_ver(Connection& connection) {
+	std::string::size_type	http_pos;
+
+	http_pos = connection.buffer.find("\r\n");
+	if (http_pos == std::string::npos)
+		return READING_HTTPVERSION;
+	std::string http_ver = connection.buffer.substr(0, http_pos);
+	if (http_ver == "HTTP/1.0" || http_ver == "HTTP/2.0" || http_ver == "HTTP/3.0")
+		return HTTP_VERSION_MISMATCH;
+	else if (http_ver == "HTTP/1.1") {
+		connection.request.setHttpVersion(http_ver);
+		connection.buffer.erase(0, http_pos + 2);
+		connection.state = READING_HEADERS;
+		return READING_HEADERS;
+	}
+	return BAD_REQUEST;
+}
+
+std::string extract_URL(std::string& url, std::string::size_type query_pos) {
+	std::string query;
+
+	try {
+		query = url.substr(query_pos + 1, url.size() - 1);
+		return query;
+	} catch (std::out_of_range& e) {
+		return "";
+	}
+}
+
+int parse_URL(Connection& connection, Config& config) {
+	std::string::size_type	url_pos;
+	std::string::size_type	path_pos;
+	std::string::size_type	query_pos;
+
+	(void)config;
+	url_pos = connection.buffer.find(" ");
+	if (url_pos == std::string::npos)
+		return READING_PATH;
+	std::string url = connection.buffer.substr(0, url_pos);
+	if (url[0] == '/' || !url.compare(0, 7, "http://") || !url.compare(0, 8, "https://")) {
+		if (!url.compare(0, 7, "http://")) {
+			path_pos = url.find("/", 8);
+			if (path_pos == std::string::npos)
+				return BAD_REQUEST;
+			url.erase(0, path_pos);
+		}
+		else if (!url.compare(0, 8, "https://")) {
+			path_pos = url.find("/", 9);
+			if (path_pos == std::string::npos)
+				return BAD_REQUEST;
+			url.erase(0, path_pos);
+		}
+		query_pos = url.find("?");
+		if (query_pos != std::string::npos) {
+			std::string query = extract_URL(url, query_pos);
+			if (query == "") {
+				return BAD_REQUEST;
+			}
+			connection.request.setQuery(query);
+			url.erase(query_pos, url_pos);
+		}
+		connection.request.setPath(url); // Check if path is redirected before set!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		connection.buffer.erase(0, url_pos + 1);
+		connection.state = READING_HTTPVERSION;
+		return READING_HTTPVERSION;
+	}
+	return BAD_REQUEST;
+}
+
 int parse_method(Connection& connection) {
 	std::string::size_type	position;
 
@@ -190,6 +193,27 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 				error_response(code, fd_client);
 				return -1;
 			}
+			break;
+		case READING_PATH:
+			code = parse_URL(connection, config);
+			if (code == READING_PATH || code == READING_HTTPVERSION)
+				return code;
+			if (code == BAD_REQUEST) {
+				error_response(code, fd_client);
+				return -1;
+			}
+			break;
+		case READING_HTTPVERSION:
+			code = parse_http_ver(connection);
+			if (code == READING_HTTPVERSION || code == READING_HEADERS)
+				return code;
+			if (code == BAD_REQUEST || HTTP_VERSION_MISMATCH) {
+				error_response(code, fd_client);
+				return -1;
+			}
+		// case READING_HEADERS:
+		// 	code = parse_headers(connection, config);
+			
 	}
 
 	return 0;
