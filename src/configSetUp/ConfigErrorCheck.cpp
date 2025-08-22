@@ -2,7 +2,7 @@
 
 e_lineType    getLineType(std::string line)
 {
-    size_t      pos = 0;
+    size_t      pos = 0, pos2 = 0;
     static const char *tokens[7] = {
         "location", "server", "{", "}", "#", "<", ""
     };
@@ -11,6 +11,12 @@ e_lineType    getLineType(std::string line)
     for (int type = 0; type < LINE_EMPTY; type++)
     {
         pos = line.find(tokens[type]);
+        for (int is_too = 0; is_too < LINE_EMPTY; is_too++)
+        {
+            pos2 = line.find(tokens[is_too]);
+            if (pos2 < pos)
+                return (static_cast<e_lineType>(is_too));
+        }
         if (pos != std::string::npos)
             return (static_cast<e_lineType>(type));
     }
@@ -59,104 +65,6 @@ void    ConfigError::explicitTheError()
     return ;
 }
 
-//  lines check
-bool    ConfigError::eof(std::string line)
-{
-    switch (_line)
-    {
-        case LINE_LOC:
-            break ;
-        case LINE_SERV:
-            break ;
-        case LINE_BRACK1:
-            break ;
-        case LINE_BRACK2:
-            break ;
-        case LINE_COMMENT:
-            break ;
-        case LINE_TOK:
-            break ;
-        case LINE_EMPTY:
-            std::cout << YELLOW <<  "WTF IS THIS : " << line << RESET << '\n';
-            break ;
-        default:
-            break ;
-    }
-    return OK;
-}
-
-bool    ConfigError::token(std::string line)
-{
-    switch (_line)
-    {
-        case LINE_LOC:
-            break ;
-        case LINE_SERV:
-            break ;
-        case LINE_BRACK1:
-            break ;
-        case LINE_BRACK2:
-            break ;
-        case LINE_COMMENT:
-            break ;
-        case LINE_TOK:
-            break ;
-        case LINE_EMPTY:
-            break ;
-        default:
-            break ;
-    }
-    return OK;
-}
-
-bool    ConfigError::bracket(std::string line)
-{
-    switch (_line)
-    {
-        case LINE_LOC:
-            break ;
-        case LINE_SERV:
-            break ;
-        case LINE_BRACK1:
-            break ;
-        case LINE_BRACK2:
-            break ;
-        case LINE_COMMENT:
-            break ;
-        case LINE_TOK:
-            break ;
-        case LINE_EMPTY:
-            break ;
-        default:
-            break ;
-    }
-    return OK;
-}
-
-bool    ConfigError::foo(std::string line)
-{
-    switch (_line)
-    {
-        case LINE_LOC:
-            break ;
-        case LINE_SERV:
-            break ;
-        case LINE_BRACK1:
-            break ;
-        case LINE_BRACK2:
-            break ;
-        case LINE_COMMENT:
-            break ;
-        case LINE_TOK:
-            break ;
-        case LINE_EMPTY:
-            break ;
-        default:
-            break ;
-    }
-    return OK;
-}
-
 bool ConfigError::checkBrackets()
 {
     int open = 0, close = 0;
@@ -197,20 +105,57 @@ bool    ConfigError::checkTokens()
     return (OK);
 }
 
+bool    checkLine(std::string content, std::string eLine, e_lineType type, int &_fmterror)
+{
+    switch (type)
+    {
+        case LINE_LOC:
+            //  loc format
+            break ;
+        case LINE_SERV:
+            // serv format
+            break ;
+        case LINE_BRACK1:
+            //  brac
+            break ;
+        case LINE_BRACK2:
+            break ;
+        case LINE_COMMENT:
+            // normally ok
+            break ;
+        case LINE_TOK:
+            //  format or chec
+            break ;
+        case LINE_EMPTY:
+            // find suggsested
+            break ;
+        default:
+            if (!OK)
+                _fmterror = type;
+            break ;
+    }
+    return (OK);
+}
+
 bool    ConfigError::checkLinesFormat()
 {
     std::stringstream   content;
+    static const char *tokens[7] = {
+        "location", "server", "{", "}", "#", "<", ""
+    };
 
     content << _content;
-    while (std::getline(content, _errorLine))
+    while (std::getline(content, _errorLine) && _isValid)
     {
+        _lineCount++;
         _fmtError = 0;
         _line = getLineType(_errorLine);
-        for (; _fmtError < FMT_FOO; _fmtError++)
-            if ((this->*lineCheckers[_fmtError])(_errorLine))
-                break ;
-        if (_fmtError != FMT_FOO)
+//        std::cout << "Line type is : " << tokens[_line] << '\n';
+        if (!checkLine(_content, _errorLine, _line, _fmtError))
+        {
+            //find
             return (KO);
+        }
     }
     std::cout << "In checklineformat\n"; 
     return (OK);
@@ -223,12 +168,12 @@ bool    ConfigError::checkConfig()
     _error = 0;
     if (_content.empty())
         Error("empty file");
-    for (; _error < CONFIG_CHECKERS; _error++)
+    for (; _error < CONFIG_CHECKERS && _isValid; _error++)
         if (!(status = (this->*checkers[_error])()))
-            break ;
+            _isValid = KO;
     if (_isValid)
         return OK;
-    Error(errors[_error].c_str());
+    Error(errors[_error].c_str(), "Server N* i", "File.config", _lineCount);
     explicitTheError();
     return (KO);
 }

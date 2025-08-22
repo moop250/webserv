@@ -47,7 +47,7 @@ void    formatContent(std::string &buf)
 }
 
 Config::Config(std::string fileName, Debug &dfile) :
-    _dfile(&dfile), _nbServers(0)
+    _dfile(&dfile), _nbServers(0), _fileName(fileName)
 {
     std::ifstream   readFile(fileName.c_str());
     std::string     buf;
@@ -73,6 +73,7 @@ Config::Config(const Config &conf)
 {
     this->_dfile = conf._dfile;
     this->_nbServers = conf._nbServers;
+    this->_fileName = conf._fileName;
     this->_content = conf._content;
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         this->_Tokens[i] = conf._Tokens[i];

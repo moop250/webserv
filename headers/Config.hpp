@@ -61,6 +61,7 @@ class Config
     protected:
         Debug                                   *_dfile;
         int                                     _nbServers;
+    std::string                                 _fileName;
         std::string                             _content;
         std::string                             _Tokens[NUM_MAIN_TOKENS + 1];
         std::vector<t_ServerData>               _servers;

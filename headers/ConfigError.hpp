@@ -40,7 +40,9 @@ class ConfigError : public Config
 {
     private:    //  logic status
         std::string _suggsestedToken;
+        std::string _block;
         std::string _errorLine;
+        int         _lineCount;
         int         _error;
         int         _fmtError;
         bool        _isValid;
@@ -51,15 +53,9 @@ class ConfigError : public Config
         bool        checkNbServers();
         bool        checkLinesFormat();
         bool        checkTokens();
-                //  line checkers
-        bool        eof(std::string);
-        bool        token(std::string);
-        bool        bracket(std::string);
-        bool        foo(std::string);
     private:    //  util type var
         e_lineType  _line;
         bool        (ConfigError::*checkers[CONFIG_CHECKERS])(void);
-        bool        (ConfigError::*lineCheckers[LINE_CHECKERS])(std::string);
         std::string errors[CONFIG_CHECKERS + LINE_CHECKERS];
         void        explicitTheError();
     public:

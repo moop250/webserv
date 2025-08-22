@@ -1,12 +1,16 @@
 #include "ConfigError.hpp"
 
 ConfigError::ConfigError() :
-    Config(), _suggsestedToken(""), _isValid(1), _errorLine(""), _line(LINE_EMPTY)
+    Config(), _suggsestedToken(""), _block(""),
+      _errorLine(""), _lineCount(0), _isValid(1),
+      _line(LINE_EMPTY)
 {
 }
 
 ConfigError::ConfigError(const Config &c) :
-    Config(c), _suggsestedToken(""), _isValid(1), _errorLine(""), _line(LINE_EMPTY)
+    Config(c), _suggsestedToken(""), _block(""),
+      _errorLine(""), _lineCount(0), _isValid(1),
+      _line(LINE_EMPTY)
 {
     static bool (ConfigError::*CheckersArr[CONFIG_CHECKERS])() = {
         &ConfigError::checkBrackets,
@@ -14,21 +18,13 @@ ConfigError::ConfigError(const Config &c) :
         &ConfigError::checkTokens,
         &ConfigError::checkLinesFormat
     };
-    static bool    (ConfigError::*LineArr[LINE_CHECKERS])(std::string) = {
-        &ConfigError::eof,
-        &ConfigError::token,
-        &ConfigError::bracket,
-        &ConfigError::foo
-    };
-    static const char *msg[CONFIG_CHECKERS + LINE_CHECKERS] = {
+    static const char *msg[CONFIG_CHECKERS] = {
         "Unmatching bracket. Missing '{' or '}'", "No server specified in config file",
-        "Line does not match format", "Missing token", "eof", "token", "bracket", "foo"
+        "Line does not match format", "Missing token"
     };
 
     for (int i = 0; i < CONFIG_CHECKERS; i++)
         checkers[i] = CheckersArr[i];
-    for (int i = 0; i < LINE_CHECKERS; i++)
-        lineCheckers[i] = LineArr[i];
     for (int i = 0; i < CONFIG_CHECKERS + LINE_CHECKERS; i++)
         errors[i] = msg[i];
     _isValid = checkConfig();
