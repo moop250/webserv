@@ -3,7 +3,7 @@
 ////////////////////////////////////////
 
 Starting with an example,
-	prototype a server as :
+	ideally prototype a server as :
 
 "
 	server {
@@ -22,8 +22,7 @@ It works by the following rules :
 	server { ... ; ... }
 
 3) There can be multiple servers as :
-	server { ... }
-	server { ... }
+	server { ... } server { ... }
 
 4) The server accepted attributes have to be formated as :
 	- hosts	: "host"			: '<token> host'
@@ -50,11 +49,13 @@ It works by the following rules :
 	- location
 	- server name
 
-8) if no argument is given to webserv a default cinfiguration take place
-	
+8) If no argument is given to webserv a default configuration take place.
+
+9) Same for the error pages and the methos allowed. If undefined
+	methods allowed will be GET DELETE POS. If undefined error page
+	a 404 not found will be throw (i think...)
+ 
 ...)
 	...
 
 N) If one of the precedent rules aren't respected, the programm won't launch
-
-

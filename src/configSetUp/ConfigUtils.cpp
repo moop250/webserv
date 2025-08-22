@@ -4,20 +4,21 @@ t_ServerData    getDefaultServ(bool with_location)
 {
     Color   c;
 
-    const t_ServerData  default_server_values = {
-        .server_name = c.red() + "UNDEFINED" + c.reset(),
-        .root = c.red() + "UNDEFINED" + c.reset(),
-        .index = c.red() + "UNDEFINED" + c.reset(),
-        .upload_storage = c.red() + "UNDEFINED" + c.reset(),
-        .cgi_ext = c.red() + "UNDEFINED" + c.reset(),
-        .cgi_path = c.red() + "UNDEFINED" + c.reset(),
-        .client_max_body_size = 1,
-        .autoindex = false
-    };
+    t_ServerData  default_server_values;
+    
+    default_server_values.server_name = c.red() + "UNDEFINED" + c.reset();
+    default_server_values.root = c.red() + "UNDEFINED" + c.reset();
+    default_server_values.index = c.red() + "UNDEFINED" + c.reset();
+    default_server_values.upload_storage = c.red() + "UNDEFINED" + c.reset();
+    default_server_values.cgi_ext = c.red() + "UNDEFINED" + c.reset();
+    default_server_values.cgi_path = c.red() + "UNDEFINED" + c.reset();
+    default_server_values.client_max_body_size = 1;
+    default_server_values.autoindex = false;
 
     const t_Location    default_location_values = {
         .active = false,
-        .data = default_server_values
+        .data = default_server_values,
+        .path = "UNDEFINED"
     };
 
     t_ServerData    defaultServ = default_server_values;
@@ -130,7 +131,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
             if (i->data.methods.empty())
                 stream << RED << "UNDEFINED" << RESET;
             else
-                for (int j = 0; j < i->data.methods.size(); j++)
+                for (size_t j = 0; j < i->data.methods.size(); j++)
                     stream << i->data.methods.at(j) << " ";
             stream << "\n\n";
         }

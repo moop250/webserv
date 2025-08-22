@@ -73,7 +73,7 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content, std::str
         }
         else
         {
-            if (pos != -1)
+            if (pos != SIZE_MAX)
                 assignToken(loc, content, pos, i);
         }
     }

@@ -12,7 +12,7 @@
 class Debug
 {
     public:
-        Debug();
+        Debug(std::string name = "Debug.log");
         ~Debug();
         
         void    append(const char *msg);

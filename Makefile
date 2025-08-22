@@ -15,7 +15,7 @@ NAME        = webserv
 
 CC          = c++
 DBUG	     = -g#-fsanitize=address
-BFLAGS       = -Wall -Wextra -Werror -g3 -std=c++98
+FLAGS       = -Wall -Wextra -Werror -g3 -std=c++98
 
 OBJDIR      = .obj
 INCLDIR     = headers
@@ -35,6 +35,8 @@ SRCS        = src/main.cpp \
 			src/configSetUp/TokenUtils.cpp \
 			src/configSetUp/ConfigServ.cpp \
 			src/configSetUp/ConfigLoc.cpp \
+			src/configSetUp/ConfigError.cpp \
+			src/configSetUp/ConfigErrorCheck.cpp \
             src/sockets/SocketClass.cpp \
 			src/sockets/serverInitialization.cpp 
 
