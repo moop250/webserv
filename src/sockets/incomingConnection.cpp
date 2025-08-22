@@ -1,8 +1,9 @@
 #include "../../headers/SocketClass.hpp"
 #include <poll.h>
 #include <sys/poll.h>
+#include <sys/socket.h>
 
-int handleConnection(ServerSocket sockets, struct pollfd **fds, int fd) {
+int handleConnection(ServerSocket *sockets, struct pollfd **fds, int fd) {
 
     // accept new client connction
 
@@ -18,19 +19,19 @@ int handleClientData(int fd, int port) {
     // send data to be parsed
 };
 
-static int checkServ(ServerSocket sockets, int fd) {
-    for (size_t j = 0; j < sockets.getSocketCount(); ++j) {
-            if (fd == sockets.getSocketFd(j)) {
+static int checkServ(ServerSocket *sockets, int fd) {
+    for (size_t j = 0; j < sockets->getSocketCount(); ++j) {
+            if (fd == sockets->getSocketFd(j)) {
                 return j;
             }
         }
     return -1;
 }
 
-int incomingConnection(ServerSocket sockets, struct pollfd **fds) {
+int incomingConnection(ServerSocket *sockets, struct pollfd **fds) {
 
     // loop through socket fd's.
-    for (size_t i = 0; i < sockets.getTotalSocketCount(); ++i) {
+    for (size_t i = 0; i < sockets->getTotalSocketCount(); ++i) {
         int port = -1;
         if ((*fds)[i].revents & (POLLIN | POLLHUP)) {
             if ((port = checkServ(sockets, (*fds)[i].fd)) > 0) {

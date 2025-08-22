@@ -43,11 +43,11 @@ ServerSocket initalizeServer(Config *serverConfig) {
 	return socket;
 };
 
-struct pollfd *initPoll(ServerSocket socket) {
-	struct pollfd *out = new struct pollfd[socket.getTotalSocketCount()];
+struct pollfd *initPoll(ServerSocket *socket) {
+	struct pollfd *out = new struct pollfd[socket->getTotalSocketCount()];
 
-	for (int i = 0; i < socket.getSocketCount(); ++i) {
-		out[i].fd = socket.getSocketFd(i);
+	for (int i = 0; i < socket->getSocketCount(); ++i) {
+		out[i].fd = socket->getSocketFd(i);
 		out[i].events = POLLIN;
 	}
 
