@@ -46,6 +46,7 @@ size_t  findNextSpace(std::string line, size_t &from)
 
 size_t  getNb(std::string line, std::string token)
 {
+    (void)token;
     size_t  nb = 0;
     std::string extract = line.substr(0, findNextSpace(line, nb));
 
@@ -55,9 +56,11 @@ size_t  getNb(std::string line, std::string token)
 
 std::string getStr(std::string &line, std::string token)
 {
+    (void)token;
     size_t  start = 0, end = 0;
     std::string str = "";
 
+    (void)end;
     while (str[start] && !isalpha(line[start]))
         start++;
     str = line.substr(start, findNextSpace(line, start));

@@ -14,6 +14,7 @@ static std::string  getTime()
 
 Debug::Debug(std::string name)
 {
+    (void)name;
     std::stringstream   header;
     const std::string   t = getTime();
 

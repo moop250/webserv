@@ -2,15 +2,16 @@
 
 ConfigError::ConfigError() :
     Config(), _suggsestedToken(""), _block(""),
-      _errorLine(""), _lineCount(0), _isValid(1),
-      _line(LINE_EMPTY)
+      _errorLine(""), _lineCount(0), _error(0), _fmtError(0),
+      _isValid(1), _line(LINE_EMPTY)
 {
 }
 
 ConfigError::ConfigError(const Config &c) :
     Config(c), _suggsestedToken(""), _block(""),
-      _errorLine(""), _lineCount(0), _isValid(1),
-      _line(LINE_EMPTY)
+      _errorLine(""), _lineCount(0), _error(0), _fmtError(0),
+      _isValid(1), _line(LINE_EMPTY)
+
 {
     static bool (ConfigError::*CheckersArr[CONFIG_CHECKERS])() = {
         &ConfigError::checkBrackets,
@@ -30,7 +31,10 @@ ConfigError::ConfigError(const Config &c) :
     _isValid = checkConfig();
 }
 
-ConfigError::ConfigError(const ConfigError &ce) : Config(ce), _isValid(1), _errorLine("")
+ConfigError::ConfigError(const ConfigError &ce) : 
+    Config(ce), _suggsestedToken(""), _block(""),
+      _errorLine(""), _lineCount(0), _error(0), _fmtError(0),
+      _isValid(1), _line(LINE_EMPTY)
 {
     return ;
 }
@@ -41,6 +45,8 @@ ConfigError::~ConfigError()
 
 ConfigError &ConfigError::operator=(const ConfigError &ce)
 {
+    if (this != &ce)
+        *this = ce;
     return *this;
 }
 

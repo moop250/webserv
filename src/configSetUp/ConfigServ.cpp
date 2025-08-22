@@ -99,7 +99,7 @@ void    Config::parseContent()
                 else
                 {
                     tokensFound++;
-                    if (servPos != -1)
+                    if (servPos != SIZE_MAX)
                         assignToken(serv, trim, servPos, i);
                 }
             }

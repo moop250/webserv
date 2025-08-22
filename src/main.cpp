@@ -28,6 +28,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	ConfigError	error(*config);
 	if (error.isConfigValid())
 		return (config);
+
 	std::cerr << RED << "Program stopped\n" << RESET;
 	delete config;
 	return NULL;

@@ -134,7 +134,7 @@ size_t  Config::findToken(std::string &content, size_t range[2], e_TokenType i)
             std::cout << "Line ignored :\n";
             std::cout << YELLOW << content.substr(tmp, pos - tmp + 1) << RESET << '\n';
             content.erase(tmp, pos - tmp);
-            return (-1);
+            return (SIZE_MAX);
         }
         tmp--;
     }

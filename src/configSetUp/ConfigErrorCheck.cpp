@@ -7,7 +7,7 @@ e_lineType    getLineType(std::string line)
         "location", "server", "{", "}", "#", "<", ""
     };
     
-    std::cout << "Line is : " << line << '\n';
+ //   std::cout << "Line is : " << line << '\n';
     for (int type = 0; type < LINE_EMPTY; type++)
     {
         pos = line.find(tokens[type]);
@@ -25,6 +25,8 @@ e_lineType    getLineType(std::string line)
 
 std::string suggsestToken(std::string tokens[TOKEN_TYPE_COUNT], std::string line)
 {
+    (void)tokens;
+    (void)line;
     return ("YEYEYEYEYE");  // compare sum of chars and the least difference becomes suggsested token bitch
 }
 
@@ -70,7 +72,7 @@ bool ConfigError::checkBrackets()
     int open = 0, close = 0;
     size_t  len = _content.length();
 
-    std::cout << "In check brackets\n";
+//    std::cout << "In check brackets\n";
     for (size_t i = 0; i < len; i++)
     {
         if (_content[i] == '{')
@@ -85,7 +87,7 @@ bool ConfigError::checkBrackets()
 
 bool    ConfigError::checkNbServers()
 {
-    std::cout << "In nb servers check\n";
+//    std::cout << "In nb servers check\n";
     if (_nbServers <= 0)
         return KO;
     return OK;
@@ -95,7 +97,7 @@ bool    ConfigError::checkTokens()
 {
     t_ServerData    serv;
 
-    std::cout << "In checktokens\n";
+//    std::cout << "In checktokens\n";
     for (int i = 0; i < _nbServers; i++)
     {
         serv = _servers.at(i);
@@ -107,6 +109,9 @@ bool    ConfigError::checkTokens()
 
 bool    checkLine(std::string content, std::string eLine, e_lineType type, int &_fmterror)
 {
+    (void)eLine;
+    (void)_fmterror;
+    (void)content;
     switch (type)
     {
         case LINE_LOC:
@@ -144,6 +149,7 @@ bool    ConfigError::checkLinesFormat()
         "location", "server", "{", "}", "#", "<", ""
     };
 
+    (void)tokens;
     content << _content;
     while (std::getline(content, _errorLine) && _isValid)
     {
@@ -157,7 +163,7 @@ bool    ConfigError::checkLinesFormat()
             return (KO);
         }
     }
-    std::cout << "In checklineformat\n"; 
+//    std::cout << "In checklineformat\n"; 
     return (OK);
 }
 
