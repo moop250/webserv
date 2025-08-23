@@ -23,11 +23,34 @@ e_lineType    getLineType(std::string line)
     return LINE_EMPTY;
 }
 
-std::string suggsestToken(std::string tokens[TOKEN_TYPE_COUNT], std::string line)
+static void compare(const char *s1, const char *s2, unsigned int &diff)
 {
-    (void)tokens;
-    (void)line;
-    return ("YEYEYEYEYE");  // compare sum of chars and the least difference becomes suggsested token bitch
+    int len1 = 0, len2 = 0;
+
+    while (s1[len1] || s2[len2])
+    {
+        diff += (s1[len1] - s2[len2]);
+        if (s1[len1])
+            len1++;
+        if (s2[len2])
+            len2++;
+    }
+}
+
+void    ConfigError::suggsestToken(std::string pseudoToken)
+{
+    unsigned int  diff = 0, lessDif = 1000000;
+    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+    {
+        diff = 0;
+        compare(pseudoToken.c_str(), _Tokens[i].c_str(), diff);
+        std::cout <<  "lessdiff : " << lessDif << "\nDiff : " << diff << std::endl;
+        if (lessDif > diff)
+        {
+            lessDif = diff;
+            _suggsestedToken = _Tokens[i];
+        }
+    }
 }
 
 void    ConfigError::explicitTheError()
@@ -47,7 +70,7 @@ void    ConfigError::explicitTheError()
                     std::cerr << "fmt eof\n";
                     break ;
                 case FMT_TOKEN:
-                    _suggsestedToken = suggsestToken(_Tokens, _errorLine);
+                //    _suggsestedToken = suggsestToken(_Tokens, _errorLine);
                     std::cerr << "Did you mean : "
                         << GREEN << _suggsestedToken << "?" << RESET << std::endl;
                     break ;
@@ -107,12 +130,12 @@ bool    ConfigError::checkTokens()
     return (OK);
 }
 
-bool    checkLine(std::string content, std::string eLine, e_lineType type, int &_fmterror)
+bool    ConfigError::checkLine()
 {
-    (void)eLine;
-    (void)_fmterror;
-    (void)content;
-    switch (type)
+    size_t          endTok;
+    std::string     pseudoToken;
+
+    switch (_line)
     {
         case LINE_LOC:
             //  loc format
@@ -129,6 +152,15 @@ bool    checkLine(std::string content, std::string eLine, e_lineType type, int &
             // normally ok
             break ;
         case LINE_TOK:
+            for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+                if (_errorLine.find(_Tokens[i]) != std::string::npos)
+                    return (OK);
+            while (endTok < _errorLine.length() && _errorLine[endTok] != '>')
+                endTok++;
+            pseudoToken = _errorLine.substr(_errorLine.find("<"), endTok);
+            suggsestToken(pseudoToken);
+            std::cout << _suggsestedToken << "HELLO\n" <<std::endl;
+            return KO;
             //  format or chec
             break ;
         case LINE_EMPTY:
@@ -136,7 +168,7 @@ bool    checkLine(std::string content, std::string eLine, e_lineType type, int &
             break ;
         default:
             if (!OK)
-                _fmterror = type;
+                _fmtError = _line;
             break ;
     }
     return (OK);
@@ -157,7 +189,7 @@ bool    ConfigError::checkLinesFormat()
         _fmtError = 0;
         _line = getLineType(_errorLine);
 //        std::cout << "Line type is : " << tokens[_line] << '\n';
-        if (!checkLine(_content, _errorLine, _line, _fmtError))
+        if (!checkLine())
         {
             //find
             return (KO);
