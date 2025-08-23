@@ -7,7 +7,6 @@ e_lineType    getLineType(std::string line)
         "location", "server", "{", "}", "#", "<", ""
     };
     
- //   std::cout << "Line is : " << line << '\n';
     for (int type = 0; type < LINE_EMPTY; type++)
     {
         pos = line.find(tokens[type]);
@@ -23,19 +22,62 @@ e_lineType    getLineType(std::string line)
     return LINE_EMPTY;
 }
 
-std::string suggsestToken(std::string tokens[TOKEN_TYPE_COUNT], std::string line)
+#include <algorithm>
+
+static int levenshtein(const std::string& s1, const std::string& s2) {
+    int m = s1.size();
+    int n = s2.size();
+    std::vector<std::vector<int> > dp(m + 1, std::vector<int>(n + 1));
+
+    for (int i = 0; i <= m; ++i)
+        dp[i][0] = i;
+    for (int j = 0; j <= n; ++j)
+        dp[0][j] = j;
+
+    for (int i = 1; i <= m; ++i)
+    {
+        for (int j = 1; j <= n; ++j)
+        {
+            if (s1[i - 1] == s2[j - 1])
+                dp[i][j] = dp[i - 1][j - 1];
+            else
+            {
+                dp[i][j] = 1 + std::min(
+                    dp[i - 1][j],               // suppression
+                    std::min(
+                        dp[i][j - 1],           // insertion
+                        dp[i - 1][j - 1]        // substitution
+                    )
+                );
+            }
+        }
+    }
+    return dp[m][n];
+}
+
+void    ConfigError::suggsestToken(std::string pseudoToken)
 {
-    (void)tokens;
-    (void)line;
-    return ("YEYEYEYEYE");  // compare sum of chars and the least difference becomes suggsested token bitch
+    unsigned int  diff = 0, lessDif = 1000000;
+    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+    {
+        diff = levenshtein(pseudoToken, _Tokens[i]);
+        if (lessDif > diff)
+        {
+            lessDif = diff;
+            _suggsestedToken = _Tokens[i];
+        }
+    }
 }
 
 void    ConfigError::explicitTheError()
 {
+    _error--;
+    sanitizeLine(_errorLine);
+    std::cout << ROSE << "Line concerned : " << _errorLine << RESET << '\n';
     switch (_error)
     {
         case ERROR_BRACKET:
-            std::cerr << "Bracket bad\n";
+            std::cerr << CYAN << "Unmatched Brackets\n" <<RESET;
             break ;
         case ERROR_NB_SERVER:
             std::cerr << "No server\n";
@@ -47,7 +89,7 @@ void    ConfigError::explicitTheError()
                     std::cerr << "fmt eof\n";
                     break ;
                 case FMT_TOKEN:
-                    _suggsestedToken = suggsestToken(_Tokens, _errorLine);
+                    suggsestToken(_errorLine);
                     std::cerr << "Did you mean : "
                         << GREEN << _suggsestedToken << "?" << RESET << std::endl;
                     break ;
@@ -80,14 +122,13 @@ bool ConfigError::checkBrackets()
         if (_content[i] == '}')
             close++;
     }
-    if (open != close)
+    if (open != close || !open)
         _isValid = 0;
     return OK;
 }
 
 bool    ConfigError::checkNbServers()
 {
-//    std::cout << "In nb servers check\n";
     if (_nbServers <= 0)
         return KO;
     return OK;
@@ -97,7 +138,6 @@ bool    ConfigError::checkTokens()
 {
     t_ServerData    serv;
 
-//    std::cout << "In checktokens\n";
     for (int i = 0; i < _nbServers; i++)
     {
         serv = _servers.at(i);
@@ -107,12 +147,12 @@ bool    ConfigError::checkTokens()
     return (OK);
 }
 
-bool    checkLine(std::string content, std::string eLine, e_lineType type, int &_fmterror)
+bool    ConfigError::checkLine()
 {
-    (void)eLine;
-    (void)_fmterror;
-    (void)content;
-    switch (type)
+    size_t          endTok;
+    std::string     pseudoToken;
+
+    switch (_line)
     {
         case LINE_LOC:
             //  loc format
@@ -129,6 +169,16 @@ bool    checkLine(std::string content, std::string eLine, e_lineType type, int &
             // normally ok
             break ;
         case LINE_TOK:
+            for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+                if (_errorLine.find(_Tokens[i]) != std::string::npos)
+                    return (OK);
+            while (endTok < _errorLine.length() && _errorLine[endTok] != '>')
+                endTok++;
+            pseudoToken = _errorLine.substr(_errorLine.find("<"), endTok);
+            suggsestToken(pseudoToken);
+            _error = ERROR_LINE_FORMAT;
+            _fmtError =  FMT_TOKEN;
+            return KO;
             //  format or chec
             break ;
         case LINE_EMPTY:
@@ -136,7 +186,7 @@ bool    checkLine(std::string content, std::string eLine, e_lineType type, int &
             break ;
         default:
             if (!OK)
-                _fmterror = type;
+                _fmtError = _line;
             break ;
     }
     return (OK);
@@ -145,26 +195,59 @@ bool    checkLine(std::string content, std::string eLine, e_lineType type, int &
 bool    ConfigError::checkLinesFormat()
 {
     std::stringstream   content;
-    static const char *tokens[7] = {
-        "location", "server", "{", "}", "#", "<", ""
-    };
 
-    (void)tokens;
     content << _content;
+    _fmtError = 0;
     while (std::getline(content, _errorLine) && _isValid)
     {
         _lineCount++;
-        _fmtError = 0;
         _line = getLineType(_errorLine);
-//        std::cout << "Line type is : " << tokens[_line] << '\n';
-        if (!checkLine(_content, _errorLine, _line, _fmtError))
-        {
-            //find
+        if (!checkLine())
             return (KO);
+    }
+    return (OK);
+}
+
+static int countOccurence(std::string toFind, std::string in, size_t from, size_t until)
+{
+    int         count = 0;
+    size_t      matchCursor = 0;
+
+
+    if (until > in.length())
+        return (0);
+    for (size_t i = from; i < until; i++)
+    {
+        matchCursor = 0;
+        while (matchCursor < toFind.length())
+        {
+            if (in[i + matchCursor] != toFind[matchCursor])
+                break ;
+            matchCursor++;
+        }
+        if (matchCursor >= toFind.length() - 2)
+        {
+            count++;
+            i += matchCursor;
         }
     }
-//    std::cout << "In checklineformat\n"; 
-    return (OK);
+    return (count);
+}
+
+static std::string describeErrorContext(std::string content, std::string _errorLine)
+{
+    std::string msg = "Server nb : ";
+    int servId = 0, locId = 0;
+
+    servId = countOccurence("server ", content, 0, content.find(_errorLine));
+    msg += servId + '0';
+    msg += " in location block nb : ";
+    size_t  from = 0;
+    while (servId-- > 0)
+        from = content.find("server", from);
+    locId = countOccurence("location ", content, from, content.find(_errorLine));
+    msg += locId + '0';
+    return msg;
 }
 
 bool    ConfigError::checkConfig()
@@ -179,7 +262,8 @@ bool    ConfigError::checkConfig()
             _isValid = KO;
     if (_isValid)
         return OK;
-    Error(errors[_error].c_str(), "Server N* i", "File.config", _lineCount);
+    std::string describeContext = describeErrorContext(_content, _errorLine);
+    Error(errors[_error].c_str(), describeContext.c_str(), "Your config file", _lineCount);
     explicitTheError();
     return (KO);
 }

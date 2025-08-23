@@ -53,11 +53,13 @@ class ConfigError : public Config
         bool        checkNbServers();
         bool        checkLinesFormat();
         bool        checkTokens();
+        bool        checkLine();
     private:    //  util type var
         e_lineType  _line;
         bool        (ConfigError::*checkers[CONFIG_CHECKERS])(void);
         std::string errors[CONFIG_CHECKERS + LINE_CHECKERS];
         void        explicitTheError();
+        void        suggsestToken(std::string pseudoToken);
     public:
         ConfigError();
         ConfigError(const Config &);
