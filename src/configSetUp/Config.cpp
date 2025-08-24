@@ -1,10 +1,5 @@
 #include "Config.hpp"
 
-void    Config::printServers() const
-{
-    return ;
-}
-
 void    Config::initTokenMaps()
 {
     static const char *mainTokenMap[] = {
@@ -28,8 +23,31 @@ void    Config::initTokenMaps()
         _Tokens[i] = mainTokenMap[i];
 }
 
+Config::Config() {
+    std::cerr << "You are not supposed to use config without any file to look after\n";
+}
+
+void    formatContent(std::string &buf)
+{
+    size_t            pos = 0;
+    size_t            lastpos;
+    static const char *tokens[3] = {
+        "{", "}", ";"
+    };
+
+    for (int i = 0; i < 3; i++)
+    {
+        pos = 0, lastpos = 0;
+        while ((pos = buf.find(tokens[i], lastpos)) != std::string::npos)
+        {
+            buf.insert(pos + 1, 1, '\n');
+            lastpos = pos + 2;
+        }
+    }
+}
+
 Config::Config(std::string fileName, Debug &dfile) :
-    _dfile(&dfile), _nbServers(0)
+    _dfile(&dfile), _nbServers(0), _fileName(fileName)
 {
     std::ifstream   readFile(fileName.c_str());
     std::string     buf;
@@ -37,10 +55,7 @@ Config::Config(std::string fileName, Debug &dfile) :
     if (readFile.is_open())
     {
         while (std::getline(readFile, buf))
-        {
             _content.append(buf);
-            _content.append("\n");
-        }
     }
     else
     {
@@ -51,11 +66,18 @@ Config::Config(std::string fileName, Debug &dfile) :
     _dfile->append(buf.c_str());
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
+    formatContent(_content);
 }
 
 Config::Config(const Config &conf)
 {
-    (void)conf;
+    this->_dfile = conf._dfile;
+    this->_nbServers = conf._nbServers;
+    this->_fileName = conf._fileName;
+    this->_content = conf._content;
+    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+        this->_Tokens[i] = conf._Tokens[i];
+    this->_servers = conf._servers;
     return ;
 }
 
@@ -112,7 +134,8 @@ size_t  Config::findToken(std::string &content, size_t range[2], e_TokenType i)
             std::cout << "Line ignored :\n";
             std::cout << YELLOW << content.substr(tmp, pos - tmp + 1) << RESET << '\n';
             content.erase(tmp, pos - tmp);
-            return (-1);
+
+            return (SIZE_MAX);
         }
         tmp--;
     }
@@ -126,30 +149,4 @@ void    Config::sanitize()
         _servers.at(i).locations.pop_back();
         _servers.at(i).locations.erase(_servers.at(i).locations.begin());
     }
-}
-
-
-const char  *Config::BadFileException::what() const throw()
-{
-    return "File given is empty or does not exist";
-}
-
-const char  *Config::MissingParamException::what() const throw()
-{
-    return "Missing parameter in configuration file";
-}
-
-const char  *Config::BadParamException::what() const throw()
-{
-    return "Parameter in configuration file is weird and was in consequence not handled";
-}
-
-const char  *Config::ParseErrorExemption::what() const throw()
-{
-    return "I did some shit somewhere";
-}
-
-const char  *Config::OutOfBoundsExeption::what() const throw()
-{
-    return "Data to be reach is out of bounds";
 }

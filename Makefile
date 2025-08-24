@@ -14,8 +14,11 @@
 NAME        = webserv
 
 CC          = c++
+
 # FLAGS       = -Wall -Wextra -Werror -std=c++98
-FLAGS       = -std=c++98
+DBUG	     = -g#-fsanitize=address
+FLAGS     = -Wall -Wextra -Werror -g3 -std=c++98
+
 
 OBJDIR      = .obj
 INCLDIR     = headers
@@ -37,6 +40,10 @@ SRCS        = src/main.cpp \
 			src/configSetUp/ConfigLoc.cpp \
 			src/request/Request.cpp src/request/support_file.cpp src/request/parse_request.cpp src/request/parse_headers.cpp\
 			src/response/handle_request.cpp src/response/error_response.cpp src/response/Response.cpp
+			src/configSetUp/ConfigError.cpp \
+			src/configSetUp/ConfigErrorCheck.cpp \
+            src/sockets/SocketClass.cpp \
+			src/sockets/serverInitialization.cpp 
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
@@ -44,7 +51,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@printf "$(ORANGE)Compiling $(NAME)$(RESET)"
-	@$(CC) $(OBJS) -o $(NAME)
+	@$(CC) $(OBJS) $(DBUG) -o $(NAME)
 	@printf "\r\033[K"
 	@printf "$(GREEN)$(NAME) compiled$(RESETNL)"
 

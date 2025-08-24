@@ -99,7 +99,7 @@ void    Config::parseContent()
                 else
                 {
                     tokensFound++;
-                    if (servPos != -1)
+                    if (servPos != SIZE_MAX)
                         assignToken(serv, trim, servPos, i);
                 }
             }
@@ -111,5 +111,6 @@ void    Config::parseContent()
         trim.erase(0, to + 1);
         _nbServers++;
     }
-    std::cout <<BLUE <<  trim << RESET << '\n';
+
+//    std::cout <<BLUE <<  trim << RESET << '\n';
 }

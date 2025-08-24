@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+webserv
+
+# Debugging files
+vgcore.*
+*.log
+
+.vscode

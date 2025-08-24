@@ -7,17 +7,7 @@
 
 # define BEGIN 0
 # define END 1
-//
-        //"server_name",
-        //"root",
-        //"index",
-        //"autoindex",
-        //"error_page",
-        //"upload_storage",
-        //"cgi_ext",
-        //"cgi_path",
-        //"client_max_body",
-        //"location",
+
 typedef enum TokenTypes
 {
     HOST,
@@ -35,19 +25,6 @@ typedef enum TokenTypes
     LOCATION,              // start of a location block
     TOKEN_TYPE_COUNT       //                       7
 }   e_TokenType;
-
-//typedef enum LocationTokens
-//{
-//    METHODS,                // accepted HTTP methods    0
-//    HTTP_REDIRECTION,       // redirection URL or code
-//    FILE_PATH,              // local file path
-//    DIR_LISTING,            // autoindex on/off
-//    DEFAULT_FILE,           // default file for directories
-//    UPLOAD_STORAGE,         // where uploads are saved
-//    CGI_EXTENSION,          // CGI extensio
-//    CGI_PATH,               // path to CGI executable
-//    LOCATION_TOKEN_COUNT    //                          9
-//}   e_LocationToken;
 
 # define NUM_MAIN_TOKENS TOKEN_TYPE_COUNT
 //# define NUM_LOC_TOKENS LOCATION_TOKEN_COUNT
@@ -81,16 +58,22 @@ struct s_Location
 
 class Config
 {
-    Debug                                   *_dfile;
-    int                                     _nbServers;
-    std::string                             _content;
-    std::string                             _Tokens[NUM_MAIN_TOKENS + 1];
-    std::vector<t_ServerData>               _servers;
-    void                                    initTokenMaps();
+
+    protected:
+        Debug                                   *_dfile;
+        int                                     _nbServers;
+    std::string                                 _fileName;
+        std::string                             _content;
+        std::string                             _Tokens[NUM_MAIN_TOKENS + 1];
+        std::vector<t_ServerData>               _servers;
+    private:
+        void                                    initTokenMaps();
     public:
+        Config();
         Config(std::string fileName, Debug &dfile);
         Config(const Config &);
-        ~Config();
+        virtual ~Config();
+
 
 
         Config  &operator=(const Config &);
@@ -102,7 +85,6 @@ class Config
 //        void            *getServerParam(int serverID, std::string param) const;
         t_ServerData    getServerData(int serverID) const;
         int             getNbServers() const;
-        void            printServers() const;
     
         //  active parsing
         bool            checkServerData(int index) const;
@@ -113,47 +95,17 @@ class Config
         void            assignToken(t_Location &loc, std::string &content, size_t pos, int type);
         void            assignToken(t_ServerData &serv, std::string &content, size_t pos, int type);
         size_t          findToken(std::string &content, size_t range[2], e_TokenType i);
-        void            sanitize();
-
-        //  generic errors
-        class BadFileException : public std::exception
-        {
-            public:
-                const char  *what() const throw();
-        };
-        class MissingParamException : public std::exception
-        {
-            public:
-                const char  *what() const throw();
-        };
-        class BadParamException : public std::exception
-        {
-            public:
-                const char  *what() const throw();
-        };
-        class ParseErrorExemption : public std::exception
-        {
-            public:
-                const char  *what() const throw();
-        };
-        class OutOfBoundsExeption : public std::exception
-        {
-            public:
-                const char *what() const throw();
-        };
 };
 
 std::ostream    &operator<<(std::ostream &stream, Config &conf);
 
-void    reset(t_ServerData &serv, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd);
-void    reset(t_Location &loc, std::string &content, size_t &pos, size_t &rBegin, size_t &rEnd);
-void    sanitizeLine(std::string &line);
-std::string getTokenLine(const std::string &content, const std::string &token, size_t pos);
-void eraseLine(std::string &content, const std::string &line);
-size_t  findNextSpace(std::string line, size_t &from);
-size_t  getNb(std::string line, std::string token);
-std::string getStr(std::string &line, std::string token);
-void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type);
+void            sanitizeLine(std::string &line);
+std::string     getTokenLine(const std::string &content, const std::string &token, size_t pos);
+void            eraseLine(std::string &content, const std::string &line);
+size_t          findNextSpace(std::string line, size_t &from);
+size_t          getNb(std::string line, std::string token);
+std::string     getStr(std::string &line, std::string token);
+void            assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos, int type);
 t_ServerData    getDefaultServ(bool with_location);
 
 #endif
