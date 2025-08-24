@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 16:39:36 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/24 14:00:21 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include <stdexcept> // std::out_of_range
 #include <stdlib.h> // strtol()
 #include <limits.h> // LONG_MAX
+#include <cctype>
+#include <algorithm>
 #include <sys/stat.h>
 
 #define BAD_REQUEST 400
@@ -46,9 +48,13 @@ class Request {
 		std::string							cgiType;
 		int									requestType;
 		std::string							body;
+		std::string							host;
+		int									port;
 		size_t								contentLength;
 		std::string							contentType;
-		bool								keepAlive;
+		std::string							keepAlive;
+		int									keepAliveTimeout;
+		int									keepAliveMax;
 
 	public:
 		Request();
@@ -65,7 +71,11 @@ class Request {
 		std::string	getBody() const;
 		size_t		getContentLength() const;
 		std::string	getContentType() const;
-		bool		getKeepAlive() const;
+		std::string	getKeepAlive() const;
+		int			getKeepAliveTimeout() const;
+		int			getKeepAliveMax() const;
+		std::string	getHost() const;
+		int			getPort() const;
 
 		Request&	setMethod(const std::string& method);
 		Request&	setPath(const std::string& path);
@@ -78,7 +88,11 @@ class Request {
 		Request&	setBody(const std::string& body);
 		Request&	setContentLength(const size_t len);
 		Request&	setContentType(const std::string& type);
-		Request&	setKeepAlive(const bool state);
+		Request&	setKeepAlive(const std::string config);
+		Request&	setKeepAliveTimeout(const int time);
+		Request&	setKeepAliveMax(const int time);
+		Request&	setHost(const std::string host);
+		Request&	setPort(const int port);
 
 		// void	setEnv();
 };

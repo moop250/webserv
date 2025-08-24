@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/21 17:04:48 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/22 14:43:19 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@
 NAME        = webserv
 
 CC          = c++
-FLAGS       = -Wall -Wextra -Werror -std=c++98
+# FLAGS       = -Wall -Wextra -Werror -std=c++98
+FLAGS       = -std=c++98
 
 OBJDIR      = .obj
 INCLDIR     = headers
@@ -34,7 +35,7 @@ SRCS        = src/main.cpp \
 			src/configSetUp/TokenUtils.cpp \
 			src/configSetUp/ConfigServ.cpp \
 			src/configSetUp/ConfigLoc.cpp \
-			src/request/Request.cpp src/request/support_file.cpp src/request/parse_request.cpp \
+			src/request/Request.cpp src/request/support_file.cpp src/request/parse_request.cpp src/request/parse_headers.cpp\
 			src/response/handle_request.cpp src/response/error_response.cpp src/response/Response.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)

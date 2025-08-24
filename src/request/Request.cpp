@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 16:39:34 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/22 14:00:03 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@
 Request::Request() {
 	this->requestType = None;
 	this->contentLength = 0;
-	this->keepAlive = false;
+	this->keepAliveTimeout = -1;
+	this->keepAliveMax = -1;
+	this->port = -1;
 }
 Request::~Request() {
 	
@@ -69,8 +71,20 @@ size_t Request::getContentLength() const {
 std::string Request::getContentType() const {
 	return this->contentType;
 }
-bool Request::getKeepAlive() const {
+std::string Request::getKeepAlive() const {
 	return this->keepAlive;
+}
+int Request::getKeepAliveTimeout() const {
+	return this->keepAliveTimeout;
+}
+int Request::getKeepAliveMax() const {
+	return this->keepAliveMax;
+}
+std::string Request::getHost() const {
+	return this->host;
+}
+int Request::getPort() const {
+	return this->port;
 }
 
 
@@ -118,7 +132,23 @@ Request& Request::setContentType(const std::string& type) {
 	this->contentType = type;
 	return *this;
 }
-Request& Request::setKeepAlive(const bool state) {
-	this->keepAlive = state;
+Request& Request::setKeepAlive(const std::string config) {
+	this->keepAlive = config;
+	return *this;
+}
+Request& Request::setKeepAliveTimeout(const int time) {
+	this->keepAliveTimeout = time;
+	return *this;
+}
+Request& Request::setKeepAliveMax(const int time) {
+	this->keepAliveMax = time;
+	return *this;
+}
+Request& Request::setHost(const std::string host) {
+	this->host= host;
+	return *this;
+}
+Request& Request::setPort(const int port) {
+	this->port = port;
 	return *this;
 }

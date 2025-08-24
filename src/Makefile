@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/21 17:17:14 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/22 11:28:35 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,9 +37,8 @@ SRCS        = tdd.cpp catch_amalgamated.cpp \
 			utils/Colors.cpp \
 			utils/Debug.cpp \
 			utils/Error.cpp \
-			request/Request.cpp request/support_file.cpp \
-			request/parse_request.cpp response/handle_request.cpp \
-			response/error_response.cpp response/Response.cpp \
+			request/Request.cpp request/support_file.cpp request/parse_request.cpp request/parse_headers.cpp\
+			response/handle_request.cpp response/error_response.cpp response/Response.cpp \
 			request/fake_receive.cpp \
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)

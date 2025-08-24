@@ -49,7 +49,7 @@ size_t  getNb(std::string line, std::string token)
     size_t  nb = 0;
     std::string extract = line.substr(0, findNextSpace(line, nb));
 
-    nb = atoll(extract.c_str());
+    nb = std::atol(extract.c_str());
     return (nb);
 }
 
