@@ -111,5 +111,6 @@ void    Config::parseContent()
         trim.erase(0, to + 1);
         _nbServers++;
     }
+
 //    std::cout <<BLUE <<  trim << RESET << '\n';
 }

@@ -56,7 +56,6 @@ size_t  getNb(std::string line, std::string token)
 
 std::string getStr(std::string &line, std::string token)
 {
-    (void)token;
     size_t  start = 0, end = 0;
     std::string str = "";
 

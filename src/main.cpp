@@ -1,3 +1,4 @@
+
 #include <cstdio>
 #include <exception>
 #include <stdexcept>
@@ -9,7 +10,28 @@
 
 /* Following https://ncona.com/2019/04/building-a-simple-server-with-cpp/ to try and get a better understanding of how sockets work*/
 
+#include "Request.hpp"
+#include "request_handler.hpp"
 #include "Config.hpp"
+
+//int main(int ac, char** av, char **env)
+//{
+	//(void)ac;
+	//(void)av;
+	//int				fd_client = 10;
+	//Debug			dfile;
+	//Config			*c = new Config("configFiles/goodConfigs/simple.config", dfile);
+	//Config			config("configFiles/goodConfigs/simple.config", dfile);
+	//Connection		connection;
+	//connection.body_bytes_read = 0;
+	//connection.state = READING_METHOD;
+	//connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\nHost: localhost:8002\r\n\r\n";
+	//parse_request(connection, config, fd_client, env);
+	//// s_ServerData server = config.getServerData(0);
+	//config.printServers();
+	//std::cout << *c << config
+	// << config.getNbServers();
+//=======
 #include "ConfigError.hpp"
 #include "Error.hpp"
 #include "serverInitialization.hpp"

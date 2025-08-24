@@ -3,7 +3,6 @@
 t_ServerData    getDefaultServ(bool with_location)
 {
     Color   c;
-
     t_ServerData  default_server_values;
     
     default_server_values.server_name = c.red() + "UNDEFINED" + c.reset();
