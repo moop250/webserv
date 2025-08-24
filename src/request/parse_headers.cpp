@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/24 13:54:05 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/24 14:19:26 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,13 @@
 #include "Config.hpp"
 
 std::string toLower(const std::string& str) {
-    std::string lower = str;
-    std::transform(lower.begin(), lower.end(), lower.begin(),
-                   [](unsigned char c){ return std::tolower(c); });
-    return lower;
+	std::string	lower;
+
+	lower = str;
+	for (std::string::size_type i = 0; i < lower.size(); ++i) {
+		lower[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(lower[i])));
+	}
+	return lower;
 }
 
 void parse_host(Connection& connection, std::string& host) {
