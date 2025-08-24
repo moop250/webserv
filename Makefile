@@ -32,18 +32,25 @@ RESET       = \033[0m
 RESETNL     = \033[0m\n
 
 SRCS        = src/main.cpp \
-			src/utils/Colors.cpp src/utils/Debug.cpp src/utils/Error.cpp \
-	      	src/configSetUp/Config.cpp \
-            src/configSetUp/ConfigUtils.cpp \
-			src/configSetUp/TokenUtils.cpp \
-			src/configSetUp/ConfigServ.cpp \
-			src/configSetUp/ConfigLoc.cpp \
-			src/request/Request.cpp src/request/support_file.cpp src/request/parse_request.cpp src/request/parse_headers.cpp\
-			src/response/handle_request.cpp src/response/error_response.cpp src/response/Response.cpp
-			src/configSetUp/ConfigError.cpp \
-			src/configSetUp/ConfigErrorCheck.cpp \
-            src/sockets/SocketClass.cpp \
-			src/sockets/serverInitialization.cpp 
+	      src/utils/Colors.cpp \
+	      src/utils/Debug.cpp \
+	      src/utils/Error.cpp \
+	      src/configSetUp/Config.cpp \
+	      src/configSetUp/ConfigUtils.cpp \
+	      src/configSetUp/TokenUtils.cpp \
+	      src/configSetUp/ConfigServ.cpp \
+	      src/configSetUp/ConfigLoc.cpp \
+	      src/configSetUp/ConfigError.cpp \
+	      src/configSetUp/ConfigErrorCheck.cpp \
+	      src/request/Request.cpp \
+	      src/request/support_file.cpp \
+	      src/request/parse_request.cpp \
+	      src/request/parse_headers.cpp\
+	      src/response/handle_request.cpp \
+	      src/response/error_response.cpp \
+	      src/response/Response.cpp \
+	      src/sockets/SocketClass.cpp \
+	      src/sockets/serverInitialization.cpp 	# 	START SERVER INTIT
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 

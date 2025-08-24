@@ -1,7 +1,117 @@
-Creation time : 2025-08-24 14:19:23
+Creation time : 2025-08-24 15:51:11
 //////////////////////////
 //  WEBSERV DEBUG LOG   //
 //////////////////////////
 
 
 
+//////////////////
+// Parsing Part //
+//////////////////
+
+Server n* 0
+	Server name    : localhost
+	Root path      : docs/fusion_web/
+	Index file     : index.html
+	Auto index     : OFF
+	Upload storage : /foo
+	Cgi external   : foo.php
+	Cgi path       : /foo
+	Max client siz : 3000000
+	Methods        :  GET DELETE POST
+	Host           : 127.0.0.1
+	Listeners      : 8002
+	error pages    : 
+		404 <==> error_pages/404.html
+
+	Locations : 0
+		Location path           : /
+		Root path               : [0;31mUNDEFINED[0m
+		Auto index status       : On
+		HTLM index file         : hello1.htlm
+		Upload storage          : [0;31mUNDEFINED[0m
+		Cgi external entity     : [0;31mUNDEFINED[0m
+		Cgi path to interpreter : [0;31mUNDEFINED[0m
+		Methods allowed         : DELETE POST GET 
+
+	Locations : 1
+		Location path           : /tours
+		Root path               : [0;31mUNDEFINED[0m
+		Auto index status       : On
+		HTLM index file         : hello2.html
+		Upload storage          : [0;31mUNDEFINED[0m
+		Cgi external entity     : [0;31mUNDEFINED[0m
+		Cgi path to interpreter : [0;31mUNDEFINED[0m
+		Methods allowed         : FOO1 FOO2 
+
+	Locations : 2
+		Location path           : /red
+		Root path               : [0;31mUNDEFINED[0m
+		Auto index status       : OFF
+		HTLM index file         : hello3.htlm
+		Upload storage          : [0;31mUNDEFINED[0m
+		Cgi external entity     : [0;31mUNDEFINED[0m
+		Cgi path to interpreter : [0;31mUNDEFINED[0m
+		Methods allowed         : FII1 FII2 
+
+	Locations : 3
+		Location path           : /cgi-bin
+		Root path               : ./
+		Auto index status       : OFF
+		HTLM index file         : hello4.htlm
+		Upload storage          : [0;31mUNDEFINED[0m
+		Cgi external entity     : .py .sh
+		Cgi path to interpreter : /usr/bin/python3 /bin/bash
+		Methods allowed         : FUU1 FUU2 
+
+
+
+Server n* 1
+	Server name    : [0;31mUNDEFINED[0m
+	Root path      : [0;31mUNDEFINED[0m
+	Index file     : [0;31mUNDEFINED[0m
+	Auto index     : OFF
+	Upload storage : [0;31mUNDEFINED[0m
+	Cgi external   : [0;31mUNDEFINED[0m
+	Cgi path       : [0;31mUNDEFINED[0m
+	Max client siz : 1
+	Methods        :  DELETE
+	Host           : 127.0.0.1
+	Listeners      : 8004
+	error pages    : 
+[38;2;255;0;0m		UNDEFINED[0m
+	Locations : 0
+		Location path           : /zbra
+		Root path               : [0;31mUNDEFINED[0m
+		Auto index status       : On
+		HTLM index file         : OK.html
+		Upload storage          : [0;31mUNDEFINED[0m
+		Cgi external entity     : [0;31mUNDEFINED[0m
+		Cgi path to interpreter : [0;31mUNDEFINED[0m
+		Methods allowed         : [38;2;255;0;0mUNDEFINED[0m
+
+	Locations : 1
+		Location path           : /zbru
+		Root path               : [0;31mUNDEFINED[0m
+		Auto index status       : On
+		HTLM index file         : BU.html
+		Upload storage          : [0;31mUNDEFINED[0m
+		Cgi external entity     : [0;31mUNDEFINED[0m
+		Cgi path to interpreter : [0;31mUNDEFINED[0m
+		Methods allowed         : [38;2;255;0;0mUNDEFINED[0m
+
+
+
+
+
+
+//////////////////
+//  Setup Part  //
+//////////////////
+Error :	[Server Setup Incomplete]
+
+
+//////////////////////
+// Event loop start //
+//////////////////////
+Error :	[Event Loop Undefined]

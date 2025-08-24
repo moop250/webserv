@@ -94,6 +94,7 @@ int parse_URL(Connection& connection, Config& config) {
 	std::string::size_type	query_pos;
 	int						error;
 
+	(void)error;
 	(void)config;
 	url_pos = connection.buffer.find(" ");
 	if (url_pos == std::string::npos)
@@ -157,7 +158,7 @@ int parse_method(Connection& connection) {
 int parse_request(Connection& connection, Config& config, int fd_client, char **env) {
 	int		code = -1;
 	
-	switch (connection.state) {
+	switch (static_cast<int>(connection.state)) {
 		case READING_METHOD:
 			code = parse_method(connection);
 			switch (code) {
@@ -171,6 +172,7 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 					error_response(code, fd_client);
 					return -1;
 			}
+			break ;
 			
 		case READING_PATH:
 			code = parse_URL(connection, config);
@@ -185,6 +187,7 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 					error_response(code, fd_client);
 					return -1;
 			}
+			break ;
 			
 		case READING_HTTPVERSION:
 			code = parse_http_ver(connection);
@@ -199,6 +202,7 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 					error_response(code, fd_client);
 					return -1;
 			}
+			break ;
 			
 		case READING_HEADERS:
 			code = parse_headers(connection, config);
@@ -216,7 +220,7 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 					error_response(code, fd_client);
 					return -1;
 			}
-		
+			break ;
 		case READING_BODY:
 			code = parse_body(connection);
 			switch (code) {
@@ -226,6 +230,7 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 					handle_request(connection, config, fd_client, env);
 					return READING_COMPLETE;
 			}
+			break ;
 	}
 	return code;
 }
