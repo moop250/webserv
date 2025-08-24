@@ -89,7 +89,7 @@ void	free(Config *conf)
 	return ;
 }
 
-int main(int ac, char** av)
+int main(int ac, char** av, char **env)
 {
 	Debug	dfile("General.log");
 	Config	*config = NULL;
@@ -114,6 +114,14 @@ int main(int ac, char** av)
 	ErrorDebug(dfile, "Server Setup Incomplete");
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
+
+	Connection		connection;
+	int	fd_client = 10;
+	connection.body_bytes_read = 0;
+	connection.state = READING_METHOD;
+	connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\nHost: localhost:8002\r\n\r\n";
+	parse_request(connection, *config, fd_client, env);
+	// s_ServerData server = config.getServerData(0);
 
 	eventLoop();
 

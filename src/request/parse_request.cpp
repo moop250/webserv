@@ -158,6 +158,7 @@ int parse_method(Connection& connection) {
 int parse_request(Connection& connection, Config& config, int fd_client, char **env) {
 	int		code = -1;
 	
+//	std::cout << config;	//	print ok
 	switch (static_cast<int>(connection.state)) {
 		case READING_METHOD:
 			code = parse_method(connection);
