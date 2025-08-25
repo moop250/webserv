@@ -82,7 +82,7 @@ static int checkServ(ServerSocket sockets, int fd) {
 	return -1;
 }
 
-int incomingConnection(ServerSocket sockets, struct pollfd **fds) {
+int incomingConnection(ServerSocket *sockets, struct pollfd **fds) {
 
 	// loop through socket fd's.
 	for (size_t i = 0; i < sockets.getTotalSocketCount(); ++i) {
