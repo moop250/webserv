@@ -1,3 +1,4 @@
+
 #include <cstdio>
 #include <exception>
 #include <stdexcept>
@@ -9,7 +10,29 @@
 
 /* Following https://ncona.com/2019/04/building-a-simple-server-with-cpp/ to try and get a better understanding of how sockets work*/
 
+#include "Request.hpp"
+#include "request_handler.hpp"
 #include "Config.hpp"
+
+//int main(int ac, char** av, char **env)
+//{
+	//(void)ac;
+	//(void)av;
+	//int				fd_client = 10;
+	//Debug			dfile;
+	//Config			*c = new Config("configFiles/goodConfigs/simple.config", dfile);
+	//Config			config("configFiles/goodConfigs/simple.config", dfile);
+	//Connection		connection;
+	//connection.body_bytes_read = 0;
+	//connection.state = READING_METHOD;
+	//connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\nHost: localhost:8002\r\n\r\n";
+	//parse_request(connection, config, fd_client, env);
+	//// s_ServerData server = config.getServerData(0);
+	//config.printServers();
+	//std::cout << *c << config
+	// << config.getNbServers();
+//=======
+#include "ConfigError.hpp"
 #include "Error.hpp"
 #include "serverInitialization.hpp"
 #include "Debug.hpp"
@@ -17,30 +40,20 @@
 Config	*parseConfigFile(std::string file, Debug &dfile)
 {
 	Config	*config;
+	std::stringstream	msg;
 	
-	try
-	{
-		config = new Config(file, dfile);
-	}
-	catch(const std::exception& e)
-	{
-		Error("here at : ", __func__, __FILE__, __LINE__);
-		throw Config::BadFileException();
-	}
+	config = new Config(file, dfile);
 	config->parseContent();
-	try
-	{
-		std::stringstream	strparam;
-		strparam << *config;
-		dfile.append(strparam.str().c_str());
-		dfile.append("Config printed");
-	}
-	catch(const std::exception& e)
-	{
-		Error("Config", __func__, __FILE__, __LINE__);
-		throw Config::MissingParamException();
-	}
-	return config;
+	config->sanitize();
+	msg << *config;
+	dfile.append(msg.str().c_str());
+	ConfigError	error(*config);
+	if (error.isConfigValid())
+		return (config);
+
+	std::cerr << RED << "Program stopped\n" << RESET;
+	delete config;
+	return NULL;
 }
 
 void	setUpServer(Config *config)
@@ -76,9 +89,9 @@ void	free(Config *conf)
 	return ;
 }
 
-int main(int ac, char** av)
+int main(int ac, char** av, char **env)
 {
-	Debug	dfile;
+	Debug	dfile("General.log");
 	Config	*config = NULL;
 	ServerSocket socket;
 
@@ -86,15 +99,14 @@ int main(int ac, char** av)
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
 	else
-		config = parseConfigFile("configFiles/default.config", dfile);
-
-	ErrorDebug(dfile, "Config file parsing uncomplete");
+		config = parseConfigFile("configFiles/goodConfigs/default.config", dfile);
+	if (!config)
+		return (-1);
 
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
 	setUpServer(config);
 	try {
-		socket = initalizeServer(config);
 	} catch (std::exception &e) {
 		std::cout << RED << e.what() << RESET << std::endl;
 	}
@@ -102,6 +114,14 @@ int main(int ac, char** av)
 	ErrorDebug(dfile, "Server Setup Incomplete");
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
+
+	Connection		connection;
+	int	fd_client = 10;
+	connection.chunked_size = -1;
+	connection.state = READING_METHOD;
+	connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\nHost: localhost:8002\r\n\r\n";
+	parse_request(connection, *config, fd_client, env);
+	// s_ServerData server = config.getServerData(0);
 
 	eventLoop();
 

@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/24 14:15:45 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/22 11:28:35 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,14 +14,11 @@
 NAME        = webserv
 
 CC          = c++
-
-# FLAGS       = -Wall -Wextra -Werror -std=c++98
-DBUG	     = -g#-fsanitize=address
-FLAGS     = -Wall -Wextra -Werror -g3 -std=c++98
-
+FLAGS       = -Wall -Wextra -Werror -std=c++98
+FLAGS =
 
 OBJDIR      = .obj
-INCLDIR     = headers
+INCLDIR     = ../headers
 
 RM          = rm -rf
 
@@ -31,26 +28,18 @@ LBLUE       = \033[0;36m
 RESET       = \033[0m
 RESETNL     = \033[0m\n
 
-SRCS        = src/main.cpp \
-	      src/utils/Colors.cpp \
-	      src/utils/Debug.cpp \
-	      src/utils/Error.cpp \
-	      src/configSetUp/Config.cpp \
-	      src/configSetUp/ConfigUtils.cpp \
-	      src/configSetUp/TokenUtils.cpp \
-	      src/configSetUp/ConfigServ.cpp \
-	      src/configSetUp/ConfigLoc.cpp \
-	      src/configSetUp/ConfigError.cpp \
-	      src/configSetUp/ConfigErrorCheck.cpp \
-	      src/request/Request.cpp \
-	      src/request/support_file.cpp \
-	      src/request/parse_request.cpp \
-	      src/request/parse_headers.cpp\
-	      src/response/handle_request.cpp \
-	      src/response/error_response.cpp \
-	      src/response/Response.cpp \
-	      src/sockets/SocketClass.cpp \
-	      src/sockets/serverInitialization.cpp 	# 	START SERVER INTIT
+SRCS        = tdd.cpp catch_amalgamated.cpp \
+	      	configSetUp/Config.cpp \
+            configSetUp/ConfigUtils.cpp \
+			configSetUp/TokenUtils.cpp \
+			configSetUp/ConfigServ.cpp \
+			configSetUp/ConfigLoc.cpp \
+			utils/Colors.cpp \
+			utils/Debug.cpp \
+			utils/Error.cpp \
+			request/Request.cpp request/support_file.cpp request/parse_request.cpp request/parse_headers.cpp\
+			response/handle_request.cpp response/error_response.cpp response/Response.cpp \
+			request/fake_receive.cpp \
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
@@ -58,7 +47,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@printf "$(ORANGE)Compiling $(NAME)$(RESET)"
-	@$(CC) $(OBJS) $(DBUG) -o $(NAME)
+	@$(CC) $(OBJS) -o $(NAME)
 	@printf "\r\033[K"
 	@printf "$(GREEN)$(NAME) compiled$(RESETNL)"
 

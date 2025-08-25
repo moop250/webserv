@@ -3,7 +3,7 @@
 ////////////////////////////////////////
 
 Starting with an example,
-	prototype a server as :
+	ideally prototype a server as :
 
 "
 	server {
@@ -22,24 +22,23 @@ It works by the following rules :
 	server { ... ; ... }
 
 3) There can be multiple servers as :
-	server { ... }
-	server { ... }
+	server { ... } server { ... }
 
 4) The server accepted attributes have to be formated as :
-	- hosts				: <"host" host>
-	- listeners (mutilple host:port): <"listen" port>
-	- server name			: <"server_name" name>
-	- root path			: <"root" path>
-	- index				: <"index" file>
-	- autoindex			: <"autoindex" ON | OFF> 
-	- error pages			: <"error_page" nb path>
-	- upload storage		: <"upload_storage" path>
-	- CGI extention			: <"cgi_ext" file.py | file.php>
-	- CGI PATH			: <"cgi_path" path>
-	- client allowed size		: <"client_max_body" size>
-	- Methods allowed		: <"allow_methods" M1 M2 ... Mi>
-	- location bloc			: <"location" path { ... }>
-	
+	- hosts	: "host"			: '<token> host'
+	- listeners "listen"			: '<token> port'
+	- server name "server_name"		: '<token> name'
+	- root path "root"			: '<token> path'
+	- index	"html_index"			: '<token> file'
+	- autoindex "autoindex"			: '<token> ON | OFF' 
+	- error pages "error_page"		: '<token> nb path'
+	- storage "upload_storage"		: '<token> path'
+	- CGI extention	"cgi_ext"		: '<token> file.py | file.php | ...'
+	- CGI PATH "cgi_path"			: '<token> path'
+	- client BufSize "client_max_body_size"	: '<token> size'
+	- Methods allowed "allow"		: '<token> M1 M2 ... Mi'
+	- location bloc	"location"		: 'token path { ... }'
+
 5) The location bloc has to respect the same format as a server
 
 6) There can be multiple location ports in a same server
@@ -50,11 +49,13 @@ It works by the following rules :
 	- location
 	- server name
 
-8) if no argument is given to webserv a default cinfiguration take place
-	
+8) If no argument is given to webserv a default configuration take place.
+
+9) Same for the error pages and the methos allowed. If undefined
+	methods allowed will be GET DELETE POS. If undefined error page
+	a 404 not found will be throw (i think...)
+ 
 ...)
 	...
 
 N) If one of the precedent rules aren't respected, the programm won't launch
-
-
