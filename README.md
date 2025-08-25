@@ -1,5 +1,6 @@
 todo:
 - Check path if redirected
+- Match location if apply.
 - Preappend root or cgi path to URL path
 - Check allowed methods
 - Check body size
@@ -41,3 +42,4 @@ Getter:
 Method:
 - `headersToString()` -> Convert the response header into string. Return std::string.
 - `constructResponse()` -> Construct a HTTP response from a response object. Return std::string.
+- `sendResponse(int fd_client)` -> Send HTTP response.

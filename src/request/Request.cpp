@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/22 14:00:03 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/25 13:32:13 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,10 @@ Request& Request::setRequestType(const int type) {
 }
 Request& Request::setBody(const std::string& body) {
 	this->body = body;
+	return *this;
+}
+Request& Request::appendBody(const std::string& line) {
+	this->body += line;
 	return *this;
 }
 Request& Request::setContentLength(const size_t len) {
