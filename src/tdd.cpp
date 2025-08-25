@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/24 14:09:34 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/25 14:19:35 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,9 @@ TEST_CASE("Parse Unit", "[Success]") {
 	int				fd_client = 10;
 	char			**env;
 	Debug			dfile;
-	Config			config("../configFiles/goodConfigs/simple.config", dfile);
+	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
-	connection.body_bytes_read = 0;
+	connection.chunked_size = -1;
 	connection.state = READING_METHOD;
 	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
 						"Host: localhost:8002\r\n"
@@ -105,13 +105,13 @@ TEST_CASE("Parse Unit", "[Success]") {
 	// REQUIRE(connection.request.getCgiType() == ".java");
 }
 
-TEST_CASE("Parse complete", "[Success]") {
+TEST_CASE("Parse complete, content-length", "[Success]") {
 	int				fd_client = 10;
 	char			**env;
 	Debug			dfile;
-	Config			config("../configFiles/goodConfigs/simple.config", dfile);
+	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
-	connection.body_bytes_read = 0;
+	connection.chunked_size = -1;
 	connection.state = READING_METHOD;
 	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
 						"Host: localhost:8002\r\n"
@@ -139,13 +139,51 @@ TEST_CASE("Parse complete", "[Success]") {
 	REQUIRE(connection.request.getKeepAliveMax() == 200);
 }
 
+TEST_CASE("Parse complete, chunked", "[Success]") {
+	int				fd_client = 10;
+	char			**env;
+	Debug			dfile;
+	Config			config("../configFiles/goodConfigs/default.config", dfile);
+	Connection		connection;
+	connection.chunked_size = -1;
+	connection.state = READING_METHOD;
+	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
+						"Host: localhost:8002\r\n"
+						"Connection: Keep-Alive\r\n"
+						"Keep-Alive: timeout=5, max=200\r\n"
+						"Transfer-Encoding: chunked\r\n"
+						"\r\n"
+						"D\r\n"
+						"Hello World!\n\r\n"
+						"20\r\n"
+						"This is a greeting from Lausanne\r\n"
+						"0\r\n"
+						"\r\n";
+	int code = 	parse_request(connection, config, fd_client, env);
+	REQUIRE(code == READING_COMPLETE);
+	REQUIRE(connection.request.getMethod() == "POST");
+	REQUIRE(connection.request.getPath() == "/cgi/test.java");
+	REQUIRE(connection.request.getQuery() == "user=Nguyen&school=42");
+	REQUIRE(connection.request.getHttpVersion() == "HTTP/1.1");
+	REQUIRE(connection.request.getHeader("host") == "localhost:8002");
+	REQUIRE(connection.request.getHeader("connection") == "Keep-Alive");
+	REQUIRE(connection.request.getHeader("keep-alive") == "timeout=5, max=200");
+	REQUIRE(connection.request.getHeader("transfer-encoding") == "chunked");
+	REQUIRE(connection.request.getBody() == "Hello World!\nThis is a greeting from Lausanne");
+	REQUIRE(connection.request.getHost() == "localhost");
+	REQUIRE(connection.request.getPort() == 8002);
+	REQUIRE(connection.request.getKeepAlive() == "keep-alive");
+	REQUIRE(connection.request.getKeepAliveTimeout() == 5);
+	REQUIRE(connection.request.getKeepAliveMax() == 200);
+}
+
 TEST_CASE("Parse method", "[Error]") {
 	int				fd_client = 10;
 	char			**env;
 	Debug			dfile;
-	Config			config("../configFiles/goodConfigs/simple.config", dfile);
+	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
-	connection.body_bytes_read = 0;
+	connection.chunked_size = -1;
 	connection.state = READING_METHOD;
 	SECTION("Method not complete", "[Error]") {
 		connection.buffer = "GE";
@@ -174,9 +212,9 @@ TEST_CASE("Parse path", "[Error]") {
 	int				fd_client = 10;
 	char			**env;
 	Debug			dfile;
-	Config			config("../configFiles/goodConfigs/simple.config", dfile);
+	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
-	connection.body_bytes_read = 0;
+	connection.chunked_size = -1;
 	connection.state = READING_METHOD;
 	SECTION("Path not complete", "[Error]") {
 		connection.buffer = "GET /wtfw";
@@ -192,9 +230,9 @@ TEST_CASE("Parse http version", "[Error]") {
 	int				fd_client = 10;
 	char			**env;
 	Debug			dfile;
-	Config			config("../configFiles/goodConfigs/simple.config", dfile);
+	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
-	connection.body_bytes_read = 0;
+	connection.chunked_size = -1;
 	connection.state = READING_METHOD;
 	SECTION("HTTP version not complete", "[Error]") {
 		connection.buffer = "GET /cgi/test.java?user=Nguyen&school=42 HTTP/1.";
@@ -221,9 +259,9 @@ TEST_CASE("Parse headers", "[Error]") {
 	int				fd_client = 10;
 	char			**env;
 	Debug			dfile;
-	Config			config("../configFiles/goodConfigs/simple.config", dfile);
+	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
-	connection.body_bytes_read = 0;
+	connection.chunked_size = -1;
 	connection.state = READING_METHOD;
 	SECTION("Dupplicate host", "[Error]") {
 		connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\n"
@@ -245,6 +283,23 @@ TEST_CASE("Parse headers", "[Error]") {
 		parse_URL(connection, config);
 		parse_http_ver(connection);
 		int code = parse_headers(connection, config);
+		REQUIRE(code == BAD_REQUEST);
+	}
+	SECTION("Both Content-Length and Transfer-Encoding", "[Error]") {
+		connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
+							"Host: localhost:8002\r\n"
+							"Connection: Keep-Alive\r\n"
+							"Keep-Alive: timeout=5, max=200\r\n"
+							"Transfer-Encoding: chunked\r\n"
+							"Content-Length: 48\r\n"
+							"\r\n"
+							"D\r\n"
+							"Hello World!\n\r\n"
+							"20\r\n"
+							"This is a greeting from Lausanne\r\n"
+							"0\r\n"
+							"\r\n";
+		int code = 	parse_request(connection, config, fd_client, env);
 		REQUIRE(code == BAD_REQUEST);
 	}
 	// SECTION("Method not allowed", "[Error]") {

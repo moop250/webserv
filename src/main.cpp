@@ -117,7 +117,7 @@ int main(int ac, char** av, char **env)
 
 	Connection		connection;
 	int	fd_client = 10;
-	connection.body_bytes_read = 0;
+	connection.chunked_size = -1;
 	connection.state = READING_METHOD;
 	connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\nHost: localhost:8002\r\n\r\n";
 	parse_request(connection, *config, fd_client, env);

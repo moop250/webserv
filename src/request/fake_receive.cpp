@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 16:42:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 17:49:27 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/25 13:55:11 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void fake_receive() {
 	// Initiate connection struct
 	Connection	connection;
 	connection.state = READING_METHOD;
-	connection.body_bytes_read = 0;
+	connection.chunked_size = -1;
 	// loop to recv() here;
 
 	parse_request(connection, config, fd_client, env);

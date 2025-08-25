@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/24 14:09:36 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/25 13:56:34 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "request_handler.hpp"
 #include "support_file.hpp"
 
+// untested
 void parse_type(Connection& connection) {
 	std::string path;
 	std::string extension;
@@ -27,6 +28,7 @@ void parse_type(Connection& connection) {
 		connection.request.setRequestType(File);
 }
 
+// stuffs to do
 int parse_request_type(Connection& connection) {
 	struct stat	fileStat;
 	std::string	path;
@@ -77,7 +79,7 @@ int parse_http_ver(Connection& connection) {
 	return BAD_REQUEST;
 }
 
-std::string extract_URL(std::string& url, std::string::size_type query_pos) {
+std::string extract_Query(std::string& url, std::string::size_type query_pos) {
 	std::string query;
 
 	try {
@@ -88,6 +90,7 @@ std::string extract_URL(std::string& url, std::string::size_type query_pos) {
 	}
 }
 
+// stuffs to do
 int parse_URL(Connection& connection, Config& config) {
 	std::string::size_type	url_pos;
 	std::string::size_type	path_pos;
@@ -115,7 +118,7 @@ int parse_URL(Connection& connection, Config& config) {
 		}
 		query_pos = url.find("?");
 		if (query_pos != std::string::npos) {
-			std::string query = extract_URL(url, query_pos);
+			std::string query = extract_Query(url, query_pos);
 			if (query == "") {
 				return BAD_REQUEST;
 			}
@@ -222,6 +225,18 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 					return -1;
 			}
 			break ;
+
+		case READING_CHUNKED:
+			code = parse_body_chunked(connection);
+			switch (code) {
+				case CONTINUE_READ:
+					return CONTINUE_READ;
+				case READING_COMPLETE:
+					handle_request(connection, config, fd_client, env);
+					return READING_COMPLETE;
+			}
+			break ;
+
 		case READING_BODY:
 			code = parse_body(connection);
 			switch (code) {

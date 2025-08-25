@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 11:56:36 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/25 11:40:43 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ std::string Response::headersToString() {
 	return header;
 }
 
+// Likely to be remake to support chunked encoding
 std::string Response::constructResponse() {
 	if (this->httpVersion == "" || this->code == 0 || this->codeMessage == "")
 		return "";
@@ -53,7 +54,7 @@ std::string Response::constructResponse() {
 			+ this->body);
 }
 
-// Untested
+// Untested, likely to be remake to communicate with poll() and support chunked encoding
 int Response::sendResponse(int fd_client) {
 	const char*	response;
 	int			sent_total;
