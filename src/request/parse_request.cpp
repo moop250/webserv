@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/25 13:56:34 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/25 14:24:40 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,6 +234,11 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 				case READING_COMPLETE:
 					handle_request(connection, config, fd_client, env);
 					return READING_COMPLETE;
+				case BAD_REQUEST:
+					// fall through
+				case CONTENT_TOO_LARGE:
+					error_response(code, fd_client);
+					return -1;
 			}
 			break ;
 

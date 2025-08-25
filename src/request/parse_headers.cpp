@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/25 14:18:45 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/25 14:23:37 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ void matching_server(Connection& connection, Config& config) {
 	}
 }
 
-// do stuffs
+// stuffs to do
 int parse_body_chunked(Connection& connection) {
 	std::string::size_type	end_pos;
 	std::string				line;
