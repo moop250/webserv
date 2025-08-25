@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <exception>
 #include <stdexcept>
+#include <sys/poll.h>
 #include <sys/socket.h> // For socket functions
 #include <netinet/in.h> // For sockaddr_in
 #include <cstdlib> // For exit() and EXIT_FAILURE
@@ -34,7 +35,7 @@
 //=======
 #include "ConfigError.hpp"
 #include "Error.hpp"
-#include "serverInitialization.hpp"
+#include "Sockets.hpp"
 #include "Debug.hpp"
 
 Config	*parseConfigFile(std::string file, Debug &dfile)
@@ -115,11 +116,12 @@ int main(int ac, char** av, char **env)
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 
-	Connection		connection;
-	int	fd_client = 10;
-	connection.chunked_size = -1;
-	connection.state = READING_METHOD;
-	connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\nHost: localhost:8002\r\n\r\n";
+	struct	pollfd *fds = initPoll(socket);
+	
+	while (1) {
+		incomingConnection(socket, &fds, config, env);
+	}
+
 	parse_request(connection, *config, fd_client, env);
 	// s_ServerData server = config.getServerData(0);
 

@@ -1,4 +1,5 @@
 #include "../../headers/SocketClass.hpp"
+#include "../../headers/Sockets.hpp"
 #include <climits>
 #include <poll.h>
 #include <stdexcept>
@@ -54,7 +55,7 @@ static int handleConnection(ServerSocket *sockets, struct pollfd **fds, int fd) 
 	}
 };
 
-static int handleClientData(int fd, int port) {
+static int handleClientData(int fd, int port, Config *config, char **env) {
 
 	std::string buf(LONG_MAX - 3000, '\0');
 
@@ -82,7 +83,7 @@ static int checkServ(ServerSocket *sockets, int fd) {
 	return -1;
 }
 
-int incomingConnection(ServerSocket *sockets, struct pollfd **fds) {
+int incomingConnection(ServerSocket *sockets, struct pollfd **fds, Config *config, char **env) {
 
 	// loop through socket fd's.
 	for (size_t i = 0; i < sockets->getTotalSocketCount(); ++i) {
@@ -91,7 +92,7 @@ int incomingConnection(ServerSocket *sockets, struct pollfd **fds) {
 			if ((port = checkServ(sockets, (*fds)[i].fd)) > 0) {
 				handleConnection(sockets, fds, (*fds)[i].fd);
 			} else {
-				switch(handleClientData((*fds)[i].fd, port))
+				switch(handleClientData((*fds)[i].fd, port, config, env))
 				{
 					case HUNGUP:
 				close((*fds)[i].fd);
