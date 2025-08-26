@@ -34,7 +34,6 @@ struct s_ServerData
 {
 //    std::vector<std::map<int, std::string>> pages;  // new
     std::map<int, std::string>              error_pages;        // code -> file path
-//    std::map<std::string, std::string>      pages;
     std::map<std::string, std::string>      cgi;
     std::vector<t_Location>                 locations;
     std::vector<std::string>                methods;
@@ -44,9 +43,6 @@ struct s_ServerData
     std::string                             root;
     std::string                             index;
     std::string                             upload_storage;
-//    std::string                             cgi_ext;
-//    std::string                             cgi_path;
-//    std::vector<std::tuple<std::string>>    cgi;
     size_t                                  client_max_body_size;
     bool                                    autoindex;
     bool                                    isLoc;

@@ -7,15 +7,15 @@ template <typename Token>
 class Location
 {
     protected:
-        std::string                             _path;
-        std::vector<std::tuple<std::string>>    _cgi;   // extension:path
-        std::vector<std::tuple<std::string>>    _error_pages;
-        std::vector<std::string>                _methods;
-        std::string                             _root;
-        std::string                             _index;
-        std::string                             _upload_storage;
-        size_t                                  _client_max_size;
-        bool                                    _autoindex;
+        std::string                         _path;
+        std::map<std::string, std::string>  _cgi;   // extension:path
+        std::map<std::string, std::string>  _error_pages;
+        std::vector<std::string>            _methods;
+        std::string                         _root;
+        std::string                         _index;
+        std::string                         _upload_storage;
+        size_t                              _client_max_size;
+        bool                                _autoindex;
     public:
         Location();
         Location(t_Location loc);
