@@ -56,6 +56,10 @@ static int handleConnection(ServerSocket *sockets, struct pollfd **fds, int fd) 
 };
 
 static int handleClientData(int fd, int port, Config *config, char **env) {
+	// testing
+	(void) port;
+	(void) config;
+	(void) env;
 
 	std::string buf(LONG_MAX - 3000, '\0');
 
@@ -71,11 +75,13 @@ static int handleClientData(int fd, int port, Config *config, char **env) {
 	}
 	buf.resize(nbytes);
 
+	std::cout << buf << std::endl;
+	return CLIENTDATASUCCESS;
 	// parsing function here:
 };
 
 static int checkServ(ServerSocket *sockets, int fd) {
-	for (size_t j = 0; j < sockets->getSocketCount(); ++j) {
+	for (int j = 0; j < sockets->getSocketCount(); ++j) {
 			if (fd == sockets->getSocketFd(j)) {
 				return j;
 			}
@@ -84,9 +90,12 @@ static int checkServ(ServerSocket *sockets, int fd) {
 }
 
 int incomingConnection(ServerSocket *sockets, struct pollfd **fds, Config *config, char **env) {
+	// testing
+	(void)config;
+	(void)env;
 
 	// loop through socket fd's.
-	for (size_t i = 0; i < sockets->getTotalSocketCount(); ++i) {
+	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
 		int port = -1;
 		if ((*fds)[i].revents & (POLLIN | POLLHUP)) {
 			if ((port = checkServ(sockets, (*fds)[i].fd)) > 0) {
@@ -94,6 +103,11 @@ int incomingConnection(ServerSocket *sockets, struct pollfd **fds, Config *confi
 			} else {
 				switch(handleClientData((*fds)[i].fd, port, config, env))
 				{
+					//testing
+					case CLIENTDATASUCCESS:
+				close((*fds)[i].fd);
+				removeFromPollfd(fds, (*fds)[i].fd, sockets);
+				break;
 					case HUNGUP:
 				close((*fds)[i].fd);
 				removeFromPollfd(fds, (*fds)[i].fd, sockets);

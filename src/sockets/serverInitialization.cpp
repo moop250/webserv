@@ -36,14 +36,14 @@ static std::vector<std::string> sanitizeConfig(Config *serverConfig) {
 	return out;
 };
 
-ServerSocket initalizeServer(Config *serverConfig) {
+ServerSocket *initalizeServer(Config *serverConfig) {
 	std::vector<std::string> uniqueComboList;
-	ServerSocket socket;
+	ServerSocket *socket = new ServerSocket;
 
 	uniqueComboList = sanitizeConfig(serverConfig);
 
 	for (size_t i = 0; i < uniqueComboList.size(); i++) {
-		socket.initializeNewSocket(uniqueComboList.at(i));
+		socket->initializeNewSocket(uniqueComboList.at(i));
 	}
 
 	return socket;

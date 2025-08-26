@@ -57,22 +57,20 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	return NULL;
 }
 
-void	setUpServer(Config *config)
+void	eventLoop(Config *config, ServerSocket *socket, char **env)
 {
-	//	sockets
-	//	ports
-	//	Methods
-	//	adrrinfo
-	//	...
-	(void)config;
-	return ;
-}
-
-void	eventLoop()
-{
+	struct	pollfd *fds = initPoll(socket);
 	//	execution loop
-	// 		Wait connection (socket)
-	// 		Accepter la connexion (si nouveau client)
+	while (1) {
+		int	pollCount = poll(fds, socket->getTotalSocketCount(), -1);
+
+		if (pollCount == -1) {
+			std::cerr << "Error: Poll" << std::endl;
+			break;
+		}
+
+		incomingConnection(socket, &fds, config, env);
+	}
 	// 		Lire la requête HTTP
 	// 		Parser la requête
 	//		...
@@ -80,6 +78,8 @@ void	eventLoop()
 	// 		Construire la réponse HTTP
 	// 		Envoyer la réponse
 	// 		Fermer (ou garder ouverte) la connexion
+	delete [] fds;
+	delete socket;
 	return ;
 }
 
@@ -94,7 +94,7 @@ int main(int ac, char** av, char **env)
 {
 	Debug	dfile("General.log");
 	Config	*config = NULL;
-	ServerSocket socket;
+	ServerSocket *socket = NULL;
 
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
@@ -105,27 +105,16 @@ int main(int ac, char** av, char **env)
 		return (-1);
 
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
-
-	setUpServer(config);
+	
 	try {
+		socket = initalizeServer(config);
 	} catch (std::exception &e) {
 		std::cout << RED << e.what() << RESET << std::endl;
 	}
 
-	ErrorDebug(dfile, "Server Setup Incomplete");
-
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 
-	struct	pollfd *fds = initPoll(socket);
-	
-	while (1) {
-		incomingConnection(socket, &fds, config, env);
-	}
-
-	parse_request(connection, *config, fd_client, env);
-	// s_ServerData server = config.getServerData(0);
-
-	eventLoop();
+	eventLoop(config, socket, env);
 
 	ErrorDebug(dfile, "Event Loop Undefined");
 

@@ -15,6 +15,7 @@ enum connectionReturns {
 };
 
 enum recvReturns {
+	CLIENTDATASUCCESS = 0,
 	HUNGUP = -1,
 	RECVERROR = -2
 };
