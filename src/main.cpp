@@ -71,13 +71,7 @@ void	eventLoop(Config *config, ServerSocket *socket, char **env)
 
 		incomingConnection(socket, &fds, config, env);
 	}
-	// 		Lire la requête HTTP
-	// 		Parser la requête
-	//		...
-	//		... ?
-	// 		Construire la réponse HTTP
-	// 		Envoyer la réponse
-	// 		Fermer (ou garder ouverte) la connexion
+
 	delete [] fds;
 	delete socket;
 	return ;
@@ -113,8 +107,12 @@ int main(int ac, char** av, char **env)
 	}
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
-
-	eventLoop(config, socket, env);
+	
+	try {
+		eventLoop(config, socket, env);
+	} catch (std::exception &e) {
+		std::cout << RED << e.what() << RESET << std::endl;
+	}
 
 	ErrorDebug(dfile, "Event Loop Undefined");
 
