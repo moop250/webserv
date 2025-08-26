@@ -5,15 +5,18 @@ Location<Token>::Location() : _path("UNDEFINED")
     _root("UNDEFINED"), _index("UNDEFINED"), _upload_storage("UNDEFINED"),
     _client_max_size(1), _autoindex(false)
 {
-    //  init cgi
-    //  init errorpages
-    //  init methods
+    _cgi.push_back(std::tuple("UNDEFINED", "UNDEFINED"));
+    _error_pages.push_back(std::tuple("UNDEFINED", "UNDEFINED"));
+    _methods.push_back("UNDEFINED");
     return ;
 }
 
 template <typename Token>
-Location<Token>::Location(t_Location serv)
+Location<Token>::Location(t_Location loc)
 {
+    _path = loc.path;
+    _cgi.pop_back(loc.data.cgi_ext, loc.data.cgi_path);
+//    _error_pages.pop_back(tostring(loc.error_pages))
     //  update t_location in config before coding this
     return ;
 }
@@ -54,6 +57,7 @@ Token    Location<Token>::attribut(std::string tokenType, int member)
 
     return tok;
 }
+
 
 //template <typename Token>
 //Location<Token>::

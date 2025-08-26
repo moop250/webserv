@@ -52,4 +52,6 @@ class Server : public Location
         Token   errorPageContent();
 };
 
+std::string tostring(int n);
+
 #endif

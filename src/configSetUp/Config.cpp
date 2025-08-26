@@ -11,8 +11,7 @@ void    Config::initTokenMaps()
         "<autoindex>",
         "<error_page>",
         "<upload_storage>",
-        "<cgi_ext>",
-        "<cgi_path>",
+        "<CGI>",
         "<client_max_body_size>",
         "<allow>",
         "location",
@@ -23,7 +22,8 @@ void    Config::initTokenMaps()
         _Tokens[i] = mainTokenMap[i];
 }
 
-Config::Config() {
+Config::Config()
+{
     std::cerr << "You are not supposed to use config without any file to look after\n";
 }
 
