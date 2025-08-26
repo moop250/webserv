@@ -1,4 +1,4 @@
-Creation time : 2025-08-26 15:01:11
+Creation time : 2025-08-26 15:06:37
 //////////////////////////
 //  WEBSERV DEBUG LOG   //
 //////////////////////////
@@ -10,63 +10,99 @@ Creation time : 2025-08-26 15:01:11
 //////////////////
 
 Server n* 0
-	Server name    : localhost
-	Root path      : docs/fusion_web/
+	Server name    : lala1
+	Root path      : ./public/website1
 	Index file     : index.html
-	Auto index     : OFF
-	Upload storage : /foo
-	Max client siz : 3000000
-	Methods        :  GET DELETE POST
+	Auto index     : On
+	Upload storage : ./public/website2/
+	Max client siz : 2
+	Methods        :  GET DELETE
 	Host           : 127.0.0.1
-	Listeners      : 8002
+	Listeners      : 5050
 	CGI             : 
 [38;2;255;0;0m			UNDEFINED
 [0m	error pages    : 
-		404 <==> error_pages/404.html
+		404 <==> ./public/error_pages/404.html
 
 	Locations : 0
-		Location path           : /
-		Root path               : [0;31mUNDEFINED[0m
-		Auto index status       : On
-		HTLM index file         : hello1.htlm
+		Location path           : /path1.1
+		Root path               : ./public/website1.0/
+		Auto index status       : OFF
+		HTLM index file         : index.html
 		Upload storage          : [0;31mUNDEFINED[0m
-		Methods allowed         : DELETE POST GET 
+		Methods allowed         : GET POST DELETE 
 		CGI        : 
 [38;2;255;0;0m			UNDEFINED[0m
 		Error pages : 
 [38;2;255;0;0m			UNDEFINED[0m
 
 	Locations : 1
-		Location path           : /tours
-		Root path               : [0;31mUNDEFINED[0m
-		Auto index status       : On
-		HTLM index file         : hello2.html
+		Location path           : /path1.2
+		Root path               : ./public/website1.1/
+		Auto index status       : OFF
+		HTLM index file         : about.html
 		Upload storage          : [0;31mUNDEFINED[0m
-		Methods allowed         : FOO1 FOO2 
+		Methods allowed         : GET 
 		CGI        : 
 [38;2;255;0;0m			UNDEFINED[0m
 		Error pages : 
 [38;2;255;0;0m			UNDEFINED[0m
 
 	Locations : 2
-		Location path           : /red
+		Location path           : /path1.3
 		Root path               : [0;31mUNDEFINED[0m
 		Auto index status       : OFF
-		HTLM index file         : hello3.htlm
+		HTLM index file         : about.html
 		Upload storage          : [0;31mUNDEFINED[0m
-		Methods allowed         : FII1 FII2 
+		Methods allowed         : [38;2;255;0;0mUNDEFINED[0m
 		CGI        : 
 [38;2;255;0;0m			UNDEFINED[0m
 		Error pages : 
 [38;2;255;0;0m			UNDEFINED[0m
 
 	Locations : 3
-		Location path           : /cgi-bin
-		Root path               : ./
+		Location path           : /path1.4
+		Root path               : ./public/website2.0/
 		Auto index status       : OFF
-		HTLM index file         : hello4.htlm
+		HTLM index file         : about.html
 		Upload storage          : [0;31mUNDEFINED[0m
-		Methods allowed         : FUU1 FUU2 
+		Methods allowed         : GET DELETE 
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
+
+	Locations : 4
+		Location path           : /path1.5
+		Root path               : ./public/website2.1/
+		Auto index status       : OFF
+		HTLM index file         : index.html
+		Upload storage          : ./public/website2.1/
+		Methods allowed         : GET POST 
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
+
+	Locations : 5
+		Location path           : /path1.6
+		Root path               : ./public/website2.2/
+		Auto index status       : OFF
+		HTLM index file         : action.php
+		Upload storage          : ./public/website2.2/
+		Methods allowed         : GET POST 
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
+
+	Locations : 6
+		Location path           : /path1.7
+		Root path               : ./public/website1.4/
+		Auto index status       : OFF
+		HTLM index file         : empty.html
+		Upload storage          : [0;31mUNDEFINED[0m
+		Methods allowed         : GET POST 
 		CGI        : 
 [38;2;255;0;0m			UNDEFINED[0m
 		Error pages : 
@@ -75,43 +111,107 @@ Server n* 0
 
 
 Server n* 1
-	Server name    : [0;31mUNDEFINED[0m
-	Root path      : [0;31mUNDEFINED[0m
-	Index file     : [0;31mUNDEFINED[0m
-	Auto index     : OFF
-	Upload storage : [0;31mUNDEFINED[0m
-	Max client siz : 1
-	Methods        :  DELETE
+	Server name    : lala2
+	Root path      : ./public/website1
+	Index file     : index.html
+	Auto index     : On
+	Upload storage : ./public/website2/
+	Max client siz : 30000
+	Methods        :  GET DELETE
 	Host           : 127.0.0.1
-	Listeners      : 8004
+	Listeners      : 5051
 	CGI             : 
-		extension : .php <==> path : /path/to/php
 		extension : .py <==> path : /path/to/py
 	error pages    : 
-		401 <==> /401path/
-		404 <==> /404path/
+		404 <==> ./public/error_pages/404.html
 
 	Locations : 0
-		Location path           : /zbra
-		Root path               : [0;31mUNDEFINED[0m
-		Auto index status       : On
-		HTLM index file         : OK.html
+		Location path           : /2.1
+		Root path               : ./public/website2/
+		Auto index status       : OFF
+		HTLM index file         : about.html
 		Upload storage          : [0;31mUNDEFINED[0m
-		Methods allowed         : [38;2;255;0;0mUNDEFINED[0m
+		Methods allowed         : GET DELETE 
 		CGI        : 
 [38;2;255;0;0m			UNDEFINED[0m
 		Error pages : 
 [38;2;255;0;0m			UNDEFINED[0m
 
 	Locations : 1
-		Location path           : /zbru
-		Root path               : [0;31mUNDEFINED[0m
-		Auto index status       : On
-		HTLM index file         : BU.html
-		Upload storage          : [0;31mUNDEFINED[0m
-		Methods allowed         : [38;2;255;0;0mUNDEFINED[0m
+		Location path           : /2.2
+		Root path               : ./public/website2/
+		Auto index status       : OFF
+		HTLM index file         : index.html
+		Upload storage          : ./public/website2/
+		Methods allowed         : GET POST 
 		CGI        : 
 [38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
+
+	Locations : 2
+		Location path           : /2.3
+		Root path               : ./public/website2/
+		Auto index status       : OFF
+		HTLM index file         : action.php
+		Upload storage          : ./public/website2/
+		Methods allowed         : GET POST 
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
+
+	Locations : 3
+		Location path           : /2.4
+		Root path               : ./public/website1/
+		Auto index status       : OFF
+		HTLM index file         : empty.html
+		Upload storage          : [0;31mUNDEFINED[0m
+		Methods allowed         : GET POST 
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
+
+
+
+Server n* 2
+	Server name    : lala3
+	Root path      : ./CGI/CGI-bin
+	Index file     : [0;31mUNDEFINED[0m
+	Auto index     : On
+	Upload storage : [0;31mUNDEFINED[0m
+	Max client siz : 1
+	Methods        : 
+	Host           : 127.0.0.1
+	Listeners      : 5052
+	CGI             : 
+[38;2;255;0;0m			UNDEFINED
+[0m	error pages    : 
+[38;2;255;0;0m		UNDEFINED[0m
+	Locations : 0
+		Location path           : /3.1
+		Root path               : ./CGI/CGI-bin/test-cgi.php
+		Auto index status       : OFF
+		HTLM index file         : [0;31mUNDEFINED[0m
+		Upload storage          : [0;31mUNDEFINED[0m
+		Methods allowed         : POST GET 
+		CGI        : 
+		extension : .php <==> path : /path/to/php
+
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
+
+	Locations : 1
+		Location path           : /3.2
+		Root path               : ./CGI/CGI-bin/info.pl
+		Auto index status       : OFF
+		HTLM index file         : [0;31mUNDEFINED[0m
+		Upload storage          : [0;31mUNDEFINED[0m
+		Methods allowed         : GET POST 
+		CGI        : 
+		extension : cl <==> path : /path/to/curl
+
 		Error pages : 
 [38;2;255;0;0m			UNDEFINED[0m
 
