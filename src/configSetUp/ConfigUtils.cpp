@@ -116,7 +116,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
             stream << RED << "\t\t\tUNDEFINED\n" << RESET;
         else
             for (std::map<std::string, std::string>::iterator j = print.cgi.begin(); j != print.cgi.end(); j++)
-                stream << "\t\textension : " << j->first << " <==> path : " << j->second << '\n';
+                stream << "\t\textension :" << j->first << " <==> path : " << j->second << '\n';
         stream << "\terror pages    : \n";
         if (print.error_pages.empty())
             stream << RED << "\t\tUNDEFINED" << RESET;
@@ -144,7 +144,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 stream << RED << "\t\t\tUNDEFINED" << RESET;
             else
                 for (std::map<std::string, std::string>::iterator k = i->data.cgi.begin(); k != i->data.cgi.end(); k++)
-                    stream << "\t\textension : " << k->first << " <==> path : " << k->second << '\n';  
+                    stream << "\t\t\textension : " << k->first << " <==> path : " << k->second;  
             stream << '\n';  
             stream << "\t\tError pages : \n";
             if (i->data.error_pages.empty())

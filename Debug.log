@@ -1,4 +1,4 @@
-Creation time : 2025-08-26 15:17:08
+Creation time : 2025-08-26 17:58:14
 //////////////////////////
 //  WEBSERV DEBUG LOG   //
 //////////////////////////
@@ -85,8 +85,8 @@ Server n* 1
 	Host           : 127.0.0.1
 	Listeners      : 8004
 	CGI             : 
-		extension : .php <==> path : /path/to/php
-		extension : .py <==> path : /path/to/py
+		extension :.php <==> path : /path/to/php
+		extension :.py <==> path : /path/to/py
 	error pages    : 
 		401 <==> /401path/
 		404 <==> /404path/
@@ -107,12 +107,11 @@ Server n* 1
 		Location path           : /zbru
 		Root path               : [0;31mUNDEFINED[0m
 		Auto index status       : On
-		HTLM index file         : [0;31mUNDEFINED[0m
+		HTLM index file         : BU.html
 		Upload storage          : [0;31mUNDEFINED[0m
 		Methods allowed         : [38;2;255;0;0mUNDEFINED[0m
 		CGI        : 
-		extension : pl <==> path : /path/to/pearl
-
+			extension : pl <==> path : /path/to/pearl
 		Error pages : 
 [38;2;255;0;0m			UNDEFINED[0m
 

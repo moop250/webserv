@@ -24,7 +24,21 @@ void    Config::initTokenMaps()
 
 Config::Config()
 {
-    std::cerr << "You are not supposed to use config without any file to look after\n";
+    std::cerr << YELLOW << "You are not supposed to use config without any file to look after\n" << RESET;
+}
+
+static void eraseComments(std::string &buf)
+{
+    size_t  from = 0, to;
+
+    while ((from = buf.find("#", from)) != std::string::npos)
+    {
+        to = buf.find('\n', from);
+        if (to == std::string::npos)
+            buf.erase(from);
+        else
+            buf.erase(from, to - from);
+    }
 }
 
 void    formatContent(std::string &buf)
@@ -44,6 +58,7 @@ void    formatContent(std::string &buf)
             lastpos = pos + 2;
         }
     }
+    eraseComments(buf);
 }
 
 Config::Config(std::string fileName, Debug &dfile) :
