@@ -111,9 +111,12 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
         stream << '\n' << "\tListeners      : ";
         stream << print.port;
         stream << "\n";
-        stream << "\tCGI : \n";
-        for (std::map<std::string, std::string>::iterator j = print.cgi.begin(); j != print.cgi.end(); j++)
-            stream << "\t\textension : " << j->first << " <==> path : " << j->second << '\n';
+        stream << "\tCGI             : \n";
+        if (print.cgi.empty())
+            stream << RED << "\t\t\tUNDEFINED\n" << RESET;
+        else
+            for (std::map<std::string, std::string>::iterator j = print.cgi.begin(); j != print.cgi.end(); j++)
+                stream << "\t\textension : " << j->first << " <==> path : " << j->second << '\n';
         stream << "\terror pages    : \n";
         if (print.error_pages.empty())
             stream << RED << "\t\tUNDEFINED" << RESET;
@@ -130,20 +133,25 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\t\tAuto index status       : " << (i->data.autoindex ? "On" : "OFF") << '\n'
                 << "\t\tHTLM index file         : " << i->data.index << '\n'
                 << "\t\tUpload storage          : " << i->data.upload_storage << '\n'
-            //    << "\t\tCgi external entity     : " << i->data.cgi_ext << '\n'
-            //    << "\t\tCgi path to interpreter : " << i->data.cgi_path << '\n'
                 << "\t\tMethods allowed         : ";
             if (i->data.methods.empty())
                 stream << RED << "UNDEFINED" << RESET;
             else
                 for (size_t j = 0; j < i->data.methods.size(); j++)
                     stream << i->data.methods.at(j) << " ";
-            stream << "\n\tCGI : \n";
-            for (std::map<std::string, std::string>::iterator k = i->data.cgi.begin(); k != i->data.cgi.end(); k++)
-                stream << "\t\textension : " << k->first << " <==> path : " << k->second << '\n';
-            stream << "\tError pages : \n";
-            for (std::map<int, std::string>::iterator k = i->data.error_pages.begin(); k != i->data.error_pages.end(); k++)
-                stream << "\t\t" << k->first << " <==> " << k->second << '\n';
+            stream << "\n\t\tCGI        : \n";
+            if (i->data.cgi.empty())
+                stream << RED << "\t\t\tUNDEFINED" << RESET;
+            else
+                for (std::map<std::string, std::string>::iterator k = i->data.cgi.begin(); k != i->data.cgi.end(); k++)
+                    stream << "\t\textension : " << k->first << " <==> path : " << k->second << '\n';  
+            stream << '\n';  
+            stream << "\t\tError pages : \n";
+            if (i->data.error_pages.empty())
+                stream << RED << "\t\t\tUNDEFINED" << RESET;
+            else
+                for (std::map<int, std::string>::iterator k = i->data.error_pages.begin(); k != i->data.error_pages.end(); k++)
+                    stream << "\t\t" << k->first << " <==> " << k->second << '\n';
             stream << "\n\n";
         }
         stream << "\n\n";
