@@ -18,8 +18,7 @@ typedef enum TokenTypes
     AUTOINDEX,
     ERROR_PAGE,            // default error pages
     UPLOAD_STORAGE,
-    CGI_EXTENTION,
-    CGI_PATH,
+    CGI_DATA,
     CLIENT_MAX_BODY_SIZE,  // max request body
     METHODS,
     LOCATION,              // start of a location block
@@ -33,20 +32,20 @@ typedef struct s_Location   t_Location;
 
 struct s_ServerData
 {
-    std::map<int, std::string>  error_pages;        // code -> file path
-    std::vector<t_Location>     locations;
-    std::vector<std::string>    methods;
-    std::string                 host;
-    std::string                 port;
-    std::string                 server_name;
-    std::string                 root;
-    std::string                 index;
-    std::string                 upload_storage;
-    std::string                 cgi_ext;
-    std::string                 cgi_path;
-    size_t                      client_max_body_size;
-    bool                        autoindex;
-    bool                        isLoc;
+//    std::vector<std::map<int, std::string>> pages;  // new
+    std::map<int, std::string>              error_pages;        // code -> file path
+    std::map<std::string, std::string>      cgi;
+    std::vector<t_Location>                 locations;
+    std::vector<std::string>                methods;
+    std::string                             host;
+    std::string                             port;
+    std::string                             server_name;
+    std::string                             root;
+    std::string                             index;
+    std::string                             upload_storage;
+    size_t                                  client_max_body_size;
+    bool                                    autoindex;
+    bool                                    isLoc;
 };
 
 struct s_Location

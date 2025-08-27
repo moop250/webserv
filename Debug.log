@@ -1,8 +1,3 @@
-Creation time : 2025-08-27 06:16:51
-//////////////////////////
-//  WEBSERV DEBUG LOG   //
-//////////////////////////
-
 
 
 //////////////////
@@ -15,13 +10,13 @@ Server n* 0
 	Index file     : index.html
 	Auto index     : OFF
 	Upload storage : /foo
-	Cgi external   : foo.php
-	Cgi path       : /foo
 	Max client siz : 3000000
 	Methods        :  GET DELETE POST
 	Host           : 127.0.0.1
 	Listeners      : 8002
-	error pages    : 
+	CGI             : 
+[38;2;255;0;0m			UNDEFINED
+[0m	error pages    : 
 		404 <==> error_pages/404.html
 
 	Locations : 0
@@ -30,9 +25,11 @@ Server n* 0
 		Auto index status       : On
 		HTLM index file         : hello1.htlm
 		Upload storage          : [0;31mUNDEFINED[0m
-		Cgi external entity     : [0;31mUNDEFINED[0m
-		Cgi path to interpreter : [0;31mUNDEFINED[0m
 		Methods allowed         : DELETE POST GET 
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
 
 	Locations : 1
 		Location path           : /tours
@@ -40,9 +37,11 @@ Server n* 0
 		Auto index status       : On
 		HTLM index file         : hello2.html
 		Upload storage          : [0;31mUNDEFINED[0m
-		Cgi external entity     : [0;31mUNDEFINED[0m
-		Cgi path to interpreter : [0;31mUNDEFINED[0m
 		Methods allowed         : FOO1 FOO2 
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
 
 	Locations : 2
 		Location path           : /red
@@ -50,9 +49,11 @@ Server n* 0
 		Auto index status       : OFF
 		HTLM index file         : hello3.htlm
 		Upload storage          : [0;31mUNDEFINED[0m
-		Cgi external entity     : [0;31mUNDEFINED[0m
-		Cgi path to interpreter : [0;31mUNDEFINED[0m
 		Methods allowed         : FII1 FII2 
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
 
 	Locations : 3
 		Location path           : /cgi-bin
@@ -60,9 +61,11 @@ Server n* 0
 		Auto index status       : OFF
 		HTLM index file         : hello4.htlm
 		Upload storage          : [0;31mUNDEFINED[0m
-		Cgi external entity     : .py .sh
-		Cgi path to interpreter : /usr/bin/python3 /bin/bash
 		Methods allowed         : FUU1 FUU2 
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
 
 
 
@@ -72,23 +75,28 @@ Server n* 1
 	Index file     : [0;31mUNDEFINED[0m
 	Auto index     : OFF
 	Upload storage : [0;31mUNDEFINED[0m
-	Cgi external   : [0;31mUNDEFINED[0m
-	Cgi path       : [0;31mUNDEFINED[0m
 	Max client siz : 1
 	Methods        :  DELETE
 	Host           : 127.0.0.1
 	Listeners      : 8004
+	CGI             : 
+		extension :.php <==> path : /path/to/php
+		extension :.py <==> path : /path/to/py
 	error pages    : 
-[38;2;255;0;0m		UNDEFINED[0m
+		401 <==> /401path/
+		404 <==> /404path/
+
 	Locations : 0
 		Location path           : /zbra
 		Root path               : [0;31mUNDEFINED[0m
 		Auto index status       : On
 		HTLM index file         : OK.html
 		Upload storage          : [0;31mUNDEFINED[0m
-		Cgi external entity     : [0;31mUNDEFINED[0m
-		Cgi path to interpreter : [0;31mUNDEFINED[0m
 		Methods allowed         : [38;2;255;0;0mUNDEFINED[0m
+		CGI        : 
+[38;2;255;0;0m			UNDEFINED[0m
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
 
 	Locations : 1
 		Location path           : /zbru
@@ -96,9 +104,11 @@ Server n* 1
 		Auto index status       : On
 		HTLM index file         : BU.html
 		Upload storage          : [0;31mUNDEFINED[0m
-		Cgi external entity     : [0;31mUNDEFINED[0m
-		Cgi path to interpreter : [0;31mUNDEFINED[0m
 		Methods allowed         : [38;2;255;0;0mUNDEFINED[0m
+		CGI        : 
+			extension : pl <==> path : /path/to/pearl
+		Error pages : 
+[38;2;255;0;0m			UNDEFINED[0m
 
 
 

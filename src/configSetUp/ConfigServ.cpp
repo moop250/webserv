@@ -4,6 +4,7 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
 {
     std::string tokenLine = "default token line";
     std::string str = "UNDEFINED";
+    std::string str2 = "UNDEFINED";
     int         nb = -1;
 
     tokenLine = getTokenLine(content, _Tokens[type], pos);
@@ -42,12 +43,19 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
         case UPLOAD_STORAGE:
             serv.upload_storage = tokenLine;
             break ;
-        case CGI_EXTENTION:
-            serv.cgi_ext = tokenLine;
+        case CGI_DATA:
+            str = getStr(tokenLine, _Tokens[type]);
+            eraseLine(tokenLine, str);
+            str2 = getStr(tokenLine, _Tokens[type]);
+            eraseLine(tokenLine, str2);
+            serv.cgi.insert(std::make_pair(str, str2));
             break ;
-        case CGI_PATH:
-            serv.cgi_path = tokenLine;
-            break ;
+//        case CGI_EXTENTION:
+//            serv.cgi_ext = tokenLine;
+//            break ;
+//        case CGI_PATH:
+//            serv.cgi_path = tokenLine;
+//            break ;
         case CLIENT_MAX_BODY_SIZE:
             serv.client_max_body_size = atoll(tokenLine.c_str());
             break ;

@@ -16,7 +16,7 @@ NAME        = webserv
 CC          = c++
 
 # FLAGS       = -Wall -Wextra -Werror -std=c++98
-DBUG	     = -g#-fsanitize=address
+DBUG	     = -fsanitize=address
 FLAGS     = -Wall -Wextra -Werror -g3 -std=c++98
 
 
@@ -35,6 +35,7 @@ SRCS        = src/main.cpp \
 	      src/utils/Colors.cpp \
 	      src/utils/Debug.cpp \
 	      src/utils/Error.cpp \
+		  src/utils/utils.cpp \
 	      src/configSetUp/Config.cpp \
 	      src/configSetUp/ConfigUtils.cpp \
 	      src/configSetUp/TokenUtils.cpp \
@@ -42,6 +43,8 @@ SRCS        = src/main.cpp \
 	      src/configSetUp/ConfigLoc.cpp \
 	      src/configSetUp/ConfigError.cpp \
 	      src/configSetUp/ConfigErrorCheck.cpp \
+	      src/configSetUp/Server.cpp \
+	      src/configSetUp/Location.cpp \
 	      src/request/Request.cpp \
 	      src/request/support_file.cpp \
 	      src/request/parse_request.cpp \
