@@ -1,85 +1,59 @@
 # include "Server.hpp"
 
-template <typename Token>
-Server<Token>::Server() : Location(),
-    _host("UNDEFINED"), _port("UNDEFINED"), _server_name("UNDEFINED"),
-    _root("UNDEFINED"), _index("UNDEFINED"), _upload_storage("UNDEFINED"),
-    _client_max_size(1), _autoindex(false)
+Server::Server() : Location(),
+    _host("UNDEFINED"), _port("UNDEFINED"), _server_name("UNDEFINED")
 {
-    //  init cgi
-    //  init errorpages
-    //  init location
-    //  init methods
     return ;
 }
 
-template <typename Token>
-Server<Token>::Server(t_ServerData serv) : Location(serv)
+Server::Server(t_ServerData serv) : Location(serv)
 {
-    //  update t_servData in config before coding this
+    //  handle locations
+    _host = serv.host;
+    _port = serv.port;
+    _server_name = serv.server_name; 
+    for (std::vector<t_Location>::iterator i = serv.locations.begin(); i != serv.locations.end(); i++)
+        _locations.push_back(Location(*i));
     return ;
 }
 
-template <typename Token>
-Server<Token>::Server(const Server &s) : Location(),
-    _host(s.attribut("host")), _port(s.attribut("port")),
-    _server_name(s.attribut("server_name")), _root(s.attribut("root")),
-    _index(s.attribut("index")), _upload_storage(s.attribut("upload_storage")),
-    _client_max_size(s.attribut("client_max_size")), _autoindex(s.attribut("autoindex"))
+Server::Server(const Server &s) : Location(s)
 {
-    //  cp cgi
-    //  cp errorpages
-    //  cp location
-    //  cp methods
+    _host = s.host();
+    _port = s.port();
+    _server_name = s.name();
+    _locations = s.locations();
     return ;
 }
 
-template <typename Token>
-Server<Token>::~Server() {}
+Server::~Server() {
+}
 
-template <typename Token>
-Server<Token>    &Server<Token>::operator=(const Server<Token> &s)
+Server    &Server::operator=(const Server &s)
 {
     if (this != &s)
         *this = s;
     return *this;
 }
 
-template <typename Token>
-bool    Server<Token>::has(Token token)
+bool    Server::has(e_TokenType type)
 {
+    (void)type;
     return true;
 }
 
-template <typename Token>
-Token    Server<Token>::attribut(std::string tokenType, int member)
-{
-    Token   tok;
+std::string Server::host() const { return _host; }
 
-    return tok;
+std::string Server::port() const { return _port; }
+
+std::string Server::name() const { return _server_name; }
+
+Location    Server::location(int at) const {
+    try {
+        return _locations.at(at);
+    } catch(...) {
+        throw std::out_of_range("No location at this range in server");
+    }
 }
 
-//template <typename Token>
-//Server<Token>::
-//
-//template <typename Token>
-//Server<Token>::
-//
-//template <typename Token>
-//Server<Token>::
-//
-//template <typename Token>
-//Server<Token>::
-//
-//template <typename Token>
-//
-//
-//template <typename Token>
-//
-//
-//template <typename Token>
-//
-//
-//template <typename Token>
-//
-//
+std::vector<Location>   Server::locations() const { return _locations; }

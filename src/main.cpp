@@ -36,6 +36,7 @@
 #include "Error.hpp"
 #include "serverInitialization.hpp"
 #include "Debug.hpp"
+#include "Server.hpp"
 
 Config	*parseConfigFile(std::string file, Debug &dfile)
 {
@@ -49,8 +50,12 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	dfile.append(msg.str().c_str());
 	ConfigError	error(*config);
 	if (error.isConfigValid())
+	{
+		Server	newserv(config->getServerData(0));
+		std::cout << "serv member : " <<  newserv.root() << std::endl;
+		std::cout << "serv loc member : " << newserv.location(1);
 		return (config);
-
+	}
 	std::cerr << RED << "Program stopped\n" << RESET;
 	delete config;
 	return NULL;

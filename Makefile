@@ -43,6 +43,8 @@ SRCS        = src/main.cpp \
 	      src/configSetUp/ConfigLoc.cpp \
 	      src/configSetUp/ConfigError.cpp \
 	      src/configSetUp/ConfigErrorCheck.cpp \
+	      src/configSetUp/Server.cpp \
+	      src/configSetUp/Location.cpp \
 	      src/request/Request.cpp \
 	      src/request/support_file.cpp \
 	      src/request/parse_request.cpp \
