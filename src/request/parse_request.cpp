@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/24 14:09:36 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/27 07:39:59 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,30 +14,32 @@
 #include "request_handler.hpp"
 #include "support_file.hpp"
 
+// untested
 void parse_type(Connection& connection) {
 	std::string path;
 	std::string extension;
 
-	path = connection.request.getPath();
+	path = connection.getRequest().getPath();
 	extension = path.substr(path.rfind('.'));
 	if (isCGI(extension) == true) {
-		connection.request.setRequestType(CGI);
-		connection.request.setCgiType(extension);
+		connection.getRequest().setRequestType(CGI);
+		connection.getRequest().setCgiType(extension);
 	} else
-		connection.request.setRequestType(File);
+		connection.getRequest().setRequestType(File);
 }
 
+// stuffs to do
 int parse_request_type(Connection& connection) {
 	struct stat	fileStat;
 	std::string	path;
 
 	// Check if path is cgi or not, pre-append the cgi path or root path
-	path = connection.request.getPath();
+	path = connection.getRequest().getPath();
 	
 	if (stat(path.c_str(), &fileStat) == -1)
 		return INTERNAL_ERROR;
 	if (S_ISDIR(fileStat.st_mode)) {
-		connection.request.setRequestType(Directory);
+		connection.getRequest().setRequestType(Directory);
 	} else if (S_ISREG(fileStat.st_mode)) {
 		parse_type(connection);
 	} else
@@ -49,14 +51,14 @@ int parse_body(Connection& connection) {
 	size_t		len;
 	std::string	body;
 
-	len = connection.request.getContentLength();
+	len = connection.getRequest().getContentLength();
 	if (static_cast<size_t>(connection.buffer.size()) < len)
 		return CONTINUE_READ;
 	body = connection.buffer.substr(0, len);
-	connection.request.setBody(body);
+	connection.getRequest().setBody(body);
 	connection.buffer.erase(0, len); 
-	connection.state = READING_COMPLETE;
-	return READING_COMPLETE;
+	connection.setState(MAKING_RESPONSE);
+	return MAKING_RESPONSE;
 }
 
 int parse_http_ver(Connection& connection) {
@@ -69,15 +71,15 @@ int parse_http_ver(Connection& connection) {
 	if (http_ver == "HTTP/1.0" || http_ver == "HTTP/2.0" || http_ver == "HTTP/3.0")
 		return HTTP_VERSION_MISMATCH;
 	else if (http_ver == "HTTP/1.1") {
-		connection.request.setHttpVersion(http_ver);
+		connection.getRequest().setHttpVersion(http_ver);
 		connection.buffer.erase(0, http_pos + 2);
-		connection.state = READING_HEADERS;
+		connection.setState(READING_HEADERS);
 		return READING_HEADERS;
 	}
 	return BAD_REQUEST;
 }
 
-std::string extract_URL(std::string& url, std::string::size_type query_pos) {
+std::string extract_Query(std::string& url, std::string::size_type query_pos) {
 	std::string query;
 
 	try {
@@ -88,6 +90,7 @@ std::string extract_URL(std::string& url, std::string::size_type query_pos) {
 	}
 }
 
+// stuffs to do
 int parse_URL(Connection& connection, Config& config) {
 	std::string::size_type	url_pos;
 	std::string::size_type	path_pos;
@@ -115,22 +118,22 @@ int parse_URL(Connection& connection, Config& config) {
 		}
 		query_pos = url.find("?");
 		if (query_pos != std::string::npos) {
-			std::string query = extract_URL(url, query_pos);
+			std::string query = extract_Query(url, query_pos);
 			if (query == "") {
 				return BAD_REQUEST;
 			}
-			connection.request.setQuery(query);
+			connection.getRequest().setQuery(query);
 			url.erase(query_pos, url_pos);
 		}
 		
 		 // Check if path is redirected before set!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		connection.request.setPath(url);
+		connection.getRequest().setPath(url);
 		// error = parse_request_type(connection);
 		// if (error != CONTINUE_READ)
 		// 	return error;
 		
 		connection.buffer.erase(0, url_pos + 1);
-		connection.state = READING_HTTPVERSION;
+		connection.setState(READING_HTTPVERSION);
 		return READING_HTTPVERSION;
 	}
 	return BAD_REQUEST;
@@ -144,9 +147,9 @@ int parse_method(Connection& connection) {
 		return CONTINUE_READ;
 	std::string method = connection.buffer.substr(0, position);
 	if (method == "GET" || method == "POST" || method == "DELETE") {
-		connection.request.setMethod(method);
+		connection.getRequest().setMethod(method);
 		connection.buffer.erase(0, position + 1);
-		connection.state = READING_PATH;
+		connection.setState(READING_PATH);
 		return READING_PATH;
 	} else if (method == "HEAD" || method == "PUT"
 				|| method == "CONNECT" || method == "OPTIONS"
@@ -155,22 +158,23 @@ int parse_method(Connection& connection) {
 	return BAD_REQUEST;
 }
 
-int parse_request(Connection& connection, Config& config, int fd_client, char **env) {
-	int		code = -1;
-	
-//	std::cout << config;	//	print ok
-	switch (static_cast<int>(connection.state)) {
+int parse_request(Connection& connection, Config& config, char **env) {
+	int		code;
+
+	code = -1;
+	// connection.setState(READING_METHOD);
+	switch (static_cast<int>(connection.getState())) {
 		case READING_METHOD:
 			code = parse_method(connection);
 			switch (code) {
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case READING_PATH:
-					return parse_request(connection, config, fd_client, env);
+					return parse_request(connection, config, env);
 				case NOT_IMPLEMENTED:
 					// fall through
 				case BAD_REQUEST:
-					error_response(code, fd_client);
+					error_response(connection, code);
 					return -1;
 			}
 			break ;
@@ -181,11 +185,11 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case READING_HTTPVERSION:
-					return parse_request(connection, config, fd_client, env);
+					return parse_request(connection, config, env);
 				case INTERNAL_ERROR:
 					// fall through
 				case BAD_REQUEST:
-					error_response(code, fd_client);
+					error_response(connection, code);
 					return -1;
 			}
 			break ;
@@ -196,11 +200,11 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case READING_HEADERS:
-					return parse_request(connection, config, fd_client, env);
+					return parse_request(connection, config, env);
 				case HTTP_VERSION_MISMATCH:
 					// fall through
 				case BAD_REQUEST:
-					error_response(code, fd_client);
+					error_response(connection, code);
 					return -1;
 			}
 			break ;
@@ -211,25 +215,46 @@ int parse_request(Connection& connection, Config& config, int fd_client, char **
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case READING_BODY:
-					return parse_request(connection, config, fd_client, env);
-				case READING_COMPLETE:
-					handle_request(connection, config, fd_client, env);
-					return READING_COMPLETE;
+					return parse_request(connection, config, env);
+				case READING_CHUNKED:
+					return parse_body_chunked(connection);
+				case MAKING_RESPONSE:
+					handle_request(connection, config, env);
+					return MAKING_RESPONSE;
 				case METHOD_NOT_ALLOWED:
 					// fall through
 				case LENGTH_REQUIRED:
-					error_response(code, fd_client);
+					// fall through
+				case BAD_REQUEST:
+					error_response(connection, code);
 					return -1;
 			}
 			break ;
+
+		case READING_CHUNKED:
+			code = parse_body_chunked(connection);
+			switch (code) {
+				case CONTINUE_READ:
+					return CONTINUE_READ;
+				case MAKING_RESPONSE:
+					handle_request(connection, config, env);
+					return MAKING_RESPONSE;
+				case BAD_REQUEST:
+					// fall through
+				case CONTENT_TOO_LARGE:
+					error_response(connection, code);
+					return -1;
+			}
+			break ;
+
 		case READING_BODY:
 			code = parse_body(connection);
 			switch (code) {
 				case CONTINUE_READ:
 					return CONTINUE_READ;
-				case READING_COMPLETE:
-					handle_request(connection, config, fd_client, env);
-					return READING_COMPLETE;
+				case MAKING_RESPONSE:
+					handle_request(connection, config, env);
+					return MAKING_RESPONSE;
 			}
 			break ;
 	}

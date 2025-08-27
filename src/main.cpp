@@ -11,27 +11,10 @@
 /* Following https://ncona.com/2019/04/building-a-simple-server-with-cpp/ to try and get a better understanding of how sockets work*/
 
 #include "Request.hpp"
+#include "Connection.hpp"
+#include "Response.hpp"
 #include "request_handler.hpp"
 #include "Config.hpp"
-
-//int main(int ac, char** av, char **env)
-//{
-	//(void)ac;
-	//(void)av;
-	//int				fd_client = 10;
-	//Debug			dfile;
-	//Config			*c = new Config("configFiles/goodConfigs/simple.config", dfile);
-	//Config			config("configFiles/goodConfigs/simple.config", dfile);
-	//Connection		connection;
-	//connection.body_bytes_read = 0;
-	//connection.state = READING_METHOD;
-	//connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\nHost: localhost:8002\r\n\r\n";
-	//parse_request(connection, config, fd_client, env);
-	//// s_ServerData server = config.getServerData(0);
-	//config.printServers();
-	//std::cout << *c << config
-	// << config.getNbServers();
-//=======
 #include "ConfigError.hpp"
 #include "Error.hpp"
 #include "serverInitialization.hpp"
@@ -120,12 +103,20 @@ int main(int ac, char** av, char **env)
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 
-	Connection		connection;
-	int	fd_client = 10;
-	connection.body_bytes_read = 0;
-	connection.state = READING_METHOD;
-	connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\nHost: localhost:8002\r\n\r\n";
-	parse_request(connection, *config, fd_client, env);
+	Connection		connection(10);
+	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
+						"Host: localhost:8002\r\n"
+						"Connection: Keep-Alive\r\n"
+						"Keep-Alive: timeout=5, max=200\r\n"
+						"Transfer-Encoding: chunked\r\n"
+						"\r\n"
+						"D\r\n"
+						"Hello World!\n\r\n"
+						"20\r\n"
+						"This is a greeting from Lausanne\r\n"
+						"0\r\n"
+						"\r\n";
+	parse_request(connection, *config, env);
 	// s_ServerData server = config.getServerData(0);
 
 	eventLoop();

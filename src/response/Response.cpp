@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 11:56:36 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/27 05:04:48 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@
 
 Response::Response() {
 	this->httpVersion = "HTTP/1.1";
-	this->code = 0;
+	this->setHeader("Date", getCurrentHttpTime());
+	this->setHeader("Server", "42_Webserv/1.0.0");
+	this->setHeader("Authors", "hoannguy, hlibine, aseite");
+	this->code = -1;
 	this->contentLength = 0;
 }
 
@@ -39,12 +42,15 @@ std::string Response::headersToString() {
 	return header;
 }
 
+// Likely to be remake to support chunked encoding
 std::string Response::constructResponse() {
-	if (this->httpVersion == "" || this->code == 0 || this->codeMessage == "")
-		return "";
-	std::string headers = this->headersToString();
+	std::string headers;
 	std::string code;
 	std::ostringstream temp;
+	
+	if (this->httpVersion == "" || this->code == 0 || this->codeMessage == "")
+		return "";
+	headers = this->headersToString();
 	temp << this->code;
 	code = temp.str();
 	return (this->httpVersion + " " + code + " " + this->codeMessage + "\r\n"
@@ -53,7 +59,7 @@ std::string Response::constructResponse() {
 			+ this->body);
 }
 
-// Untested
+// Untested, likely to be remake to communicate with poll() and support chunked encoding
 int Response::sendResponse(int fd_client) {
 	const char*	response;
 	int			sent_total;
@@ -78,6 +84,20 @@ std::ostream& operator <<(std::ostream& o, Response& response) {
 	return o;
 }
 
+std::string getCurrentHttpTime() {
+	std::time_t			t;
+	std::tm				*tm;
+	char				time[100];
+	
+	t = std::time(NULL);
+	tm = std::gmtime(&t);
+    if (std::strftime(time, sizeof(time), "%a, %d %b %Y %H:%M:%S GMT", tm)) {
+        return std::string(time);
+    }
+	return "";
+}
+
+
 
 // ----------------- GETTERS ----------------------
 
@@ -89,9 +109,6 @@ int Response::getCode() const {
 }
 std::string Response::getCodeMessage() const {
 	return this->codeMessage;
-}
-std::string Response::getErrorPagePath() const {
-	return this->errorPagePath;
 }
 std::string Response::getHeader(const std::string& key) const {
 	for (size_t i = 0; i < this->headers.size(); i++) {
@@ -125,10 +142,6 @@ Response& Response::setCode(const int code) {
 }
 Response& Response::setCodeMessage(const std::string& message) {
 	this->codeMessage = message;
-	return *this;
-}
-Response& Response::setErrorPagePath(const std::string& path) {
-	this->errorPagePath = path;
 	return *this;
 }
 void Response::setHeader(const std::string& key, const std::string& value) {

@@ -1,5 +1,6 @@
 todo:
 - Check path if redirected
+- Match location if apply.
 - Preappend root or cgi path to URL path
 - Check allowed methods
 - Check body size
@@ -31,7 +32,6 @@ Getter:
 - `getHttpVersion()` -> Return the response HTTP version in std::string.
 - `getCode()` -> Return the response code in int.
 - `getCodeMessage()` -> Return the response code message in std::string.
-- `getErrorPagePath()` -> Return the path to an error page.
 - `getHeader(const std::string& key)` -> Accept a key in std::string, return the value in std::string. If key doesn't exist, return an empty std::string istead.
 - `getBody()` -> Return the response body in std::string.
 - `getContentLength()` -> Return the response body Content-Length in int.
@@ -41,3 +41,4 @@ Getter:
 Method:
 - `headersToString()` -> Convert the response header into string. Return std::string.
 - `constructResponse()` -> Construct a HTTP response from a response object. Return std::string.
+- `sendResponse(int fd_client)` -> Send HTTP response.
