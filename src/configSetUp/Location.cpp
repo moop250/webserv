@@ -5,7 +5,8 @@ Location::Location() : _path("UNDEFINED"),
     _client_max_size(1), _autoindex(false)
 {
     _cgi.insert(std::make_pair("UNDEFINED", "UNDEFINED"));
-    _error_pages.insert(std::make_pair(0, "UNDEFINED"));
+    _errorPages.push_back(ErrorPage());
+//    _error_pages.insert(std::make_pair(0, "UNDEFINED"));
     _methods.push_back("UNDEFINED");
     return ;
 }
@@ -14,7 +15,8 @@ Location::Location(t_Location loc)
 {
     _path = loc.path;
     _cgi = loc.data.cgi;
-    _error_pages = loc.data.error_pages;
+    _errorPages.push_back(ErrorPage(loc.data.error_pages));
+//    _error_pages = loc.data.error_pages;
     _methods = loc.data.methods;
     _root = loc.data.root;
     _index = loc.data.index;
@@ -29,7 +31,8 @@ Location::Location(t_ServerData serv)
 {
     _path = "UNDEFINED";
     _cgi = serv.cgi;
-    _error_pages = serv.error_pages;
+    _errorPages.push_back(ErrorPage(serv.error_pages));
+//    _error_pages = serv.error_pages;
     _methods = serv.methods;
     _root = serv.root;
     _index = serv.index;
@@ -66,7 +69,18 @@ bool    Location::has(e_TokenType type)
 
 std::string Location::path() const { return _path; }
 
-std::map<int, std::string>  Location::errorPages() const { return _error_pages; }
+//std::map<int, std::string>  Location::errorPages() const { return _error_pages; }
+
+ErrorPage   Location::errorPageClass(int member) const {
+    try {
+        return _errorPages.at(member);
+    } catch (...) {
+        throw std::out_of_range("No error page member at this position");
+    }
+}
+
+std::vector<ErrorPage>   Location::errorPagesClass() const { return _errorPages; }
+
 
 std::map<std::string, std::string> Location::cgi() const { return _cgi; }
 

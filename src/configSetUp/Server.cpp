@@ -39,7 +39,7 @@ Server    &Server::operator=(const Server &s)
 bool    Server::has(e_TokenType type)
 {
     (void)type;
-    return true;
+    return false;
 }
 
 std::string Server::host() const { return _host; }
@@ -57,3 +57,34 @@ Location    Server::location(int at) const {
 }
 
 std::vector<Location>   Server::locations() const { return _locations; }
+
+//void    *Server::locAttribut(e_TokenType type) const {
+//    switch (type)
+//    {
+//        case ROOT_PATH:
+//            ///
+//            break ;
+//        case HTLM_INDEX:
+//            //
+//            break ;
+//        case AUTOINDEX:
+//            //
+//            break ;
+//        case ERROR_PAGE:
+//            // 
+//            break ;
+//        case CGI_DATA:
+//            //  
+//            break ;
+//        case UPLOAD_STORAGE:
+//            //
+//            break ;
+//        case CLIENT_MAX_BODY_SIZE:
+//            //
+//            break ;
+//        case METHODS:
+//            // 
+//            break ;
+//    }
+//    return NULL;
+//}

@@ -54,6 +54,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 		Server	newserv(config->getServerData(0));
 		std::cout << "serv member : " <<  newserv.root() << std::endl;
 		std::cout << "serv loc member : " << newserv.location(1);
+		std::cout << "Error number : " << newserv.errorPageClass().error(0);
 		return (config);
 	}
 	std::cerr << RED << "Program stopped\n" << RESET;

@@ -2,6 +2,7 @@
 # define SERVER_HPP
 
 # include "Config.hpp"
+# include "ErrorPage.hpp"
 
 //template <typename Token>
 class Location
@@ -9,6 +10,7 @@ class Location
     protected:
         std::string                         _path;
         std::map<std::string, std::string>  _cgi;   // extension:path
+        std::vector<ErrorPage>              _errorPages;    // class
         std::map<int, std::string>          _error_pages;  // nb:path
         std::vector<std::string>            _methods;
         std::string                         _root;
@@ -26,7 +28,7 @@ class Location
 
         Location    &operator=(const Location &);
     
-        virtual bool    has(e_TokenType type = TOKEN_TYPE_COUNT);
+        virtual bool    has(e_TokenType type);
     //    virtual bool        has(Token token);
     //    virtual Token       attribut(std::string tokenType, int member = 0);    //  find through a switch case after levenstein
 
@@ -34,7 +36,9 @@ class Location
         std::string path() const;
     
         virtual std::map<std::string, std::string> cgi() const;
-        virtual std::map<int, std::string>          errorPages() const;
+    //    virtual std::map<int, std::string>         errorPages() const;
+        virtual ErrorPage               errorPageClass(int member = 0) const;
+        virtual std::vector<ErrorPage>  errorPagesClass() const;
     
         virtual std::vector<std::string>    methods() const;
     
@@ -73,9 +77,10 @@ class Server : public Location
         std::string             host() const;
         std::string             port() const;
         std::string             name() const;
-
+        
         Location                location(int at = 0) const;
         std::vector<Location>   locations() const;
+        void                    *locAttribut(e_TokenType type);
     
     //    Token                   errorPageContent();
 };
