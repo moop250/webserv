@@ -58,6 +58,7 @@ static void	testServer(Config *config)
 {
 	Server	serv(config->getServerData(0));
 
+	return ;
 	/* pour les attributs basics en bool ou string on get avec le nom de l'attribut*/
 	std::cout << "autoindex : " << (serv.autoindex()? "ON":"OFF") << std::endl;	//	tu peux rajouter le prefixe get devant les fonctions
 																				//	si ca t'arrange
@@ -103,12 +104,6 @@ static void	testServer(Config *config)
 	return ;
 }
 
-static void	testLocation(Config *config)
-{
-	(void)config;
-	return ;
-}
-
 Config	*parseConfigFile(std::string file, Debug &dfile)
 {
 	Config	*config;
@@ -123,7 +118,6 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	if (error.isConfigValid())
 	{
 		testServer(config);
-		testLocation(config);
 		return (config);
 	}
 	std::cerr << RED << "Program stopped\n" << RESET;

@@ -9,7 +9,24 @@ ErrorPages::ErrorPages()
 ErrorPages::ErrorPages(std::map<int, std::string> m)
 {
     _data = m;
-    //  look for content
+    for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++)
+    {
+        const std::string   &filepath = i->second;
+        std::ifstream       htmlFile(filepath.c_str());
+        if (htmlFile.is_open())
+        {
+            std::string line;
+            std::string buf;
+            while (std::getline(htmlFile, line))
+            {
+                buf.append(line);
+                buf.append("\n");
+            }
+            _html_content.push_back(buf);
+        }
+        else
+            _html_content.push_back("HTML FILE EMPTY");
+    }
 }
 
 ErrorPages::~ErrorPages() {
@@ -77,15 +94,6 @@ std::string ErrorPages::content(RequestError error) const
     }
     return _html_content.at(index);
 }
-
-#define BAD_REQUEST 400
-#define NOT_FOUND 404
-#define METHOD_NOT_ALLOWED 405
-#define LENGTH_REQUIRED 411
-#define CONTENT_TOO_LARGE 413
-#define NOT_IMPLEMENTED 501
-#define HTTP_VERSION_MISMATCH 505
-#define INTERNAL_ERROR 500
 
 int     ErrorPages::macrosLinkRequest(RequestError error) const
 {
