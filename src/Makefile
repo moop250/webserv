@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/27 06:21:40 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/28 10:14:20 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,17 +29,30 @@ RESET       = \033[0m
 RESETNL     = \033[0m\n
 
 SRCS        = tdd.cpp catch_amalgamated.cpp \
-	      	configSetUp/Config.cpp \
-            configSetUp/ConfigUtils.cpp \
-			configSetUp/TokenUtils.cpp \
-			configSetUp/ConfigServ.cpp \
-			configSetUp/ConfigLoc.cpp \
-			utils/Colors.cpp \
-			utils/Debug.cpp \
-			utils/Error.cpp \
-			request/Request.cpp request/support_file.cpp request/parse_request.cpp request/parse_headers.cpp \
-			request/Connection.cpp \
-			response/handle_request.cpp response/error_response.cpp response/Response.cpp \
+		  utils/Colors.cpp \
+	      utils/Debug.cpp \
+	      utils/Error.cpp \
+		  utils/utils.cpp \
+	      configSetUp/Config.cpp \
+	      configSetUp/ConfigUtils.cpp \
+	      configSetUp/TokenUtils.cpp \
+	      configSetUp/ConfigServ.cpp \
+	      configSetUp/ConfigLoc.cpp \
+	      configSetUp/ConfigError.cpp \
+	      configSetUp/ConfigErrorCheck.cpp \
+	      configSetUp/Server.cpp \
+	      configSetUp/Location.cpp \
+	      request/Request.cpp \
+	      request/support_file.cpp \
+	      request/parse_request.cpp \
+	      request/parse_headers.cpp\
+		  request/Connection.cpp \
+	      response/handle_request.cpp \
+	      response/error_response.cpp \
+	      response/Response.cpp \
+		  response/handle_file_request.cpp \
+	      sockets/SocketClass.cpp \
+	      sockets/serverInitialization.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 

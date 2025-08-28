@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/27 05:52:49 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/28 12:53:05 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,6 +54,7 @@ SRCS        = src/main.cpp \
 	      src/response/handle_request.cpp \
 	      src/response/error_response.cpp \
 	      src/response/Response.cpp \
+		  src/response/handle_file_request.cpp \
 	      src/sockets/SocketClass.cpp \
 	      src/sockets/serverInitialization.cpp 	# 	START SERVER INTIT
 
