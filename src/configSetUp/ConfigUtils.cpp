@@ -99,8 +99,6 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\tIndex file     : " << print.index << '\n'
                 << "\tAuto index     : " << (print.autoindex ? "On" : "OFF") << '\n'
                 << "\tUpload storage : " << print.upload_storage << '\n'
-            //    << "\tCgi external   : " << print.cgi_ext << '\n'
-            //    << "\tCgi path       : " << print.cgi_path << '\n'
                 << "\tMax client siz : " << print.client_max_body_size << std::endl;
         stream << "\tMethods        : ";
         for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); i++)

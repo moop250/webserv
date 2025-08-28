@@ -5,7 +5,8 @@ Location::Location() : _path("UNDEFINED"),
     _client_max_size(1), _autoindex(false)
 {
     _cgi.insert(std::make_pair("UNDEFINED", "UNDEFINED"));
-    _error_pages.insert(std::make_pair(0, "UNDEFINED"));
+    _errorPages = ErrorPages();
+// _error_pages.insert(std::make_pair(0, "UNDEFINED"));
     _methods.push_back("UNDEFINED");
     return ;
 }
@@ -14,7 +15,10 @@ Location::Location(t_Location loc)
 {
     _path = loc.path;
     _cgi = loc.data.cgi;
-    _error_pages = loc.data.error_pages;
+    _errorPages = ErrorPages(loc.data.error_pages);
+    for (std::map<int, std::string>::iterator i = loc.data.error_pages.begin(); i != loc.data.error_pages.end(); i++)
+        std::cout << i->first;
+//    _error_pages = loc.data.error_pages;
     _methods = loc.data.methods;
     _root = loc.data.root;
     _index = loc.data.index;
@@ -29,7 +33,11 @@ Location::Location(t_ServerData serv)
 {
     _path = "UNDEFINED";
     _cgi = serv.cgi;
-    _error_pages = serv.error_pages;
+    _errorPages = ErrorPages(serv.error_pages);
+    for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
+        std::cout << i->first << "\n";
+
+//    _error_pages = serv.error_pages;
     _methods = serv.methods;
     _root = serv.root;
     _index = serv.index;
@@ -66,7 +74,7 @@ bool    Location::has(e_TokenType type)
 
 std::string Location::path() const { return _path; }
 
-std::map<int, std::string>  Location::errorPages() const { return _error_pages; }
+ErrorPages  Location::errorPages() const { return _errorPages; }
 
 std::map<std::string, std::string> Location::cgi() const { return _cgi; }
 
