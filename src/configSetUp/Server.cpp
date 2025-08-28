@@ -11,7 +11,8 @@ Server::Server(t_ServerData serv) : Location(serv)
     //  handle locations
     _host = serv.host;
     _port = serv.port;
-    _server_name = serv.server_name; 
+    _server_name = serv.server_name;
+    _errorPages = ErrorPages(serv.error_pages);
     for (std::vector<t_Location>::iterator i = serv.locations.begin(); i != serv.locations.end(); i++)
         _locations.push_back(Location(*i));
     return ;
@@ -26,8 +27,7 @@ Server::Server(const Server &s) : Location(s)
     return ;
 }
 
-Server::~Server() {
-}
+Server::~Server() { }
 
 Server    &Server::operator=(const Server &s)
 {
