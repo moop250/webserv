@@ -95,6 +95,10 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 			} else {
 				switch(handleClientData((*fds)[i].fd, config, env))
 				{
+					case CLOSEFD:
+						close((*fds)[i].fd);
+						removeFromPollfd(fds, (*fds)[i].fd, sockets);
+						break;
 					case CLIENTDATASUCCESS:
 						break;
 					case HUNGUP:
