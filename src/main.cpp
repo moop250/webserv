@@ -125,7 +125,7 @@ void	eventLoop(Config *config, ServerSocket *socket, char **env)
 			incomingConnection(socket, &fds, config, env);
 		}
 	} catch (std::exception &e) {
-		std::cout << RED << e.what() << RESET << std::endl;
+		std::cerr << RED << e.what() << RESET << std::endl;
 	}
 
 	delete socket;
@@ -158,7 +158,9 @@ int main(int ac, char** av, char **env)
 	try {
 		socket = initalizeServer(config);
 	} catch (std::exception &e) {
-		std::cout << RED << e.what() << RESET << std::endl;
+		std::cerr << RED << e.what() << RESET << std::endl;
+		free(config);
+		return (-2);
 	}
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
