@@ -8,6 +8,7 @@
 #include <cstdlib> // For exit() and EXIT_FAILURE
 #include <iostream> // For cout
 #include <unistd.h> // For read
+#include <vector>
 
 /* Following https://ncona.com/2019/04/building-a-simple-server-with-cpp/ to try and get a better understanding of how sockets work*/
 
@@ -59,10 +60,10 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 
 void	eventLoop(Config *config, ServerSocket *socket, char **env)
 {
-	struct	pollfd *fds = initPoll(socket);
+	std::vector<pollfd> fds = initPoll(socket);
 	//	execution loop
 	while (1) {
-		int	pollCount = poll(fds, socket->getTotalSocketCount(), -1);
+		int	pollCount = poll(&fds[0], socket->getTotalSocketCount(), -1);
 
 		if (pollCount == -1) {
 			std::cerr << "Error: Poll" << std::endl;
@@ -72,7 +73,6 @@ void	eventLoop(Config *config, ServerSocket *socket, char **env)
 		incomingConnection(socket, &fds, config, env);
 	}
 
-	delete [] fds;
 	delete socket;
 	return ;
 }

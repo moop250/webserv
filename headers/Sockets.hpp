@@ -2,9 +2,10 @@
 # define SOCKET_FUNCS_HPP
 
 # include "SocketClass.hpp"
+# include <poll.h>
 
 ServerSocket *initalizeServer(Config *serverConfig);
-struct pollfd *initPoll(ServerSocket *socket);
-int incomingConnection(ServerSocket *sockets, struct pollfd **fds, Config *config, char **env);
+std::vector<pollfd> initPoll(ServerSocket *socket);
+int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, char **env);
 
 #endif // SOCKET_FUNCS_HPP

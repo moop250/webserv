@@ -9,55 +9,30 @@
 #include <limits>
 #include <unistd.h>
 
-static void addToPollfd(struct pollfd **fds, int newFD, ServerSocket *sockets) {
-	int pos = sockets->getSocketCount();
-	struct pollfd *newFds = new struct pollfd[pos + 1];
+static void addToPollfd(std::vector<pollfd> *fds, int newFD, ServerSocket *sockets) {
+	pollfd newPollFD;
 
-	for (int i = 0; i < pos; ++i) {
-		newFds[i] = (*fds)[i];
-	}
-
-	delete [] *fds;
-	*fds = newFds;
-
-	(*fds)[pos].fd = newFD;
-	(*fds)[pos].events = POLLIN;
-	(*fds)[pos].revents = 0;
+	newPollFD.fd = newFD;
+	newPollFD.events = POLLIN;
+	newPollFD.revents = 0;
+	fds->push_back(newPollFD);
 
 	sockets->incrementClientCount();
 }
 
-static void removeFromPollfd(struct pollfd **fds, int fd, ServerSocket *sockets) {
-	int pos = 0;
-	int sockCount = sockets->getTotalSocketCount();
-	while ((*fds)[pos].fd != fd) {
-		++pos;
+static void removeFromPollfd(std::vector<pollfd> *fds, int fd, ServerSocket *sockets) {
+	std::vector<pollfd>::iterator it = fds->begin();
+	for (; it != fds->end(); ++it) {
+		if (it->fd == fd) {
+			fds->erase(it);
+			break;
+		}
 	}
-
-	struct pollfd *newFds = new struct pollfd[sockCount];
-
-	for (int i = 0; i < pos; ++i) {
-		newFds[i] = (*fds)[i];
-		// testing
-		std::cout << "fd " << i << " moved over" << std::endl;
-	}
-
-	// testing
-	std::cout << "fd " << pos << " not moved over" << std::endl;
-
-	for (int i = pos + 1; i < sockCount; ++i) {
-		// testing
-		std::cout << "fd " << i << " moved over" << std::endl;
-		newFds[i - 1] = (*fds)[i];
-	}
-
-	delete [] *fds;
-	*fds = newFds;
 
 	sockets->decrementClientCount();
 }
 
-static int handleConnection(ServerSocket *sockets, struct pollfd **fds, int fd) {
+static int handleConnection(ServerSocket *sockets, std::vector<pollfd> *fds, int fd) {
 
 	// accept new client connction
 	struct sockaddr_storage newRemote;
@@ -108,7 +83,7 @@ static bool checkServ(ServerSocket *sockets, int fd) {
 	return false;
 }
 
-int incomingConnection(ServerSocket *sockets, struct pollfd **fds, Config *config, char **env) {
+int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, char **env) {
 	// testing
 	(void)config;
 	(void)env;

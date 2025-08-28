@@ -49,12 +49,14 @@ ServerSocket *initalizeServer(Config *serverConfig) {
 	return socket;
 };
 
-struct pollfd *initPoll(ServerSocket *socket) {
-	struct pollfd *out = new struct pollfd[socket->getTotalSocketCount()];
+std::vector<pollfd> initPoll(ServerSocket *socket) {
+	std::vector<pollfd> out;
 
 	for (int i = 0; i < socket->getSocketCount(); ++i) {
-		out[i].fd = socket->getSocketFd(i);
-		out[i].events = POLLIN;
+		pollfd newPollFD;
+		newPollFD.fd = socket->getSocketFd(i);
+		newPollFD.events = POLLIN;
+		out.push_back(newPollFD);
 	}
 
 	return out;
