@@ -56,7 +56,8 @@ SRCS        = src/main.cpp \
 	      src/response/Response.cpp \
 		  src/response/handle_file_request.cpp \
 	      src/sockets/SocketClass.cpp \
-	      src/sockets/serverInitialization.cpp 	# 	START SERVER INTIT
+	      src/sockets/serverInitialization.cpp \
+		  src/sockets/incomingConnection.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 

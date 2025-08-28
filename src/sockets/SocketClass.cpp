@@ -10,7 +10,7 @@
 #include <sys/socket.h>
 #include "unistd.h"
 
-ServerSocket::ServerSocket() {}
+ServerSocket::ServerSocket() : clientCount_(0) {}
 
 ServerSocket::~ServerSocket() {
 	if (this->getSocketCount() <= 0)
@@ -20,7 +20,7 @@ ServerSocket::~ServerSocket() {
 	}
 }
 
-void ServerSocket::initializeNewSocket_(std::string combo) {
+void	ServerSocket::initializeNewSocket(std::string combo) {
 	int socketfd = -1, status = -1;
 	struct addrinfo	info, *res;
 	int del = combo.find("|");
@@ -45,13 +45,30 @@ void ServerSocket::initializeNewSocket_(std::string combo) {
 	if (listen(socketfd,BACKLOG) < 0)
 		{throw std::runtime_error("Socket listen error:" + std::string(strerror(errno)));}
 
-	this->socketFd_.push_back(socketfd);
+	this->serverSocketFd_.push_back(socketfd);
+	this->serverPort_.push_back(atoi(port.c_str()));
 };
 
-int ServerSocket::getSocketFd(int pos) {
-	return this->socketFd_.at(pos);
+int	ServerSocket::getSocketFd(int pos) {
+	return this->serverSocketFd_.at(pos);
 }
 
-int ServerSocket::getSocketCount() {
-	return this->socketFd_.size();
+int	ServerSocket::getSocketCount() {
+	return this->serverSocketFd_.size();
+}
+
+int	ServerSocket::getTotalSocketCount() {
+	return this->serverSocketFd_.size() + this->clientCount_;
+}
+
+int	ServerSocket::getSocketPort(int pos) {
+	return this->serverPort_.at(pos);
+}
+
+void	ServerSocket::incrementClientCount() {
+	++this->clientCount_;
+}
+
+void	ServerSocket::decrementClientCount() {
+	--this->clientCount_;
 }
