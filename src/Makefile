@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/28 10:14:20 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/28 15:26:23 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,6 +42,7 @@ SRCS        = tdd.cpp catch_amalgamated.cpp \
 	      configSetUp/ConfigErrorCheck.cpp \
 	      configSetUp/Server.cpp \
 	      configSetUp/Location.cpp \
+	      configSetUp/ErrorPages.cpp \
 	      request/Request.cpp \
 	      request/support_file.cpp \
 	      request/parse_request.cpp \
@@ -52,7 +53,8 @@ SRCS        = tdd.cpp catch_amalgamated.cpp \
 	      response/Response.cpp \
 		  response/handle_file_request.cpp \
 	      sockets/SocketClass.cpp \
-	      sockets/serverInitialization.cpp
+	      sockets/serverInitialization.cpp \
+		  sockets/incomingConnection.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
