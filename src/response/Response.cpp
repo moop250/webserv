@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/27 05:04:48 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 13:34:56 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,11 @@ std::string Response::constructResponse() {
 	headers = this->headersToString();
 	temp << this->code;
 	code = temp.str();
-	return (this->httpVersion + " " + code + " " + this->codeMessage + "\r\n"
-			+ headers
-			+ "\r\n"
-			+ this->body);
+	this->responseComplete = this->httpVersion + " " + code + " " + this->codeMessage + "\r\n"
+							+ headers
+							+ "\r\n"
+							+ this->body;
+	return this->responseComplete;
 }
 
 // Untested, likely to be remake to communicate with poll() and support chunked encoding
@@ -125,6 +126,9 @@ size_t Response::getContentLength() const {
 }
 std::string Response::getContentType() const {
 	return this->contentType;
+}
+std::string Response::getResponseComplete() const {
+	return this->responseComplete;
 }
 
 

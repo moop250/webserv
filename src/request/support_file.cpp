@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 20:14:22 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/24 13:25:54 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 13:58:04 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ bool isCGI(std::string& extension) {
 		return true;
 	return false;
 }
-std::string getMIMEType(const std::string& type) {
+std::string getMIMEType(const std::string type) {
 	std::map<std::string, std::string>::const_iterator it = supportDataType.find(type);
 	if (it != supportDataType.end())
 		return it->second;
