@@ -159,7 +159,7 @@ int main(int ac, char** av, char **env)
 		socket = initalizeServer(config);
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
-		free(config);
+		delete config;
 		return (-2);
 	}
 
@@ -169,6 +169,6 @@ int main(int ac, char** av, char **env)
 
 	ErrorDebug(dfile, "Event Loop Undefined");
 
-	free(config);
+	delete config;
 	return 0;
 }
