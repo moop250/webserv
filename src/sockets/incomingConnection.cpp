@@ -11,7 +11,14 @@
 
 static void addToPollfd(struct pollfd **fds, int newFD, ServerSocket *sockets) {
 	int pos = sockets->getSocketCount();
-	*fds = (struct pollfd *)realloc(*fds, sizeof(**fds) * (pos + 1));
+	struct pollfd *newFds = new struct pollfd[pos + 1];
+
+	for (int i = 0; i < pos; ++i) {
+		newFds[i] = (*fds)[i];
+	}
+
+	delete [] *fds;
+	*fds = newFds;
 
 	(*fds)[pos].fd = newFD;
 	(*fds)[pos].events = POLLIN;
@@ -27,13 +34,25 @@ static void removeFromPollfd(struct pollfd **fds, int fd, ServerSocket *sockets)
 		++pos;
 	}
 
-	for (; pos < sockCount - 1; ++pos) {
-		(*fds)[pos].fd = (*fds)[pos + 1].fd;
-		(*fds)[pos].events = (*fds)[pos + 1].events;
-		(*fds)[pos].revents = (*fds)[pos + 1].revents;
+	struct pollfd *newFds = new struct pollfd[sockCount];
+
+	for (int i = 0; i < pos; ++i) {
+		newFds[i] = (*fds)[i];
+		// testing
+		std::cout << "fd " << i << " moved over" << std::endl;
 	}
 
-	*fds = (struct pollfd *)realloc(*fds, sizeof(**fds) * (sockCount - 1));
+	// testing
+	std::cout << "fd " << pos << " not moved over" << std::endl;
+
+	for (int i = pos + 1; i < sockCount; ++i) {
+		// testing
+		std::cout << "fd " << i << " moved over" << std::endl;
+		newFds[i - 1] = (*fds)[i];
+	}
+
+	delete [] *fds;
+	*fds = newFds;
 
 	sockets->decrementClientCount();
 }
