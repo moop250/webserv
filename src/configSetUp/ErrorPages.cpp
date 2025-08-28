@@ -41,33 +41,72 @@ std::string ErrorPages::content(int member) const {
     }
 }
 
-int         ErrorPages::error(RequestError error) const
-{
-    (void)error;
-    //return _data.at(find(error));
-    return 0;
-}
+/*	Error pages ANNEXE : 
+	* enum RequestError
+	* {
+	* 	ERROR_BAD_REQUEST,
+	* 	ERROR_NOT_FOUND,
+	* 	ERROR_NOT_ALLOWED,
+	* 	ERROR_LENGTH,
+	* 	ERROR_TOO_LARGE,
+	* 	ERROR_NOT_IMPLEMENTED,
+	* 	ERROR_HTTP_MISSMATCH,
+	* 	ERROR_INTERNAL_ERROR,
+	* 	OTHER
+	* };
+	*
+	* for nguyen
+*/
 
 std::string ErrorPages::path(RequestError error) const
 {
-    (void)error;
+    int fmtError = macrosLinkRequest(error);
+    for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++)
+        if (i->first == fmtError)
+            return i->second;
     return "";
 }
 
 std::string ErrorPages::content(RequestError error) const
 {
-    (void)error;
-    return "";
+    int index = find(error);
+    if (index == -1)
+    {
+        std::cerr << "Content not found\n";
+        return ("");
+    }
+    return _html_content.at(index);
 }
+
+#define BAD_REQUEST 400
+#define NOT_FOUND 404
+#define METHOD_NOT_ALLOWED 405
+#define LENGTH_REQUIRED 411
+#define CONTENT_TOO_LARGE 413
+#define NOT_IMPLEMENTED 501
+#define HTTP_VERSION_MISMATCH 505
+#define INTERNAL_ERROR 500
 
 int     ErrorPages::macrosLinkRequest(RequestError error) const
 {
     switch (error)
     {
-    case 0:
-        /* code */
-        break;
-    
+    case REQUEST_ERROR_BAD_REQUEST:
+        return BAD_REQUEST;
+    case REQUEST_ERROR_NOT_FOUND:
+        return NOT_FOUND;
+    case REQUEST_ERROR_NOT_ALLOWED:
+        return METHOD_NOT_ALLOWED;
+    case REQUEST_ERROR_LENGTH:
+        return LENGTH_REQUIRED;
+    case REQUEST_ERROR_TOO_LARGE:
+        return CONTENT_TOO_LARGE;
+    case REQUEST_ERROR_NOT_IMPLEMENTED:
+        return NOT_IMPLEMENTED;
+    case REQUEST_ERROR_HTTP_MISSMATCH:
+        return HTTP_VERSION_MISMATCH;
+    case REQUEST_ERROR_INTERNAL_ERROR:
+        return INTERNAL_ERROR;
     default:
         break;
     }
@@ -76,29 +115,36 @@ int     ErrorPages::macrosLinkRequest(RequestError error) const
 
 
 bool    ErrorPages::has(int error) {
-    int member = 0;
-    for (std::map<int, std::string>::iterator i = _data.begin(); i != _data.end(); i++, member++)
+    for (std::map<int, std::string>::iterator i = _data.begin(); i != _data.end(); i++)
         if (i->first == error)
-            return member;
-    return 0;
+            return true;
+    return false;
 }
 
 bool ErrorPages::has(RequestError error)
 {
-    (void)error;
+    int fmtError = macrosLinkRequest(error);
+    for (std::map<int, std::string>::iterator i = _data.begin(); i != _data.end(); i++)
+        if (i->first == fmtError)
+            return true;
     return (0);
 }
 
-int ErrorPages::find(RequestError error)
+int ErrorPages::find(RequestError error) const
 {
-    (void)error;
-    return (0);
+    int member = 0;
+    int fmtError = macrosLinkRequest(error);
+    for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, member++)
+        if (i->first == fmtError)
+            return member;
+    return (-1);
 }
 
 
-int ErrorPages::find(int error) {
+int ErrorPages::find(int error) const
+{
     int member = 0;
-    for (std::map<int, std::string>::iterator i = _data.begin(); i != _data.end(); i++, member++)
+    for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, member++)
         if (i->first == error)
             return member;
     return -1;
