@@ -76,7 +76,7 @@ static bool checkServ(ServerSocket *sockets, int fd) {
 	return false;
 }
 
-static void handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds) {
+static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds) {
 	if (checkServ(sockets, fd)) {
 		int tmp = handleConnection(sockets, fds, fd);
 		switch (tmp)
@@ -99,15 +99,16 @@ static void handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds
 				std::cout << YELLOW << "Recv: socket " << fd << " hung up" << RESET << std::endl;
 				close(fd);
 				removeFromPollfd(fds, fd, sockets);
-				break;
+				return -1;
 			case RECVERROR:
 				close(fd);
 				removeFromPollfd(fds, fd, sockets);
-				break;
+				return -1;
 			default:
 				std::cout << "handleClientData: default: how did you get here?" << std::endl;
 		}
 	}
+	return 0;
 }
 
 static void handlePOLLOUT() {
@@ -121,9 +122,11 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 
 	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
 		if ((*fds)[i].revents & (POLLIN | POLLHUP)) {
-			handlePOLLIN((*fds)[i].fd, sockets, fds);
+			if (handlePOLLIN((*fds)[i].fd, sockets, fds) < 0) {
+				continue;
+			}
 		}
-		else if ((*fds)[i].revents & POLLOUT) {
+		if ((*fds)[i].revents & POLLOUT) {
 			handlePOLLOUT();
 			std::cout << "what?" << std::endl;
 		}
