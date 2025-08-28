@@ -46,7 +46,7 @@ static int handleConnection(ServerSocket *sockets, std::vector<pollfd> *fds, int
 		return ACCEPTERROR;
 	} else {
 		addToPollfd(fds, remoteFD, sockets);
-		return CONNECTIONSUCCESS;
+		return remoteFD;
 	}
 };
 
@@ -61,7 +61,6 @@ static int handleClientData(int fd, Config *config, char **env) {
 
 	if (nbytes <= 0) {
 		if (nbytes == 0) {
-			std::cout << "Recv: socket " << fd << " hung up" << std::endl;
 			return HUNGUP;
 		} else {
 			return RECVERROR;
@@ -69,9 +68,9 @@ static int handleClientData(int fd, Config *config, char **env) {
 	}
 	buf.resize(nbytes);
 
+	// parsing function here:
 	std::cout << buf << std::endl;
 	return CLIENTDATASUCCESS;
-	// parsing function here:
 };
 
 static bool checkServ(ServerSocket *sockets, int fd) {
@@ -88,30 +87,33 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 	(void)config;
 	(void)env;
 
-	// loop through socket fd's.
 	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
 		if ((*fds)[i].revents & (POLLIN | POLLHUP)) {
 			if (checkServ(sockets, (*fds)[i].fd)) {
-				handleConnection(sockets, fds, (*fds)[i].fd);
+				int tmp = handleConnection(sockets, fds, (*fds)[i].fd);
+				switch (tmp)
+				{
+					case ACCEPTERROR:
+						break;
+					default:
+						std::cout << YELLOW << "Accept: New connection on socket: " << tmp << RESET << std::endl;
+				}
 			} else {
 				switch(handleClientData((*fds)[i].fd, config, env))
 				{
-					//testing
 					case CLIENTDATASUCCESS:
-				//close((*fds)[i].fd);
-				//removeFromPollfd(fds, (*fds)[i].fd, sockets);
-				break;
+						break;
 					case HUNGUP:
-				close((*fds)[i].fd);
-				removeFromPollfd(fds, (*fds)[i].fd, sockets);
-				break;
+						std::cout << YELLOW << "Recv: socket " << (*fds)[i].fd << " hung up" << RESET << std::endl;
+						close((*fds)[i].fd);
+						removeFromPollfd(fds, (*fds)[i].fd, sockets);
+						break;
 					case RECVERROR:
-                // sent error, close FD, remove from list
-				close((*fds)[i].fd);
-				removeFromPollfd(fds, (*fds)[i].fd, sockets);
-				break;
+						close((*fds)[i].fd);
+						removeFromPollfd(fds, (*fds)[i].fd, sockets);
+						break;
 					default:
-				std::cout << "handleClientData: default: how did you get here?" << std::endl;
+						std::cout << "handleClientData: default: how did you get here?" << std::endl;
 				}
 			}
 		}
