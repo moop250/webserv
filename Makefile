@@ -16,7 +16,7 @@ NAME        = webserv
 CC          = c++
 
 # FLAGS       = -Wall -Wextra -Werror -std=c++98
-DBUG	     = -fsanitize=address
+DBUG	     = # -fsanitize=address
 FLAGS     = -Wall -Wextra -Werror -g3 -std=c++98
 
 
