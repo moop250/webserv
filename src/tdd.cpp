@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 13:20:54 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 13:53:51 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ TEST_CASE("Request class default constructor") {
 	REQUIRE(connection.getRequest().getHttpVersion() == "");
 	REQUIRE(connection.getRequest().getHeader("nothing") == "");
 	REQUIRE(connection.getRequest().getCookie("Cookie1") == "");
-	REQUIRE(connection.getRequest().getCgiType() == "");
+	REQUIRE(connection.getRequest().getFileType() == "");
 	REQUIRE(connection.getRequest().getRequestType() == None);
 	REQUIRE(connection.getRequest().getBody() == "");
 	REQUIRE(connection.getRequest().getContentLength() == 0);
@@ -321,6 +321,7 @@ TEST_CASE("Parse headers", "[Error]") {
 TEST_CASE("File GET", "[Success]") {
 	Connection		connection(10);
 	connection.getRequest().setPath("../html/error/400.html");
+	connection.getRequest().setFileType(".html");
 	int code = get_file(connection);
 	REQUIRE(code == 0);
 	REQUIRE(connection.getResponse().getBody() == "<!DOCTYPE html>\n"

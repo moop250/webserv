@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 19:54:56 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/21 09:58:05 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 13:57:45 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,6 @@ extern std::set<std::string> supportCgiExtension;
 extern std::map<std::string, std::string> supportDataType;
 
 bool isCGI(std::string& extension);
-std::string getMIMEType(std::string& type);
+std::string getMIMEType(std::string type);
 
 #endif

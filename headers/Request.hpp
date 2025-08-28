@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 13:37:43 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 13:51:18 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,8 @@ class Request {
 		std::string							httpVersion;
 		std::map<std::string, std::string>	headers;
 		std::map<std::string, std::string>	cookies;
-		std::string							cgiType;
 		int									requestType;
+		std::string							fileType;
 		std::string							body;
 		std::string							host;
 		int									port;
@@ -69,7 +69,7 @@ class Request {
 		std::string	getHttpVersion() const;
 		std::string	getHeader(const std::string& key) const;
 		std::string	getCookie(const std::string& key) const;
-		std::string	getCgiType() const;
+		std::string	getFileType() const;
 		int			getRequestType() const;
 		std::string	getBody() const;
 		size_t		getContentLength() const;
@@ -86,7 +86,7 @@ class Request {
 		Request&	setHttpVersion(const std::string& version);
 		void		setHeader(const std::string& key, const std::string& value);
 		void		setCookie(const std::string& key, const std::string& value);
-		Request&	setCgiType(const std::string& cgiType);
+		Request&	setFileType(const std::string& fileType);
 		Request&	setRequestType(const int type);
 		Request&	setBody(const std::string& body);
 		Request&	setContentLength(const size_t len);

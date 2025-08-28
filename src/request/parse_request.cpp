@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 12:49:55 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 13:59:38 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,10 @@ void parse_type(Connection& connection) {
 	extension = path.substr(path.rfind('.'));
 	if (isCGI(extension) == true) {
 		connection.getRequest().setRequestType(CGI);
-		connection.getRequest().setCgiType(extension);
-	} else
+	} else {
 		connection.getRequest().setRequestType(File);
+	}
+	connection.getRequest().setFileType(extension);
 }
 
 // stuffs to do

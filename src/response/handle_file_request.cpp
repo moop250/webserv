@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 13:38:17 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 13:58:25 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ std::string size_to_string(size_t size) {
 	return str;
 }
 
-// todo: Content-Type
 int get_file(Connection& connection) {
 	std::string		path;
 	std::fstream	file;
@@ -38,6 +37,7 @@ int get_file(Connection& connection) {
 		error_response(connection, INTERNAL_ERROR);
 		return -1;	
 	}
+	connection.getResponse().setContentType(getMIMEType(connection.getRequest().getFileType()));
 	file.seekg(0, std::ios::end);
 	size = static_cast<size_t>(file.tellg());
 	connection.getResponse().setContentLength(size);
@@ -52,8 +52,9 @@ int get_file(Connection& connection) {
 	connection.getResponse().setCode(200);
 	connection.getResponse().setCodeMessage("OK");
 	connection.getResponse().setHeader("Content-Length", size_to_string(size));
+	connection.getResponse().setHeader("Content-Type", connection.getResponse().getContentType());
 	connection.getResponse().constructResponse();
-	// std::cout << connection.getResponse().getResponseComplete() << std::endl;
+	std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
 

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/25 13:32:13 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 13:51:06 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,8 @@ std::string Request::getCookie(const std::string& key) const {
 		return (it -> second);
 	return "";
 }
-std::string Request::getCgiType() const {
-		return this->cgiType;
+std::string Request::getFileType() const {
+		return this->fileType;
 }
 int Request::getRequestType() const {
 	return this->requestType;
@@ -112,8 +112,8 @@ void Request::setHeader(const std::string& key, const std::string& value) {
 void Request::setCookie(const std::string& key, const std::string& value) {
 	this->cookies[key] = value;
 }
-Request& Request::setCgiType(const std::string& cgiType) {
-	this->cgiType = cgiType;
+Request& Request::setFileType(const std::string& fileType) {
+	this->fileType = fileType;
 	return *this;
 }
 Request& Request::setRequestType(const int type) {
