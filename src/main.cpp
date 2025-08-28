@@ -113,16 +113,19 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 void	eventLoop(Config *config, ServerSocket *socket, char **env)
 {
 	std::vector<pollfd> fds = initPoll(socket);
-	//	execution loop
-	while (1) {
-		int	pollCount = poll(&fds[0], socket->getTotalSocketCount(), -1);
+	try {
+		while (1) {
+			int	pollCount = poll(&fds[0], socket->getTotalSocketCount(), -1);
 
-		if (pollCount == -1) {
-			std::cerr << "Error: Poll" << std::endl;
-			break;
+			if (pollCount == -1) {
+				std::cerr << "Error: Poll" << std::endl;
+				break;
+			}
+
+			incomingConnection(socket, &fds, config, env);
 		}
-
-		incomingConnection(socket, &fds, config, env);
+	} catch (std::exception &e) {
+		std::cout << RED << e.what() << RESET << std::endl;
 	}
 
 	delete socket;
@@ -160,11 +163,7 @@ int main(int ac, char** av, char **env)
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	
-	try {
-		eventLoop(config, socket, env);
-	} catch (std::exception &e) {
-		std::cout << RED << e.what() << RESET << std::endl;
-	}
+	eventLoop(config, socket, env);
 
 	ErrorDebug(dfile, "Event Loop Undefined");
 
