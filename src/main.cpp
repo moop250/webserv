@@ -62,7 +62,7 @@ static void	testServer(Config *config)
 	*/
 
 	/* Tu peux get direment l'index de ce que tu cherches */
-	bool	is_there_an_error_page = pages.has(404);
+	bool	is_there_an_error_page = pages.has(404); // or NOT_FOUND du coup
 	if (!is_there_an_error_page)
 		std::cout << "there is no error page\n";
 	// ou bien en enum :
