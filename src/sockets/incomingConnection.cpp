@@ -1,5 +1,6 @@
 #include "../../headers/SocketClass.hpp"
 #include "../../headers/Sockets.hpp"
+#include <cerrno>
 #include <climits>
 #include <poll.h>
 #include <stdexcept>
@@ -55,15 +56,14 @@ static int handleConnection(ServerSocket *sockets, struct pollfd **fds, int fd) 
 	}
 };
 
-static int handleClientData(int fd, int port, Config *config, char **env) {
+static int handleClientData(int fd, Config *config, char **env) {
 	// testing
-	(void) port;
 	(void) config;
 	(void) env;
 
-	std::string buf(LONG_MAX - 3000, '\0');
+	std::string buf(8192, '\0');
 
-	size_t nbytes = recv(fd, &buf[0], LONG_MAX - 3000, 0);
+	int nbytes = recv(fd, &buf[0], buf.size(), 0);
 
 	if (nbytes <= 0) {
 		if (nbytes == 0) {
@@ -80,13 +80,13 @@ static int handleClientData(int fd, int port, Config *config, char **env) {
 	// parsing function here:
 };
 
-static int checkServ(ServerSocket *sockets, int fd) {
+static bool checkServ(ServerSocket *sockets, int fd) {
 	for (int j = 0; j < sockets->getSocketCount(); ++j) {
 			if (fd == sockets->getSocketFd(j)) {
-				return j;
+				return true;
 			}
 		}
-	return -1;
+	return false;
 }
 
 int incomingConnection(ServerSocket *sockets, struct pollfd **fds, Config *config, char **env) {
@@ -96,17 +96,16 @@ int incomingConnection(ServerSocket *sockets, struct pollfd **fds, Config *confi
 
 	// loop through socket fd's.
 	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
-		int port = -1;
 		if ((*fds)[i].revents & (POLLIN | POLLHUP)) {
-			if ((port = checkServ(sockets, (*fds)[i].fd)) > 0) {
+			if (checkServ(sockets, (*fds)[i].fd)) {
 				handleConnection(sockets, fds, (*fds)[i].fd);
 			} else {
-				switch(handleClientData((*fds)[i].fd, port, config, env))
+				switch(handleClientData((*fds)[i].fd, config, env))
 				{
 					//testing
 					case CLIENTDATASUCCESS:
-				close((*fds)[i].fd);
-				removeFromPollfd(fds, (*fds)[i].fd, sockets);
+				//close((*fds)[i].fd);
+				//removeFromPollfd(fds, (*fds)[i].fd, sockets);
 				break;
 					case HUNGUP:
 				close((*fds)[i].fd);
