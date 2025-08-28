@@ -33,8 +33,6 @@ static void removeFromPollfd(std::vector<pollfd> *fds, int fd, ServerSocket *soc
 }
 
 static int handleConnection(ServerSocket *sockets, std::vector<pollfd> *fds, int fd) {
-
-	// accept new client connction
 	struct sockaddr_storage newRemote;
 	socklen_t               addrLen;
 	int remoteFD;
@@ -83,10 +81,6 @@ static bool checkServ(ServerSocket *sockets, int fd) {
 }
 
 int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, char **env) {
-	// testing
-	(void)config;
-	(void)env;
-
 	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
 		if ((*fds)[i].revents & (POLLIN | POLLHUP)) {
 			if (checkServ(sockets, (*fds)[i].fd)) {
