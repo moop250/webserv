@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/24 14:00:21 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/25 13:31:30 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ class Request {
 		Request&	setCgiType(const std::string& cgiType);
 		Request&	setRequestType(const int type);
 		Request&	setBody(const std::string& body);
+		Request&	appendBody(const std::string& line);
 		Request&	setContentLength(const size_t len);
 		Request&	setContentType(const std::string& type);
 		Request&	setKeepAlive(const std::string config);
@@ -107,7 +108,8 @@ class Request {
 		Request&	setHost(const std::string host);
 		Request&	setPort(const int port);
 
-		// void	setEnv();
+		// static void	setEnv(Connection& connection, char **env);
+		// static void	launchCGI(Connection& connection, char **env);
 };
 
 #endif

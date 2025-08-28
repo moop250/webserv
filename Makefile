@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/24 14:15:45 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/27 05:52:49 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -50,6 +50,7 @@ SRCS        = src/main.cpp \
 	      src/request/support_file.cpp \
 	      src/request/parse_request.cpp \
 	      src/request/parse_headers.cpp\
+		  src/request/Connection.cpp \
 	      src/response/handle_request.cpp \
 	      src/response/error_response.cpp \
 	      src/response/Response.cpp \
