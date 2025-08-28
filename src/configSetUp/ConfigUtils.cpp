@@ -9,8 +9,8 @@ t_ServerData    getDefaultServ(bool with_location)
     default_server_values.root = c.red() + "UNDEFINED" + c.reset();
     default_server_values.index = c.red() + "UNDEFINED" + c.reset();
     default_server_values.upload_storage = c.red() + "UNDEFINED" + c.reset();
-    default_server_values.cgi_ext = c.red() + "UNDEFINED" + c.reset();
-    default_server_values.cgi_path = c.red() + "UNDEFINED" + c.reset();
+//    default_server_values.cgi_ext = c.red() + "UNDEFINED" + c.reset();
+//    default_server_values.cgi_path = c.red() + "UNDEFINED" + c.reset();
     default_server_values.client_max_body_size = 1;
     default_server_values.autoindex = false;
 
@@ -60,11 +60,14 @@ void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos,
         case UPLOAD_STORAGE:
             serv.upload_storage = msg;
             break ;
-        case CGI_EXTENTION:
-            serv.cgi_ext = msg;
-            break ;
-        case CGI_PATH:
-            serv.cgi_path = msg;
+    //    case CGI_EXTENTION:
+    //        serv.cgi_ext = msg;
+    //        break ;
+    //    case CGI_PATH:
+    //        serv.cgi_path = msg;
+    //        break ;
+        case CGI_DATA:
+            //serv.pages.insert(std::make_pair("UNDEFINED", "UNDEFINED"));
             break ;
         case CLIENT_MAX_BODY_SIZE:
             serv.client_max_body_size = 0;
@@ -96,8 +99,6 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\tIndex file     : " << print.index << '\n'
                 << "\tAuto index     : " << (print.autoindex ? "On" : "OFF") << '\n'
                 << "\tUpload storage : " << print.upload_storage << '\n'
-                << "\tCgi external   : " << print.cgi_ext << '\n'
-                << "\tCgi path       : " << print.cgi_path << '\n'
                 << "\tMax client siz : " << print.client_max_body_size << std::endl;
         stream << "\tMethods        : ";
         for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); i++)
@@ -108,6 +109,12 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
         stream << '\n' << "\tListeners      : ";
         stream << print.port;
         stream << "\n";
+        stream << "\tCGI             : \n";
+        if (print.cgi.empty())
+            stream << RED << "\t\t\tUNDEFINED\n" << RESET;
+        else
+            for (std::map<std::string, std::string>::iterator j = print.cgi.begin(); j != print.cgi.end(); j++)
+                stream << "\t\textension :" << j->first << " <==> path : " << j->second << '\n';
         stream << "\terror pages    : \n";
         if (print.error_pages.empty())
             stream << RED << "\t\tUNDEFINED" << RESET;
@@ -124,14 +131,25 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\t\tAuto index status       : " << (i->data.autoindex ? "On" : "OFF") << '\n'
                 << "\t\tHTLM index file         : " << i->data.index << '\n'
                 << "\t\tUpload storage          : " << i->data.upload_storage << '\n'
-                << "\t\tCgi external entity     : " << i->data.cgi_ext << '\n'
-                << "\t\tCgi path to interpreter : " << i->data.cgi_path << '\n'
                 << "\t\tMethods allowed         : ";
             if (i->data.methods.empty())
                 stream << RED << "UNDEFINED" << RESET;
             else
                 for (size_t j = 0; j < i->data.methods.size(); j++)
                     stream << i->data.methods.at(j) << " ";
+            stream << "\n\t\tCGI        : \n";
+            if (i->data.cgi.empty())
+                stream << RED << "\t\t\tUNDEFINED" << RESET;
+            else
+                for (std::map<std::string, std::string>::iterator k = i->data.cgi.begin(); k != i->data.cgi.end(); k++)
+                    stream << "\t\t\textension : " << k->first << " <==> path : " << k->second;  
+            stream << '\n';  
+            stream << "\t\tError pages : \n";
+            if (i->data.error_pages.empty())
+                stream << RED << "\t\t\tUNDEFINED" << RESET;
+            else
+                for (std::map<int, std::string>::iterator k = i->data.error_pages.begin(); k != i->data.error_pages.end(); k++)
+                    stream << "\t\t" << k->first << " <==> " << k->second << '\n';
             stream << "\n\n";
         }
         stream << "\n\n";

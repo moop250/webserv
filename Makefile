@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/24 14:15:45 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/27 05:52:49 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ NAME        = webserv
 CC          = c++
 
 # FLAGS       = -Wall -Wextra -Werror -std=c++98
-DBUG	     = -g#-fsanitize=address
+DBUG	     = -fsanitize=address
 FLAGS     = -Wall -Wextra -Werror -g3 -std=c++98
 
 
@@ -35,6 +35,7 @@ SRCS        = src/main.cpp \
 	      src/utils/Colors.cpp \
 	      src/utils/Debug.cpp \
 	      src/utils/Error.cpp \
+		  src/utils/utils.cpp \
 	      src/configSetUp/Config.cpp \
 	      src/configSetUp/ConfigUtils.cpp \
 	      src/configSetUp/TokenUtils.cpp \
@@ -42,10 +43,14 @@ SRCS        = src/main.cpp \
 	      src/configSetUp/ConfigLoc.cpp \
 	      src/configSetUp/ConfigError.cpp \
 	      src/configSetUp/ConfigErrorCheck.cpp \
+	      src/configSetUp/Server.cpp \
+	      src/configSetUp/Location.cpp \
+	      src/configSetUp/ErrorPages.cpp \
 	      src/request/Request.cpp \
 	      src/request/support_file.cpp \
 	      src/request/parse_request.cpp \
 	      src/request/parse_headers.cpp\
+		  src/request/Connection.cpp \
 	      src/response/handle_request.cpp \
 	      src/response/error_response.cpp \
 	      src/response/Response.cpp \

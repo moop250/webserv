@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/25 14:23:37 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/27 06:39:31 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "request_handler.hpp"
 #include "support_file.hpp"
 #include "Config.hpp"
+#include "Connection.hpp"
 
 std::string toLower(const std::string& str) {
 	std::string	lower;
@@ -32,21 +33,21 @@ void parse_host(Connection& connection, std::string& host) {
 
 	colon_pos = host.find(":");
 	if (colon_pos == std::string::npos) {
-		connection.request.setHost(host);
-		connection.request.setPort(80);
+		connection.getRequest().setHost(host);
+		connection.getRequest().setPort(80);
 		return;
 	}
 	host_name = host.substr(0, colon_pos);
-	connection.request.setHost(host_name);
+	connection.getRequest().setHost(host_name);
 	port_number = host.substr(colon_pos + 1);
-	connection.request.setPort(atoi(port_number.c_str()));
+	connection.getRequest().setPort(atoi(port_number.c_str()));
 }
 
 int method_check(Connection& connection) {
 	std::string	method;
 
-	method = connection.request.getMethod();
-	for (std::vector<std::string>::iterator it = connection.server.methods.begin(); it != connection.server.methods.end(); it++) {
+	method = connection.getRequest().getMethod();
+	for (std::vector<std::string>::iterator it = connection.getServer().methods.begin(); it != connection.getServer().methods.end(); it++) {
 		std::cout << *it << std::endl;
 		if (*it == method)
 			return CONTINUE_READ;
@@ -64,7 +65,7 @@ int parse_keepAlive(Connection& connection) {
 	std::string::size_type	start_pos;
 
 	start_pos = 0;
-	header = connection.request.getHeader("keep-alive");
+	header = connection.getRequest().getHeader("keep-alive");
 	while (start_pos < header.size()) {
 		comma_pos = header.find(",", start_pos);
 		if (comma_pos == std::string::npos) {
@@ -86,25 +87,25 @@ int parse_keepAlive(Connection& connection) {
 		key = subHeader.substr(0, equal_pos);
 		value = subHeader.substr(equal_pos + 1);
 		if (key == "timeout")
-			connection.request.setKeepAliveTimeout(atoi(value.c_str()));
+			connection.getRequest().setKeepAliveTimeout(atoi(value.c_str()));
 		else if (key == "max")
-			connection.request.setKeepAliveMax(atoi(value.c_str()));
+			connection.getRequest().setKeepAliveMax(atoi(value.c_str()));
 	}
 	return CONTINUE_READ;
 }
 
 // Remake to check for location
 void matching_server(Connection& connection, Config& config) {
-	t_ServerData	fallback;
 	t_ServerData	server;
+	t_ServerData	fallback;
 
 	fallback = config.getServerData(0);
-	connection.server = fallback;
+	connection.setServer(fallback);
 	for (int i = 0; i < config.getNbServers(); i++) {
 		server = config.getServerData(i);
-		if (server.server_name == connection.request.getHost()
-			&& atoi(server.port.c_str()) == connection.request.getPort()) {
-			connection.server = server;
+		if (server.server_name == connection.getRequest().getHost()
+			&& atoi(server.port.c_str()) == connection.getRequest().getPort()) {
+			connection.setServer(server);
 			break;
 		}
 	}
@@ -116,35 +117,35 @@ int parse_body_chunked(Connection& connection) {
 	std::string				line;
 
 	while(true) {
-		if (connection.chunked_size == -1) {
+		if (connection.getChunkedSize() == -1) {
 			end_pos = connection.buffer.find("\r\n");
 			if (end_pos == std::string::npos)
 				return CONTINUE_READ;
 			line = connection.buffer.substr(0, end_pos);
 			connection.buffer.erase(0, end_pos + 2);
-			connection.chunked_size = strtol(line.c_str(), NULL, 16);
-			if (connection.chunked_size < 0) {
+			connection.setChunkedSize(strtol(line.c_str(), NULL, 16));
+			if (connection.getChunkedSize() < 0) {
 				return BAD_REQUEST;
 			}
-			// if (connection.chunked_size > connection.server.client_max_body_size)
+			// if (connection.getChunkedSize() > connection.getServer().client_max_body_size)
 			// 	return CONTENT_TOO_LARGE;
-			if (connection.chunked_size == 0) {
+			if (connection.getChunkedSize() == 0) {
 				connection.buffer.erase(0, end_pos + 4);
 				// Trailer header not supported because only partially supported in Firefox.
 				// All other major browsers doesnt support it. Can be insert here if wanted.
 				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Trailer
-				connection.state = READING_COMPLETE;
-				return READING_COMPLETE;
+				connection.setState(MAKING_RESPONSE);
+				return MAKING_RESPONSE;
 			}
 		}
-		if (static_cast<long>(connection.buffer.size()) < connection.chunked_size + 2)
+		if (static_cast<long>(connection.buffer.size()) < connection.getChunkedSize() + 2)
             return CONTINUE_READ;
-		connection.request.appendBody(connection.buffer.substr(0, connection.chunked_size));
-		connection.buffer.erase(0, connection.chunked_size);
+		connection.getRequest().appendBody(connection.buffer.substr(0, connection.getChunkedSize()));
+		connection.buffer.erase(0, connection.getChunkedSize());
 		if (connection.buffer.substr(0, 2) != "\r\n")
 			return BAD_REQUEST;
 		connection.buffer.erase(0, 2);
-		connection.chunked_size = -1;
+		connection.setChunkedSize(-1);
 	}
 }
 
@@ -154,32 +155,32 @@ int content_length_check(Connection& connection) {
 	std::string	transferEncoding;
 	std::string	method;
 
-	contentLength = connection.request.getHeader("content-length");
-	transferEncoding = connection.request.getHeader("transfer-encoding");
-	method = connection.request.getMethod();
+	contentLength = connection.getRequest().getHeader("content-length");
+	transferEncoding = connection.getRequest().getHeader("transfer-encoding");
+	method = connection.getRequest().getMethod();
 	if (contentLength.empty() && transferEncoding.empty())
 	{
 		if (method == "POST")
 			return LENGTH_REQUIRED;
 		else
-			return READING_COMPLETE;
+			return MAKING_RESPONSE;
 	}
 	if (!contentLength.empty() && !transferEncoding.empty())
 		return BAD_REQUEST;
 
 	// Max body size untested, to test later
 	if (!contentLength.empty()) {
-		connection.request.setContentLength(strtol(contentLength.c_str(), NULL, 10));
-		if (connection.request.getContentLength() <= 0)
+		connection.getRequest().setContentLength(strtol(contentLength.c_str(), NULL, 10));
+		if (connection.getRequest().getContentLength() <= 0)
 			return BAD_REQUEST;
-		// if (connection.request.getContentLength() > connection.server.client_max_body_size)
+		// if (connection.getRequest().getContentLength() > connection.getServer().client_max_body_size)
 		// 	return CONTENT_TOO_LARGE;
-		connection.state = READING_BODY;
+		connection.setState(READING_BODY);
 		return READING_BODY;
 	}
 	if (!transferEncoding.empty() && transferEncoding == "chunked") {
-		connection.state = READING_CHUNKED;
-		return parse_body_chunked(connection);
+		connection.setState(READING_CHUNKED);
+		return READING_CHUNKED;
 	}
 	else
 		return NOT_IMPLEMENTED;
@@ -190,7 +191,7 @@ int headers_content_check(Connection& connection, Config& config) {
 	std::string	host;
 	std::string keepAlive;
 
-	host = connection.request.getHeader("host");
+	host = connection.getRequest().getHeader("host");
 	if (host.empty())
 		return BAD_REQUEST;
 	parse_host(connection, host);
@@ -200,19 +201,19 @@ int headers_content_check(Connection& connection, Config& config) {
 	// if (method_check(connection) == METHOD_NOT_ALLOWED)
 	// 	return METHOD_NOT_ALLOWED;
 
-	keepAlive = connection.request.getHeader("connection");
+	keepAlive = connection.getRequest().getHeader("connection");
 	std::string::size_type comma;
 	comma = keepAlive.find(",");
 	if (comma != std::string::npos)
 		keepAlive = keepAlive.substr(0, comma);
 	keepAlive = toLower(keepAlive);
 	if (keepAlive == "keep-alive") {
-		connection.request.setKeepAlive(keepAlive);
-		if (!connection.request.getHeader("keep-alive").empty())
+		connection.getRequest().setKeepAlive(keepAlive);
+		if (!connection.getRequest().getHeader("keep-alive").empty())
 			if (parse_keepAlive(connection) == BAD_REQUEST)
 				return BAD_REQUEST;
 	} else if (keepAlive == "close")
-		connection.request.setKeepAlive(keepAlive);
+		connection.getRequest().setKeepAlive(keepAlive);
 	return content_length_check(connection);
 }
 
@@ -237,13 +238,13 @@ int parse_headers(Connection& connection, Config& config) {
 			return BAD_REQUEST;
 		key = header.substr(0, colon_pos);
 		key = toLower(key);
-		if (key == "host" && !connection.request.getHeader("host").empty())
+		if (key == "host" && !connection.getRequest().getHeader("host").empty())
 			return BAD_REQUEST;
 		size_t start = colon_pos + 1;
 		while (start < header.size() && (header[start] == ' ' || header[start] == '\t'))
 			start++;
 		value = header.substr(start);
-		connection.request.setHeader(key, value);
+		connection.getRequest().setHeader(key, value);
 		connection.buffer.erase(0, end_pos + 2);
 	}
 	return headers_content_check(connection, config);
