@@ -117,7 +117,6 @@ int main(int ac, char** av, char **env)
 						"0\r\n"
 						"\r\n";
 	parse_request(connection, *config, env);
-	// s_ServerData server = config.getServerData(0);
 
 	eventLoop();
 

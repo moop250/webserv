@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 16:42:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/27 07:50:23 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 12:49:59 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,12 @@ void To_Hugo() {
 		// Do stuffs
 	}
 
-	// 6.	Envoyer la réponse, à voir encore avec le POLLOUT si c'est mieux d'envoyer ici ou ailleur.
+	// 6. Call handle_request
+	if (handle_request(connection, config, env) == -1)
+		return -1;
+	
+	// 7.	Envoyer la réponse, à voir encore avec le POLLOUT si c'est mieux d'envoyer ici ou ailleur.
 
-	// 7.	Remets le state en waiting request.
+	// 8.	Remets le state en waiting request.
 	connection.setState(WAITING_REQUEST);
 }

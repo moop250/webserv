@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/27 07:39:59 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 12:49:55 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,17 +30,29 @@ void parse_type(Connection& connection) {
 
 // stuffs to do
 int parse_request_type(Connection& connection) {
-	struct stat	fileStat;
+	struct stat	file_stat;
 	std::string	path;
 
-	// Check if path is cgi or not, pre-append the cgi path or root path
+	// Check if path is cgi directory or not, pre-append the cgi path or root path
 	path = connection.getRequest().getPath();
-	
-	if (stat(path.c_str(), &fileStat) == -1)
-		return INTERNAL_ERROR;
-	if (S_ISDIR(fileStat.st_mode)) {
+
+	if (stat(path.c_str(), &file_stat) == -1) {
+		switch (errno) {
+			case EACCES:
+				return FORBIDDEN;
+			case ENOENT:
+				return NOT_FOUND;
+			case ENAMETOOLONG:
+				return BAD_REQUEST;
+			case ENOMEM:
+				return INTERNAL_ERROR;
+			default:
+				return NOT_FOUND;
+		}
+    }
+	if (S_ISDIR(file_stat.st_mode)) {
 		connection.getRequest().setRequestType(Directory);
-	} else if (S_ISREG(fileStat.st_mode)) {
+	} else if (S_ISREG(file_stat.st_mode)) {
 		parse_type(connection);
 	} else
 		return BAD_REQUEST;
@@ -126,7 +138,7 @@ int parse_URL(Connection& connection, Config& config) {
 			url.erase(query_pos, url_pos);
 		}
 		
-		 // Check if path is redirected before set!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// Check if path is redirected before set!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		connection.getRequest().setPath(url);
 		// error = parse_request_type(connection);
 		// if (error != CONTINUE_READ)
@@ -219,7 +231,6 @@ int parse_request(Connection& connection, Config& config, char **env) {
 				case READING_CHUNKED:
 					return parse_body_chunked(connection);
 				case MAKING_RESPONSE:
-					handle_request(connection, config, env);
 					return MAKING_RESPONSE;
 				case METHOD_NOT_ALLOWED:
 					// fall through
@@ -237,7 +248,6 @@ int parse_request(Connection& connection, Config& config, char **env) {
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case MAKING_RESPONSE:
-					handle_request(connection, config, env);
 					return MAKING_RESPONSE;
 				case BAD_REQUEST:
 					// fall through
@@ -253,7 +263,6 @@ int parse_request(Connection& connection, Config& config, char **env) {
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case MAKING_RESPONSE:
-					handle_request(connection, config, env);
 					return MAKING_RESPONSE;
 			}
 			break ;

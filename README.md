@@ -26,6 +26,9 @@ Getter:
 - `getKeepAliveTimeout()` -> Return the keep alive timeout in int. Default is -1.
 - `getKeepAliveMax()` -> Return the keep alive max in int. Default is -1.
 
+Method:
+- `appendBody(const std::string& line)` -> Append line to the current body.
+
 
 ## Response class methods:
 Getter:

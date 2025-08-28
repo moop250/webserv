@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/27 07:39:41 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 13:20:54 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ TEST_CASE("Parse complete, content-length", "[Success]") {
 	Debug			dfile;
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection(10);
-	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
+	connection.buffer = "POST http://www.test.com/cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
 						"Host: localhost:8002\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
@@ -189,15 +189,6 @@ TEST_CASE("Connection state request section", "[Success]") {
 	REQUIRE(connection.getState() == READING_CHUNKED);
 	parse_body_chunked(connection);
 	REQUIRE(connection.getState() == MAKING_RESPONSE);
-}
-
-TEST_CASE("Error response", "[Success]") {
-	char			**env;
-	Debug			dfile;
-	Config			config("../configFiles/goodConfigs/default.config", dfile);
-	Connection		connection(10);
-	int code = error_response(connection, 400);
-	REQUIRE(code == 0);
 }
 
 TEST_CASE("Parse method", "[Error]") {
@@ -325,4 +316,28 @@ TEST_CASE("Parse headers", "[Error]") {
 	// 	REQUIRE(connection.getRequest().getPort() == 3000);
 	// 	REQUIRE(code == METHOD_NOT_ALLOWED);
 	// }
+}
+
+TEST_CASE("File GET", "[Success]") {
+	Connection		connection(10);
+	connection.getRequest().setPath("../html/error/400.html");
+	int code = get_file(connection);
+	REQUIRE(code == 0);
+	REQUIRE(connection.getResponse().getBody() == "<!DOCTYPE html>\n"
+												"\n"
+												"<html lang=\"fr\">\n"
+												"  <head>\n"
+												"    <meta charset=\"UTF-8\" />\n"
+												"  </head>\n"
+												"  <body>\n"
+												"    <div style=\"margin-top: 50px; margin-bottom:200px; text-align: center; text-justify: center;\">\n"
+												"      <h1 style=\"font-size: 5rem;\">400</h1>\n"
+												"      <h3 style=\"font-size: 2rem;\">Bad Request</h3>\n"
+												"      <br />\n"
+												"      <p>Erreur de la requête client!</p>\n"
+												"    </div>\n"
+												"  </body>\n"
+												"</html>\n"
+												);
+	REQUIRE(connection.getResponse().getContentLength() == 371);
 }
