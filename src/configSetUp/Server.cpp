@@ -43,7 +43,8 @@ bool    Server::undefined(e_TokenType type)
 
 bool    Server::has(e_TokenType type)
 {
-    return ;
+    (void)type;
+    return (false);
 }
 
 bool    Server::has(std::string token, e_TokenType type)
@@ -110,6 +111,17 @@ bool    Server::has(std::string token, e_TokenType type)
 
 int     find(std::string token, e_TokenType type)
 {
+    // switch (type)
+    // {
+    // case constant expression:
+        // /* code */
+        // break;
+    // 
+    // default:
+        // break;
+    // }
+    (void)token;
+    (void)type;
     return (0);
 }
 
