@@ -5,7 +5,6 @@
 # include "Config.hpp"
 # include "ErrorPages.hpp"
 
-//template <typename Token>
 class Location
 {
     protected:
@@ -47,6 +46,7 @@ class Location
 
         virtual bool        undefined(e_TokenType type);
         virtual bool        has(std::string token, e_TokenType type);// = TOKEN_TYPE_COUNT);
+
 };
 
 //template <typename Token>

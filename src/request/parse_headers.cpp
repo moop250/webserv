@@ -94,14 +94,23 @@ int parse_keepAlive(Connection& connection) {
 	return CONTINUE_READ;
 }
 
+//	find good l
+#include "Server.hpp"
 // Remake to check for location
 void matching_server(Connection& connection, Config& config) {
 	t_ServerData	server;
 	t_ServerData	fallback;
 
+
 	fallback = config.getServerData(0);
 	connection.setServer(fallback);
 	for (int i = 0; i < config.getNbServers(); i++) {
+//		Server	serv(config.getServerData(0));
+//		Location	loc(serv.location(0));
+//
+//		std::string hos = serv.host();
+//		std::string path = loc.path();
+	
 		server = config.getServerData(i);
 		if (server.server_name == connection.getRequest().getHost()
 			&& atoi(server.port.c_str()) == connection.getRequest().getPort()) {
