@@ -72,8 +72,6 @@ static int handleClientData(int fd, std::map<int, Connection> *connectMap, Confi
 		}
 		buf.resize(nbytes);
 
-		// parsing function here:
-		std::cout << buf << std::endl;
 		connect->buffer.append(buf);
 		code = parse_request(*connect, *conf, env);
 	}
@@ -130,15 +128,11 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 	return 0;
 }
 
-static void handlePOLLOUT() {
+static void handlePOLLOUT(int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
 
 }
 
 int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, char **env, std::map<int, Connection> *connectMap) {
-	// testing
-	(void)config;
-	(void)env;
-
 	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
 		if ((*fds)[i].revents & (POLLIN | POLLHUP)) {
 			if (handlePOLLIN((*fds)[i].fd, sockets, fds, connectMap, config, env) < 0) {
@@ -146,7 +140,7 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 			}
 		}
 		if ((*fds)[i].revents & POLLOUT) {
-			handlePOLLOUT();
+			handlePOLLOUT((*fds)[i].fd, sockets, connectMap);
 			connectMap->at((*fds)[i].fd).setState(WAITING_REQUEST);
 		}
 	}
