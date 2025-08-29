@@ -47,6 +47,7 @@ SRCS        = src/main.cpp \
 	      src/configSetUp/Location.cpp \
 	      src/configSetUp/ErrorPages.cpp \
 	      src/request/Request.cpp \
+		  src/request/RequestServer.cpp \
 	      src/request/support_file.cpp \
 	      src/request/parse_request.cpp \
 	      src/request/parse_headers.cpp\

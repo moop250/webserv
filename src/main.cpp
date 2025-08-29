@@ -41,6 +41,7 @@
 */
 static void	testServer(Config *config)
 {
+	return ;
 	Server	serv(config->getServerData(0));
 
 	/* pour les attributs basics en bool ou string on get avec le nom de l'attribut*/

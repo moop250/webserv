@@ -21,8 +21,8 @@ class Server : public Location
 
         Server  &operator=(const Server &);
     
-        bool    has(e_TokenType type = TOKEN_TYPE_COUNT);
-    //    Token   attribut(std::string token, int member = 0);    //  same
+        bool    has(e_TokenType type);
+        int     find(std::string token, e_TokenType type);
 
         //  getters
         std::string             host() const;
@@ -34,6 +34,7 @@ class Server : public Location
         
         bool                    undefined(e_TokenType type);
         bool                    has(std::string token, e_TokenType = TOKEN_TYPE_COUNT);
+    //    int                     f(std::string token, e_TokenType type = TOKEN_TYPE_COUNT);
 };
 
 std::string tostring(int n);

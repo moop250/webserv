@@ -41,6 +41,11 @@ bool    Server::undefined(e_TokenType type)
     return false;
 }
 
+bool    Server::has(e_TokenType type)
+{
+    return ;
+}
+
 bool    Server::has(std::string token, e_TokenType type)
 {
     int    general = TOKEN_TYPE_COUNT;
@@ -101,6 +106,11 @@ bool    Server::has(std::string token, e_TokenType type)
             break;
     }
     return false;
+}
+
+int     find(std::string token, e_TokenType type)
+{
+    return (0);
 }
 
 std::string Server::host() const { return _host; }
