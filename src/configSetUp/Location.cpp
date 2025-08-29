@@ -66,8 +66,9 @@ Location    &Location::operator=(const Location &l)
     return *this;
 }
 
-bool    Location::undefined()
+bool    Location::undefined(e_TokenType type)
 {
+    (void)type;
     return (false);
 }
 

@@ -32,7 +32,7 @@ class Server : public Location
         Location                location(int at = 0) const;
         std::vector<Location>   locations() const;
         
-        bool                    undefined();
+        bool                    undefined(e_TokenType type);
         bool                    has(std::string token, e_TokenType = TOKEN_TYPE_COUNT);
 };
 

@@ -47,7 +47,14 @@ static void	testServer(Config *config)
 	/* pour les attributs basics en bool ou string on get avec le nom de l'attribut*/
 	std::cout << "autoindex : " << (serv.autoindex()? "ON":"OFF") << std::endl;	//	tu peux rajouter le prefixe get devant les fonctions
 																				//	si ca t'arrange
-	
+	if (serv.undefined(UPLOAD_STORAGE))
+		std::cout << "server has not storage\n";
+	else
+		std::cout << "Server storage is defined\n";
+	if (serv.has("ADD"))
+		std::cout << "server allows method ADD\n";
+	if (serv.has("YAYA"))
+		std::cout << "YAYA is not a part of the server\n";							
 	/*	Pour les pages d'erreurs :
 		* Soit tu get toute la struct tel que
 	*/

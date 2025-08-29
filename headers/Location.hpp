@@ -45,7 +45,7 @@ class Location
         virtual size_t      clientSize() const;
         virtual bool        autoindex() const;
 
-        virtual bool        undefined();
+        virtual bool        undefined(e_TokenType type);
         virtual bool        has(std::string token, e_TokenType type);// = TOKEN_TYPE_COUNT);
 };
 

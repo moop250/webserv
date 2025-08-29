@@ -35,8 +35,9 @@ Server    &Server::operator=(const Server &s)
     return *this;
 }
 
-bool    Server::undefined()
+bool    Server::undefined(e_TokenType type)
 {
+    (void)type;
     return false;
 }
 
