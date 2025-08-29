@@ -1,6 +1,7 @@
 #include "../../headers/SocketClass.hpp"
 #include "../../headers/Sockets.hpp"
 #include "../../headers/Connection.hpp"
+#include "../../headers/request_handler.hpp"
 #include <cerrno>
 #include <climits>
 #include <poll.h>
@@ -74,7 +75,7 @@ static int handleClientData(int fd, std::map<int, Connection> *connectMap, Confi
 		// parsing function here:
 		std::cout << buf << std::endl;
 		connect->buffer.append(buf);
-		code = parse_request(connect, conf, env);
+		code = parse_request(*connect, *conf, env);
 	}
 	switch (code) {
 		case -1:
