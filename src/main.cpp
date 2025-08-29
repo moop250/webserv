@@ -1,6 +1,7 @@
 
 #include <cstdio>
 #include <exception>
+#include <map>
 #include <stdexcept>
 #include <sys/poll.h>
 #include <sys/socket.h> // For socket functions
@@ -113,6 +114,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 void	eventLoop(Config *config, ServerSocket *socket, char **env)
 {
 	std::vector<pollfd> fds = initPoll(socket);
+	std::map<int, Connection> connectMap;
 	try {
 		while (1) {
 			int	pollCount = poll(&fds[0], socket->getTotalSocketCount(), -1);
@@ -122,7 +124,7 @@ void	eventLoop(Config *config, ServerSocket *socket, char **env)
 				break;
 			}
 
-			incomingConnection(socket, &fds, config, env);
+			incomingConnection(socket, &fds, config, env, &connectMap);
 		}
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
