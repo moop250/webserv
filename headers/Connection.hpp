@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/27 06:38:47 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 14:32:55 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ enum State {
 	READING_BODY = 5,
 	READING_CHUNKED = 6,
 	CONTINUE_READ = 7,
+
 	MAKING_RESPONSE = 8,
 	SENDING_RESPONSE = 9,
 	
@@ -32,7 +33,6 @@ enum State {
 
 class Connection {
 	private:
-		const int		fd_client;
 		State			state;
 		Request			request;
 		Response		response;
@@ -42,17 +42,15 @@ class Connection {
 	public:
 		std::string		buffer;
 
-		Connection(int fd_client);
+		Connection();
 		~Connection();
 
-		int				getFdClient() const;
 		State			getState() const;
 		Request&		getRequest();
 		Response&		getResponse();
 		t_ServerData	getServer() const;
 		long			getChunkedSize() const;
 
-		Connection&		setBuffer(std::string& buffer);
 		Connection&		setState(State state);
 		Connection&		setServer(t_ServerData& server);
 		Connection&		setChunkedSize(long size);

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 17:43:47 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 13:49:33 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,13 +68,15 @@ int parse_request_type(Connection& connection) {
 			case EACCES:
 				error_response(connection, FORBIDDEN);
 				break;
-			case ENOENT:
+			case ENOENT:									// Not exist
 				error_response(connection, NOT_FOUND);
 				break;
-			case ENAMETOOLONG:
+			case ENOTDIR:									// bad path format
+				// fall through
+			case ENAMETOOLONG:								// path too long
 				error_response(connection, BAD_REQUEST);
 				break;
-			case ENOMEM:
+			case ENOMEM:									// out of memory
 				error_response(connection, INTERNAL_ERROR);
 				break;
 		}

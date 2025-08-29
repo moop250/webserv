@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 17:07:03 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 14:38:52 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,6 @@ int parse_request(Connection& connection, Config& config, char **env) {
 	int		code;
 
 	code = -1;
-	// connection.setState(READING_METHOD);
 	switch (static_cast<int>(connection.getState())) {
 		case READING_METHOD:
 			code = parse_method(connection);

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 17:44:59 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 14:39:06 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,8 @@ int get_file(Connection& connection) {
 	connection.getResponse().setHeader("Content-Length", size_to_string(size));
 	connection.getResponse().setHeader("Content-Type", connection.getResponse().getContentType());
 	connection.getResponse().constructResponse();
-	std::cout << connection.getResponse() << std::endl;
+	connection.setState(SENDING_RESPONSE);
+	// std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
 
@@ -78,7 +79,8 @@ int delete_file(Connection& connection) {
 	connection.getResponse().setCode(204);
 	connection.getResponse().setCodeMessage("No Content");
 	connection.getResponse().constructResponse();
-	std::cout << connection.getResponse() << std::endl;
+	connection.setState(SENDING_RESPONSE);
+	// std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
 
