@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 13:57:48 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 16:51:45 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -341,4 +341,19 @@ TEST_CASE("File GET", "[Success]") {
 												"</html>\n"
 												);
 	REQUIRE(connection.getResponse().getContentLength() == 371);
+}
+
+// TEST_CASE("File DELETE", "[Success]") {
+// 	Connection		connection;
+// 	connection.getRequest().setPath("../test.txt");
+// 	int code = delete_file(connection);
+// 	REQUIRE(code == 0);
+// }
+
+TEST_CASE("File POST", "[Success]") {
+	Connection		connection;
+	connection.getRequest().setPath("../test.txt");
+	connection.getRequest().setBody("THIS PART SHOULD APPEND TO THE FILE!\n");
+	int code = post_file(connection);
+	REQUIRE(code == 0);
 }

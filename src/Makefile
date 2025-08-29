@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/08/28 15:26:23 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/08/29 16:57:34 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -52,6 +52,7 @@ SRCS        = tdd.cpp catch_amalgamated.cpp \
 	      response/error_response.cpp \
 	      response/Response.cpp \
 		  response/handle_file_request.cpp \
+		  response/handle_directory_request.cpp \
 	      sockets/SocketClass.cpp \
 	      sockets/serverInitialization.cpp \
 		  sockets/incomingConnection.cpp
