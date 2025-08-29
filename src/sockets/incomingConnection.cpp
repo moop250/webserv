@@ -54,6 +54,26 @@ static int handleConnection(ServerSocket *sockets, std::vector<pollfd> *fds, int
 	}
 };
 
+static void setPOLLIN(int fd, std::vector<pollfd> *fds) {
+	std::vector<pollfd>::iterator it = fds->begin();
+	for (; it != fds->end(); ++it) {
+		if (it->fd == fd) {
+			it->events = POLLIN;
+			break;
+		}
+	}
+}
+
+static void setPOLLOUT(int fd, std::vector<pollfd> *fds) {
+	std::vector<pollfd>::iterator it = fds->begin();
+	for (; it != fds->end(); ++it) {
+		if (it->fd == fd) {
+			it->events = POLLOUT;
+			break;
+		}
+	}
+}
+
 static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf, char **env) {
 	int	code = CONTINUE_READ;
 	Connection *connect = &connectMap->at(fd);
@@ -75,12 +95,12 @@ static int handleClientData(int fd, std::map<int, Connection> *connectMap, Confi
 		connect->buffer.append(buf);
 		code = parse_request(*connect, *conf, env);
 	}
+
 	switch (code) {
-		case -1:
-			return CLOSEFD;
 		case MAKING_RESPONSE:
-			// change pollin to pollout
 			return CLIENTDATASUCCESS;
+		default:
+			return CLOSEFD;
 	}
 };
 
@@ -109,9 +129,10 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 			case CLOSEFD:
 				close(fd);
 				removeFromPollfd(fds, fd, sockets, connectMap);
-				break;
+				return -1;
 			case CLIENTDATASUCCESS:
-				break;
+				setPOLLOUT(fd, fds);
+				return 1;
 			case HUNGUP:
 				std::cout << YELLOW << "Recv: socket " << fd << " hung up" << RESET << std::endl;
 				close(fd);
@@ -121,8 +142,6 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 				close(fd);
 				removeFromPollfd(fds, fd, sockets, connectMap);
 				return -1;
-			default:
-				std::cout << "handleClientData: default: how did you get here?" << std::endl;
 		}
 	}
 	return 0;
@@ -135,13 +154,14 @@ static void handlePOLLOUT(int fd, ServerSocket *sockets, std::map<int, Connectio
 int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, char **env, std::map<int, Connection> *connectMap) {
 	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
 		if ((*fds)[i].revents & (POLLIN | POLLHUP)) {
-			if (handlePOLLIN((*fds)[i].fd, sockets, fds, connectMap, config, env) < 0) {
+			if (handlePOLLIN((*fds)[i].fd, sockets, fds, connectMap, config, env) <= 0) {
 				continue;
 			}
 		}
 		if ((*fds)[i].revents & POLLOUT) {
 			handlePOLLOUT((*fds)[i].fd, sockets, connectMap);
 			connectMap->at((*fds)[i].fd).setState(WAITING_REQUEST);
+			setPOLLIN((*fds)[i].fd, fds);
 		}
 	}
 
