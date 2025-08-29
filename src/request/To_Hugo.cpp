@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 16:42:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 12:49:59 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 13:55:53 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ void To_Hugo() {
 	char	**env;
 	Debug	dfile;
 	Config	config("../../configFiles/goodConfigs/simple.config", dfile);
-	int		fd_client = 10;
 	// <- remove later
 
 
@@ -32,7 +31,7 @@ void To_Hugo() {
 	//		L'attribute buffer est public. Pour stocker les données de recv().
 	//	 	L'attribute state est privé. Pour checker l'état de la connection.
 	int			code = 0;
-	Connection	connection(fd_client);
+	Connection	connection();
 	
 	// 2.	Mets le state en READING_METHOD
 	connection.setState(READING_METHOD);
@@ -80,7 +79,7 @@ void To_Hugo() {
 	}
 
 	// 6. Call handle_request
-	if (handle_request(connection, config, env) == -1)
+	if (handle_request(connection, env) == -1)
 		return -1;
 	
 	// 7.	Envoyer la réponse, à voir encore avec le POLLOUT si c'est mieux d'envoyer ici ou ailleur.

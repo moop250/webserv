@@ -31,9 +31,9 @@ class Server : public Location
         
         Location                location(int at = 0) const;
         std::vector<Location>   locations() const;
-        void                    *locAttribut(e_TokenType type);
-    
-    //    Token                   errorPageContent();
+        
+        bool                    undefined(e_TokenType type);
+        bool                    has(std::string token, e_TokenType = TOKEN_TYPE_COUNT);
 };
 
 std::string tostring(int n);

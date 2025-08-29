@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/27 06:39:31 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 15:34:20 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,6 +190,7 @@ int content_length_check(Connection& connection) {
 int headers_content_check(Connection& connection, Config& config) {
 	std::string	host;
 	std::string keepAlive;
+	std::string	contentType;
 
 	host = connection.getRequest().getHeader("host");
 	if (host.empty())
@@ -214,6 +215,11 @@ int headers_content_check(Connection& connection, Config& config) {
 				return BAD_REQUEST;
 	} else if (keepAlive == "close")
 		connection.getRequest().setKeepAlive(keepAlive);
+	contentType = connection.getRequest().getHeader("content-type");
+	if (contentType == "") {
+		contentType = "application/octet-stream";
+	}
+	connection.getRequest().setContentType(contentType);
 	return content_length_check(connection);
 }
 

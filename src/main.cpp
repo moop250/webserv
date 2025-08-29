@@ -48,7 +48,14 @@ static void	testServer(Config *config)
 	/* pour les attributs basics en bool ou string on get avec le nom de l'attribut*/
 	std::cout << "autoindex : " << (serv.autoindex()? "ON":"OFF") << std::endl;	//	tu peux rajouter le prefixe get devant les fonctions
 																				//	si ca t'arrange
-	
+	if (serv.undefined(UPLOAD_STORAGE))
+		std::cout << "server has not storage\n";
+	else
+		std::cout << "Server storage is defined\n";
+	if (serv.has("ADD"))
+		std::cout << "server allows method ADD\n";
+	if (serv.has("YAYA"))
+		std::cout << "YAYA is not a part of the server\n";							
 	/*	Pour les pages d'erreurs :
 		* Soit tu get toute la struct tel que
 	*/
@@ -59,11 +66,13 @@ static void	testServer(Config *config)
 		<< pages.content(1) << std::endl;	//	Ca c'est pour les arguments basics
 	
 	/* 	Ou du coup :
-		* serv.errorPages().error(position);
+		* serv.errorPages.error(position);
+		* ou serv.errorPages.error(404)
+		* ou serv.errorPages.error(serv.errorPages.find(404))
 	*/
 
 	/* Tu peux get direment l'index de ce que tu cherches */
-	bool	is_there_an_error_page = pages.has(404);
+	bool	is_there_an_error_page = pages.has(404); // or NOT_FOUND du coup
 	if (!is_there_an_error_page)
 		std::cout << "there is no error page\n";
 	// ou bien en enum :
@@ -155,6 +164,8 @@ int main(int ac, char** av, char **env)
 	if (!config)
 		return (-1);
 
+	delete config;
+	return 1;
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 	
 	try {

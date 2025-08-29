@@ -66,10 +66,56 @@ Location    &Location::operator=(const Location &l)
     return *this;
 }
 
-bool    Location::has(e_TokenType type)
+bool    Location::undefined(e_TokenType type)
 {
     (void)type;
-    return true;
+    return (false);
+}
+
+bool    Location::has(std::string token, e_TokenType type = TOKEN_TYPE_COUNT)
+{
+    int general = TOKEN_TYPE_COUNT;
+
+    switch (type)
+    {
+        case TOKEN_TYPE_COUNT:
+            while (general-- > 0)
+                if (has(token, static_cast<e_TokenType>(general)))
+                    return true;
+            return (false);
+        case ROOT_PATH:
+            if (token == _root)
+                return true;
+            return (false);
+        case HTLM_INDEX:
+            if (token == _index)
+                return true;
+            return (false);
+        case AUTOINDEX:
+            if (token == "ON" || "on")
+                return true;
+            return (false);
+        case ERROR_PAGE:
+            if (_errorPages.find(static_cast<RequestError>(atoi(token.c_str()))))
+                return true;
+            return (false);
+        case UPLOAD_STORAGE:
+            if (token == _upload_storage)
+                return true;
+            return (false);
+        case CGI_DATA:
+            if (token == _cgi.find(token)->second || token == _cgi.find(token)->first)
+                return true;
+            return (false);
+        case METHODS:
+            for (std::vector<std::string>::iterator i = _methods.begin(); i != _methods.end(); i++)
+                if (token == *i)
+                    return true;
+            return (false);
+        default:
+            break;
+    }
+    return false;
 }
 
 std::string Location::path() const { return _path; }

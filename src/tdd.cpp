@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 13:53:51 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 13:57:48 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 // ------------------- Request class Default ---------------------
 
 TEST_CASE("Request class default constructor") {
-	Connection	connection(10);
+	Connection	connection;
 
     REQUIRE(connection.getRequest().getMethod() == "");
 	REQUIRE(connection.getRequest().getPath() == "");
@@ -46,7 +46,7 @@ TEST_CASE("Parse Unit", "[Success]") {
 	char			**env;
 	Debug			dfile;
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
-	Connection		connection(10);
+	Connection		connection;
 	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
 						"Host: localhost:8002\r\n"
 						"Connection: Keep-Alive\r\n"
@@ -106,7 +106,7 @@ TEST_CASE("Parse complete, content-length", "[Success]") {
 	char			**env;
 	Debug			dfile;
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
-	Connection		connection(10);
+	Connection		connection;
 	connection.buffer = "POST http://www.test.com/cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
 						"Host: localhost:8002\r\n"
 						"Connection: Keep-Alive\r\n"
@@ -137,7 +137,7 @@ TEST_CASE("Parse complete, chunked", "[Success]") {
 	char			**env;
 	Debug			dfile;
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
-	Connection		connection(10);
+	Connection		connection;
 	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
 						"Host: localhost:8002\r\n"
 						"Transfer-Encoding: chunked\r\n"
@@ -165,7 +165,7 @@ TEST_CASE("Connection state request section", "[Success]") {
 	char			**env;
 	Debug			dfile;
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
-	Connection		connection(10);
+	Connection		connection;
 	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
 						"Host: localhost:8002\r\n"
 						"Connection: Keep-Alive\r\n"
@@ -195,7 +195,7 @@ TEST_CASE("Parse method", "[Error]") {
 	char			**env;
 	Debug			dfile;
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
-	Connection		connection(10);
+	Connection		connection;
 	SECTION("Method not complete", "[Error]") {
 		connection.buffer = "GE";
 		int code = parse_method(connection);
@@ -223,7 +223,7 @@ TEST_CASE("Parse path", "[Error]") {
 	char			**env;
 	Debug			dfile;
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
-	Connection		connection(10);
+	Connection		connection;
 	SECTION("Path not complete", "[Error]") {
 		connection.buffer = "GET /wtfw";
 		parse_method(connection);
@@ -238,7 +238,7 @@ TEST_CASE("Parse http version", "[Error]") {
 	char			**env;
 	Debug			dfile;
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
-	Connection		connection(10);
+	Connection		connection;
 	SECTION("HTTP version not complete", "[Error]") {
 		connection.buffer = "GET /cgi/test.java?user=Nguyen&school=42 HTTP/1.";
 		parse_method(connection);
@@ -264,7 +264,7 @@ TEST_CASE("Parse headers", "[Error]") {
 	char			**env;
 	Debug			dfile;
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
-	Connection		connection(10);
+	Connection		connection;
 	SECTION("Dupplicate host", "[Error]") {
 		connection.buffer = "GET /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\n"
 							"Host: localhost:8002\r\n"
@@ -319,7 +319,7 @@ TEST_CASE("Parse headers", "[Error]") {
 }
 
 TEST_CASE("File GET", "[Success]") {
-	Connection		connection(10);
+	Connection		connection;
 	connection.getRequest().setPath("../html/error/400.html");
 	connection.getRequest().setFileType(".html");
 	int code = get_file(connection);

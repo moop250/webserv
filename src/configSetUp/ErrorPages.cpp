@@ -8,6 +8,7 @@ ErrorPages::ErrorPages()
 
 ErrorPages::ErrorPages(std::map<int, std::string> m)
 {
+//    int j = 0;
     _data = m;
     for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++)
     {
@@ -23,6 +24,13 @@ ErrorPages::ErrorPages(std::map<int, std::string> m)
                 buf.append("\n");
             }
             _html_content.push_back(buf);
+        //    if (!(j++ % 2))
+        //        std::cout << CYAN;
+        //    else
+        //        std::cout << ROSE;
+        //    std::cout << "Html content : \n" << buf << std::endl;
+        //    std::cout << RESET;
+            htmlFile.close();
         }
         else
             _html_content.push_back("HTML FILE EMPTY");

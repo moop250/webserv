@@ -22,7 +22,14 @@ e_lineType    getLineType(std::string line)
     return LINE_EMPTY;
 }
 
-#include <algorithm>
+//#include <algorithm>    //  pas necessaire au fonctionnement du error check
+/*  Si ca pose probleme pour l'eval, enlever fonction levenstein ou est utilise std::min*/
+
+template <typename x>
+static x    min(const x &a, const x &b)
+{
+    return a < b ? a : b;
+}
 
 static int levenshtein(const std::string& s1, const std::string& s2) {
     int m = s1.size();
@@ -42,9 +49,9 @@ static int levenshtein(const std::string& s1, const std::string& s2) {
                 dp[i][j] = dp[i - 1][j - 1];
             else
             {
-                dp[i][j] = 1 + std::min(
+                dp[i][j] = 1 + min(
                     dp[i - 1][j],               // suppression
-                    std::min(
+                    min(
                         dp[i][j - 1],           // insertion
                         dp[i - 1][j - 1]        // substitution
                     )
@@ -225,7 +232,7 @@ static int countOccurence(std::string toFind, std::string in, size_t from, size_
                 break ;
             matchCursor++;
         }
-        if (matchCursor >= toFind.length() - 2)
+        if (matchCursor >= toFind.length() - 1)
         {
             count++;
             i += matchCursor;
@@ -239,7 +246,7 @@ static std::string describeErrorContext(std::string content, std::string _errorL
     std::string msg = "Server nb : ";
     int servId = 0, locId = 0;
 
-    servId = countOccurence("server ", content, 0, content.find(_errorLine));
+    servId = countOccurence("server ", content, 0, content.find(_errorLine)) - 1;
     msg += servId + '0';
     msg += " in location block nb : ";
     size_t  from = 0;

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 13:51:18 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/28 17:30:17 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,12 @@
 #define METHOD_NOT_ALLOWED 405
 #define LENGTH_REQUIRED 411
 #define CONTENT_TOO_LARGE 413
+#define UNSUPPORTED_MEDIA_TYPE 415
 #define NOT_IMPLEMENTED 501
 #define HTTP_VERSION_MISMATCH 505
 #define INTERNAL_ERROR 500
+
+#define NO_CONTENT 204
 
 enum RequestError
 {
