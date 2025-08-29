@@ -58,7 +58,9 @@ static void	testServer(Config *config)
 		<< pages.content(1) << std::endl;	//	Ca c'est pour les arguments basics
 	
 	/* 	Ou du coup :
-		* serv.errorPages().error(position);
+		* serv.errorPages.error(position);
+		* ou serv.errorPages.error(404)
+		* ou serv.errorPages.error(serv.errorPages.find(404))
 	*/
 
 	/* Tu peux get direment l'index de ce que tu cherches */
@@ -153,6 +155,8 @@ int main(int ac, char** av, char **env)
 	if (!config)
 		return (-1);
 
+	delete config;
+	return 1;
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 	
 	try {

@@ -29,15 +29,12 @@ class Location
 
         Location    &operator=(const Location &);
     
-        virtual bool    has(e_TokenType type);
-    //    virtual bool        has(Token token);
     //    virtual Token       attribut(std::string tokenType, int member = 0);    //  find through a switch case after levenstein
 
         //  getters
         std::string path() const;
     
         virtual std::map<std::string, std::string> cgi() const;
-    //    virtual std::map<int, std::string>         errorPages() const;
         virtual ErrorPages                         errorPages() const;
 
         virtual std::vector<std::string>    methods() const;
@@ -48,7 +45,8 @@ class Location
         virtual size_t      clientSize() const;
         virtual bool        autoindex() const;
 
-    //    Token       errorPageContent();
+        virtual bool        undefined();
+        virtual bool        has(std::string token, e_TokenType type);// = TOKEN_TYPE_COUNT);
 };
 
 //template <typename Token>
