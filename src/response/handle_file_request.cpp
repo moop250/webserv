@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 14:39:06 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 16:55:02 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,17 @@ int get_file(Connection& connection) {
 	size_t			size;
 
 	path = connection.getRequest().getPath();
+	if (access(path.c_str(), R_OK) == -1) {
+		switch (errno) {
+			case EACCES:
+				error_response(connection, FORBIDDEN);
+				break ;
+			default:
+				error_response(connection, INTERNAL_ERROR);
+				break;
+		}
+		return -1;
+	}
 	file.open(path.c_str(), std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
 		error_response(connection, INTERNAL_ERROR);
@@ -61,18 +72,54 @@ int get_file(Connection& connection) {
 }
 
 int post_file(Connection& connection) {
-	(void)connection;
+	std::string		path;
+	std::fstream	file;
 
-	return -1;
+	path = connection.getRequest().getPath();
+	if (access(path.c_str(), W_OK) == -1) {
+		switch (errno) {
+			case EACCES:
+				error_response(connection, FORBIDDEN);
+				break ;
+			default:
+				error_response(connection, INTERNAL_ERROR);
+				break;
+		}
+		return -1;
+	}
+	file.open(path.c_str(), std::ios::out | std::ios::binary | std::ios::app);
+	if (!file.is_open()) {
+		error_response(connection, INTERNAL_ERROR);
+		return -1;	
+	}
+	file << connection.getRequest().getBody();
+	file.close();
+	connection.getResponse().setCode(204);
+	connection.getResponse().setCodeMessage("No Content");
+	connection.getResponse().constructResponse();
+	connection.setState(SENDING_RESPONSE);
+	// std::cout << connection.getResponse() << std::endl;
+	return 0;
 }
 
 int delete_file(Connection& connection) {
-	int			code;
 	std::string	path;
+	std::string parent_directory;
 
 	path = connection.getRequest().getPath();
-	code = std::remove(path.c_str());
-	if (code != 0) {
+	parent_directory = path.substr(0, path.rfind("/"));
+	if (access(parent_directory.c_str(), W_OK | X_OK) == -1) {
+		switch (errno) {
+			case EACCES:
+				error_response(connection, FORBIDDEN);
+				break ;
+			default:
+				error_response(connection, INTERNAL_ERROR);
+				break;
+		}
+		return -1;
+	}
+	if (std::remove(path.c_str()) != 0) {
 		error_response(connection, INTERNAL_ERROR);
 		return -1;	
 	}

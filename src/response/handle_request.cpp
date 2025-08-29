@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 13:49:33 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 16:54:46 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,6 @@ int CGI_handler(Connection& connection, char** env) {
 	// pipe
 	// execve
 	// get result to connection.getResponse().setBody()
-	return 0;
-}
-
-int directory_handler(Connection& connection) {
-	(void)connection;
-
 	return 0;
 }
 
@@ -65,9 +59,6 @@ int parse_request_type(Connection& connection) {
 	code = stat(path.c_str(), &file_stat);
 	if (code == -1) {
 		switch (errno) {
-			case EACCES:
-				error_response(connection, FORBIDDEN);
-				break;
 			case ENOENT:									// Not exist
 				error_response(connection, NOT_FOUND);
 				break;
@@ -76,7 +67,7 @@ int parse_request_type(Connection& connection) {
 			case ENAMETOOLONG:								// path too long
 				error_response(connection, BAD_REQUEST);
 				break;
-			case ENOMEM:									// out of memory
+			default:
 				error_response(connection, INTERNAL_ERROR);
 				break;
 		}

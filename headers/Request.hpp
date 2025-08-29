@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 17:30:17 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 16:04:19 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <cctype>
 #include <algorithm>
 #include <fstream>
+#include <unistd.h>		// access(), open()
 #include <sys/stat.h>	// stat()
 #include <errno.h>
 

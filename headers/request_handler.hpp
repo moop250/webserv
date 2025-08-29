@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 17:45:36 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 16:57:20 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,9 @@ int		file_handler(Connection& connection);
 int		get_file(Connection& connection);
 int		post_file(Connection& connection);
 int		delete_file(Connection& connection);
-
+int		directory_handler(Connection& connection);
+int		get_directory(Connection& connection);
+int		post_directory(Connection& connection);
+int		delete_directory(Connection& connection);
 
 #endif
