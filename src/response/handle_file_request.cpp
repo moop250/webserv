@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 13:58:25 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 14:39:06 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,18 +43,20 @@ int get_file(Connection& connection) {
 	connection.getResponse().setContentLength(size);
 	file.seekg(0, std::ios::beg);
 	buffer.resize(size);
-	// Probably will be blocking for huge file
+	// Probably will be blocking for huge file but meh whatever
 	if(!file.read(&buffer[0],size)) {
 		error_response(connection, INTERNAL_ERROR);
 		return -1;
 	}
+	file.close();
 	connection.getResponse().setBody(buffer);
 	connection.getResponse().setCode(200);
 	connection.getResponse().setCodeMessage("OK");
 	connection.getResponse().setHeader("Content-Length", size_to_string(size));
 	connection.getResponse().setHeader("Content-Type", connection.getResponse().getContentType());
 	connection.getResponse().constructResponse();
-	std::cout << connection.getResponse() << std::endl;
+	connection.setState(SENDING_RESPONSE);
+	// std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
 
@@ -63,10 +65,23 @@ int post_file(Connection& connection) {
 
 	return -1;
 }
-int delete_file(Connection& connection) {
-	(void)connection;
 
-	return -1;
+int delete_file(Connection& connection) {
+	int			code;
+	std::string	path;
+
+	path = connection.getRequest().getPath();
+	code = std::remove(path.c_str());
+	if (code != 0) {
+		error_response(connection, INTERNAL_ERROR);
+		return -1;	
+	}
+	connection.getResponse().setCode(204);
+	connection.getResponse().setCodeMessage("No Content");
+	connection.getResponse().constructResponse();
+	connection.setState(SENDING_RESPONSE);
+	// std::cout << connection.getResponse() << std::endl;
+	return 0;
 }
 
 int file_handler(Connection& connection) {

@@ -6,59 +6,13 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 13:59:38 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 14:38:52 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "request_handler.hpp"
 #include "support_file.hpp"
-
-// untested
-void parse_type(Connection& connection) {
-	std::string path;
-	std::string extension;
-
-	path = connection.getRequest().getPath();
-	extension = path.substr(path.rfind('.'));
-	if (isCGI(extension) == true) {
-		connection.getRequest().setRequestType(CGI);
-	} else {
-		connection.getRequest().setRequestType(File);
-	}
-	connection.getRequest().setFileType(extension);
-}
-
-// stuffs to do
-int parse_request_type(Connection& connection) {
-	struct stat	file_stat;
-	std::string	path;
-
-	// Check if path is cgi directory or not, pre-append the cgi path or root path
-	path = connection.getRequest().getPath();
-
-	if (stat(path.c_str(), &file_stat) == -1) {
-		switch (errno) {
-			case EACCES:
-				return FORBIDDEN;
-			case ENOENT:
-				return NOT_FOUND;
-			case ENAMETOOLONG:
-				return BAD_REQUEST;
-			case ENOMEM:
-				return INTERNAL_ERROR;
-			default:
-				return NOT_FOUND;
-		}
-    }
-	if (S_ISDIR(file_stat.st_mode)) {
-		connection.getRequest().setRequestType(Directory);
-	} else if (S_ISREG(file_stat.st_mode)) {
-		parse_type(connection);
-	} else
-		return BAD_REQUEST;
-	return CONTINUE_READ;
-}
 
 int parse_body(Connection& connection) {
 	size_t		len;
@@ -108,9 +62,7 @@ int parse_URL(Connection& connection, Config& config) {
 	std::string::size_type	url_pos;
 	std::string::size_type	path_pos;
 	std::string::size_type	query_pos;
-	int						error;
 
-	(void)error;
 	(void)config;
 	url_pos = connection.buffer.find(" ");
 	if (url_pos == std::string::npos)
@@ -141,9 +93,6 @@ int parse_URL(Connection& connection, Config& config) {
 		
 		// Check if path is redirected before set!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		connection.getRequest().setPath(url);
-		// error = parse_request_type(connection);
-		// if (error != CONTINUE_READ)
-		// 	return error;
 		
 		connection.buffer.erase(0, url_pos + 1);
 		connection.setState(READING_HTTPVERSION);
@@ -175,7 +124,6 @@ int parse_request(Connection& connection, Config& config, char **env) {
 	int		code;
 
 	code = -1;
-	// connection.setState(READING_METHOD);
 	switch (static_cast<int>(connection.getState())) {
 		case READING_METHOD:
 			code = parse_method(connection);
