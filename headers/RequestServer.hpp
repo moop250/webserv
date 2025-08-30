@@ -4,6 +4,15 @@
 # include "StdLibs.hpp"
 # include "ErrorPages.hpp"
 # include "Config.hpp"
+# include "Server.hpp"
+
+//enum RequestServerTypes
+//{
+//    REQUEST_CGI,
+//    REQUEST_METHOD,
+//    REQUEST_ERRORPAGE,
+//    REQUEST
+//};
 
 class RequestServer
 {
@@ -26,7 +35,26 @@ class RequestServer
         ~RequestServer();
 
         RequestServer   &operator=(const RequestServer &);
+
+        void            setToken(Server serv, e_TokenType type);
+        void            setToken(Location loc, e_TokenType type);
+        void            setToken(std::string str, e_TokenType type);
+
+        std::map<std::string, std::string>  cgi() const;
+        std::vector<std::string>            methods() const;
+        ErrorPages                          errorPages() const;
+        std::string                         host() const;
+        std::string                         port() const;
+        std::string                         serverName() const;
+        std::string                         root() const;
+        std::string                         index() const;
+        std::string                         storage() const;
+        size_t                              clientSize() const;
+        bool                                autoindex() const;
+
 };
+
+std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs);
 
 
 #endif

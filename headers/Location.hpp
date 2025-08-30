@@ -46,7 +46,9 @@ class Location
 
         virtual bool        undefined(e_TokenType type);
         virtual bool        has(std::string token, e_TokenType type);// = TOKEN_TYPE_COUNT);
-
+        private:
+            template <typename Token>
+            Token       attribut(e_TokenType type);
 };
 
 //template <typename Token>
