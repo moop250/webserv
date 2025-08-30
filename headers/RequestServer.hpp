@@ -51,7 +51,7 @@ class RequestServer
         std::string                         storage() const;
         size_t                              clientSize() const;
         bool                                autoindex() const;
-
+        bool                                isValid() const;
 };
 
 std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs);

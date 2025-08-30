@@ -22,6 +22,7 @@ RequestServer::RequestServer(Config config, std::string servName, std::string lo
     {
         *this = RequestServer();
         std::cerr << RED << "ServerName not found\n" << RESET;
+        _isValid = false;
         return ;
     }
     size_t  locId = config.find(locPath, LOCATION_PATH);
@@ -30,6 +31,7 @@ RequestServer::RequestServer(Config config, std::string servName, std::string lo
         *this = RequestServer();
         std::cerr << RED << "Location path in server nb : " << servId
             << " not found\n" << RESET;
+        _isValid = false;
         return ;
     }
     
@@ -142,6 +144,8 @@ RequestServer   &RequestServer::operator=(const RequestServer &srv)
     (void)srv;
     return *this;
 }
+
+bool            RequestServer::isValid() const { return _isValid; }
 
 std::map<std::string, std::string>  RequestServer::cgi() const { return _cgi;}
 std::vector<std::string>            RequestServer::methods() const { return _methods;}
