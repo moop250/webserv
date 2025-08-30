@@ -22,7 +22,7 @@
 #include "Sockets.hpp"
 #include "Debug.hpp"
 #include "Server.hpp"
-
+#include "RequestServer.hpp"
 /*	Error pages ANNEXE : 
 	* enum RequestError
 	* {
@@ -41,12 +41,12 @@
 */
 static void	testServer(Config *config)
 {
+	return ;
 	Server	serv(config->getServerData(0));
 
-	return ;
 	/* pour les attributs basics en bool ou string on get avec le nom de l'attribut*/
-	std::cout << "autoindex : " << (serv.autoindex()? "ON":"OFF") << std::endl;	//	tu peux rajouter le prefixe get devant les fonctions
-																				//	si ca t'arrange
+	std::cout << "autoindex : " << (serv.autoindex()? "ON":"OFF") << std::endl;	//	tu peux rajouter le prefixe get devant les fonctions		
+	//	si ca t'arrange
 	if (serv.undefined(UPLOAD_STORAGE))
 		std::cout << "server has not storage\n";
 	else
@@ -59,6 +59,9 @@ static void	testServer(Config *config)
 		* Soit tu get toute la struct tel que
 	*/
 	ErrorPages	pages = serv.errorPages();
+
+	std::string c = pages.content(REQUEST_ERROR_BAD_REQUEST);
+	std::cout << CYAN << c << RESET << std::endl;
 	// puis...
 	std::cout << pages.error(/* position (0 by default)*/) << std::endl
 		<< pages.path(/* same */) << std::endl
@@ -78,10 +81,8 @@ static void	testServer(Config *config)
 	is_there_an_error_page = pages.has(REQUEST_ERROR_BAD_REQUEST);	
 
 	/*	avec la methode find aussi */
-
-	int	index = pages.find(404);
-	if (index == -1)
-		std::cout << "Not found\n";
+//	if (index == -1)
+//		std::cout << "Not found\n";
 	//	ou bien :
 	std::string content = pages.content(static_cast<requestType>(404));
 	// 	comme pour
@@ -94,6 +95,7 @@ static void	testServer(Config *config)
 	// soit par le bon index
 	Location	indloc = serv.location(0);
 
+	std::cout << "Location" << serv.location().path() << std::endl;
 	std::cout << (indloc.autoindex() ? "ON":"OFF");
 	return ;
 }
@@ -112,12 +114,16 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	if (error.isConfigValid())
 	{
 		testServer(config);
+	//	RequestServer	rs(*config, "localhost", "/wtfwtf");
+	//	std::cout << rs;
 		return (config);
 	}
 	std::cerr << RED << "Program stopped\n" << RESET;
 	delete config;
 	return NULL;
 }
+
+// add	serv.findLoc();
 
 void	eventLoop(Config *config, ServerSocket *socket, char **env)
 {

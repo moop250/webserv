@@ -34,8 +34,8 @@ Location::Location(t_ServerData serv)
     _path = "UNDEFINED";
     _cgi = serv.cgi;
     _errorPages = ErrorPages(serv.error_pages);
-    for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
-        std::cout << i->first << "\n";
+//    for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
+//        std::cout << i->first << "\n";
 
 //    _error_pages = serv.error_pages;
     _methods = serv.methods;
@@ -68,8 +68,58 @@ Location    &Location::operator=(const Location &l)
 
 bool    Location::undefined(e_TokenType type)
 {
-    (void)type;
-    return (false);
+    int general = TOKEN_TYPE_COUNT;
+
+    switch (type)
+    {
+        case TOKEN_TYPE_COUNT:
+            while (general-- > 0)
+            {
+                if (undefined(static_cast<e_TokenType>(general)))
+                    continue;
+                else
+                    return (false);
+            }
+            return (true);
+        case ROOT_PATH:
+            if (_root == "UNDEFINED")
+                return true;
+            return (false);
+        case HTLM_INDEX:
+            if ("UNDEFINED" == _index)
+                return true;
+            return (false);
+        case AUTOINDEX:
+            if (_autoindex == false)
+                return true;
+            return (false);
+        case ERROR_PAGE:
+            //  if empty
+            return (false);
+        case UPLOAD_STORAGE:
+            if ("UNDEFINED" == _upload_storage)
+                return true;
+            return (false);
+        case CGI_DATA:
+            if (_cgi.empty())
+                return true;
+            return (false);
+        case METHODS:
+            if (_methods.empty())
+                return true;
+            return (false);
+        case CLIENT_MAX_BODY_SIZE:
+            if (_client_max_size)
+                return (true);
+            return (false);
+      //  case LOCATION_PATH:
+      //      if ( == _path)
+      //          return true;
+      //      return (false);
+        default:
+            break;
+    }
+    return true;
 }
 
 bool    Location::has(std::string token, e_TokenType type = TOKEN_TYPE_COUNT)
@@ -112,10 +162,41 @@ bool    Location::has(std::string token, e_TokenType type = TOKEN_TYPE_COUNT)
                 if (token == *i)
                     return true;
             return (false);
+        case LOCATION_PATH:
+            if (token == _path)
+                return true;
+            return (false);
         default:
             break;
     }
     return false;
+}
+
+template <typename Token>
+Token   Location::attribut(e_TokenType type)
+{
+    switch (type)
+    {
+        case ROOT_PATH:
+            return _root;
+        case HTLM_INDEX:
+            return (_index);
+        case AUTOINDEX:
+            return (_autoindex);
+        case ERROR_PAGE:
+            return (_errorPages);
+        case UPLOAD_STORAGE:
+            return (_upload_storage);
+        case CGI_DATA:
+            return (_cgi);
+        case METHODS:
+            return (_methods);
+        case LOCATION_PATH:
+            return (_path);
+        default:
+            break;
+    }
+    return ;
 }
 
 std::string Location::path() const { return _path; }

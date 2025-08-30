@@ -41,6 +41,12 @@ bool    Server::undefined(e_TokenType type)
     return false;
 }
 
+bool    Server::has(e_TokenType type)
+{
+    (void)type;
+    return (false);
+}
+
 bool    Server::has(std::string token, e_TokenType type)
 {
     int    general = TOKEN_TYPE_COUNT;
@@ -97,10 +103,96 @@ bool    Server::has(std::string token, e_TokenType type)
             if (!_locations.empty())
                 return true;
             return false;
+        case LOCATION_PATH:
+            for (std::vector<Location>::iterator i = _locations.begin(); i != _locations.end(); i++)
+                if (i->path() == token)
+                    return (true);
+            return (false);
         default:
             break;
     }
     return false;
+}
+
+template <typename Token>
+Token   Server::attribut(e_TokenType type)
+{
+    switch (type)
+    {
+        case LISTEN:
+            return _port;
+        case HOST:
+            return _host;
+        case SERVER_NAME:
+            return _server_name;
+        case ROOT_PATH:
+            return _root;
+        case HTLM_INDEX:
+            return _index;
+        case AUTOINDEX:
+            return _autoindex;
+        case ERROR_PAGE:
+            return _errorPages;
+        case UPLOAD_STORAGE:
+            return _upload_storage;
+        case CGI_DATA:
+            return _cgi;
+        case METHODS:
+            return _methods;
+        case LOCATION:
+            return _locations;
+        default:
+            break;
+    }
+    return ("UNDEFINED");
+}
+
+int     find(std::string token, e_TokenType type)
+{
+    // switch (type)
+    // {
+        // case HOST:
+            // if (token == _HAS_CHAR16_T_LANGUAGE_SUPPORT)
+                // break;
+        // case LISTEN:
+            // /* code */
+            // break;
+        // case SERVER_NAME:
+            // /* code */
+            // break;
+        // case ROOT_PATH:
+            // /* code */
+            // break;
+        // case HTLM_INDEX:
+            // /* code */
+            // break;
+        // case AUTOINDEX:
+            // /* code */
+            // break;
+        // case ERROR_PAGE:
+            // /* code */
+            // break;
+        // case UPLOAD_STORAGE:
+            // /* code */
+            // break;
+        // case CGI_DATA:
+            // /* code */
+            // break;
+        // case CLIENT_MAX_BODY_SIZE:
+            // /* code */
+            // break;
+        // case METHODS:
+            // /* code */
+            // break;
+        // case LOCATION:
+            // /* code */
+            // break;
+        // default:
+            // break;
+    // }
+    (void)token;
+    (void)type;
+    return (0);
 }
 
 std::string Server::host() const { return _host; }
