@@ -34,8 +34,8 @@ Location::Location(t_ServerData serv)
     _path = "UNDEFINED";
     _cgi = serv.cgi;
     _errorPages = ErrorPages(serv.error_pages);
-    for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
-        std::cout << i->first << "\n";
+//    for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
+//        std::cout << i->first << "\n";
 
 //    _error_pages = serv.error_pages;
     _methods = serv.methods;
@@ -107,6 +107,10 @@ bool    Location::undefined(e_TokenType type)
         case METHODS:
             if (_methods.empty())
                 return true;
+            return (false);
+        case CLIENT_MAX_BODY_SIZE:
+            if (_client_max_size)
+                return (true);
             return (false);
       //  case LOCATION_PATH:
       //      if ( == _path)

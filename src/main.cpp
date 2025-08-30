@@ -114,8 +114,8 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	if (error.isConfigValid())
 	{
 		testServer(config);
-		RequestServer	rs(*config, "localhost", "/wtfwtf");
-		std::cout << rs;
+	//	RequestServer	rs(*config, "localhost", "/wtfwtf");
+	//	std::cout << rs;
 		return (config);
 	}
 	std::cerr << RED << "Program stopped\n" << RESET;

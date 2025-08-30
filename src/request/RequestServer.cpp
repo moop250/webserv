@@ -157,33 +157,34 @@ bool                                RequestServer::autoindex() const { return _a
 
 std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
 {
-    stream  << "\tServer name    : " << rs.serverName() << '\n'
-            << "\tRoot path      : " << rs.root() << '\n'
-            << "\tIndex file     : " << rs.index() << '\n'
-            << "\tAuto index     : " << (rs.autoindex() ? "On" : "OFF") << '\n'
-            << "\tUpload storage : " << rs.storage() << '\n'
-            << "\tMax client siz : " << rs.clientSize() << std::endl;
-    stream << "\tMethods        : ";
+    stream  << "Server name    : " << rs.serverName() << '\n'
+            << "Root path      : " << rs.root() << '\n'
+            << "Index file     : " << rs.index() << '\n'
+            << "Auto index     : " << (rs.autoindex() ? "On" : "OFF") << '\n'
+            << "Upload storage : " << rs.storage() << '\n'
+            << "Max client siz : " << rs.clientSize() << std::endl;
+    stream << "Methods        : ";
     for (std::vector<std::string>::iterator i = rs.methods().begin(); i != rs.methods().end(); i++)
         stream << " " << *i;
     stream << '\n';
-    stream << "\tHost           : ";
+    stream << "Host           : ";
     stream << rs.host();
-    stream << '\n' << "\tListeners      : ";
+    stream << '\n' << "Listeners      : ";
     stream << rs.port();
     stream << "\n";
-    stream << "\tCGI             : \n";
+    stream << "CGI             : \n";
     if (rs.cgi().empty())
         stream << RED << "\t\t\tUNDEFINED\n" << RESET;
     else
         for (std::map<std::string, std::string>::iterator j = rs.cgi().begin(); j != rs.cgi().end(); j++)
-            stream << "\t\textension :" << j->first << " <==> path : " << j->second << '\n';
-    stream << "\terror pages    : \n" << "To define\n";
-    //if (rs.error_pages.empty())
-    //    stream << RED << "\t\tUNDEFINED" << RESET;
-    //else 
-    //    for (std::map<int, std::string>::iterator j = rs.error_pages.begin(); j != rs.errorPages.end(); j++)
-    //        stream << "\t\t" << j->first << " <==> " << j->second << '\n';
+            stream << "\textension :" << j->first << " <==> path : " << j->second << '\n';
+    stream << "error pages       : ";
+    if (rs.errorPages().content(0).empty())
+        stream << RED << "\t\tUNDEFINED" << RESET;
+    else
+        stream << "Content to long to print...\n";
+   //     for (std::map<int, std::string>::iterator j = rs.errorPages(); j != rs.errorPages.end(); j++)
+   //         stream << "\t\t" << j->first << " <==> " << j->second << '\n';
     stream << '\n';
     return (stream);
 }
