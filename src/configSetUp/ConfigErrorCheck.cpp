@@ -1,4 +1,5 @@
 #include "ConfigError.hpp"
+#include "Server.hpp"
 
 e_lineType    getLineType(std::string line)
 {
@@ -149,7 +150,11 @@ bool    ConfigError::checkTokens()
     {
         serv = _servers.at(i);
         if (serv.host == "UNDEFINED" || serv.port == "UNDEFINED")
+        {
+            std::cerr << "host or port not defined in server\n";
             return (KO);    //  add here if more imperative tokens
+        }
+        //  check if two times the same port ! (or host ?)
     }
     return (OK);
 }
