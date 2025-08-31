@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 12:51:05 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 22:04:30 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 
 // stuffs to do
 void error_response(Connection& connection, int code) {
-	(void)connection;
 	(void)code;
-	
+	connection.setState(SENDING_RESPONSE);
 }

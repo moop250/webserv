@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 16:55:02 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/29 23:00:34 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ std::string size_to_string(size_t size) {
 	return str;
 }
 
+// return the file
 int get_file(Connection& connection) {
 	std::string		path;
 	std::fstream	file;
@@ -55,7 +56,7 @@ int get_file(Connection& connection) {
 	file.seekg(0, std::ios::beg);
 	buffer.resize(size);
 	// Probably will be blocking for huge file but meh whatever
-	if(!file.read(&buffer[0],size)) {
+	if(!file.read(&buffer[0], size)) {
 		error_response(connection, INTERNAL_ERROR);
 		return -1;
 	}
@@ -71,6 +72,7 @@ int get_file(Connection& connection) {
 	return 0;
 }
 
+// Append the request body to the file if enough permission
 int post_file(Connection& connection) {
 	std::string		path;
 	std::fstream	file;
@@ -87,6 +89,7 @@ int post_file(Connection& connection) {
 		}
 		return -1;
 	}
+	// extension validation?
 	file.open(path.c_str(), std::ios::out | std::ios::binary | std::ios::app);
 	if (!file.is_open()) {
 		error_response(connection, INTERNAL_ERROR);
@@ -102,6 +105,7 @@ int post_file(Connection& connection) {
 	return 0;
 }
 
+// Just delete the file if have permission
 int delete_file(Connection& connection) {
 	std::string	path;
 	std::string parent_directory;
