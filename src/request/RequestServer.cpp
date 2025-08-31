@@ -15,9 +15,9 @@ RequestServer::RequestServer() {
     _autoindex = false;
 }
 
-RequestServer::RequestServer(Config config, std::string servName, std::string locPath)
+RequestServer::RequestServer(Config config, std::string port, std::string locPath)
 {
-    size_t servId = config.find(servName, SERVER_NAME);
+    size_t servId = config.find(port, LISTEN);
     if (servId == std::string::npos)
     {
         *this = RequestServer();
@@ -26,7 +26,7 @@ RequestServer::RequestServer(Config config, std::string servName, std::string lo
         return ;
     }
     size_t  locId = config.find(locPath, LOCATION_PATH);
-    if (locId == std::string::npos)
+    if (locId == std::string::npos && !locPath.empty() && servId != locId)
     {
         *this = RequestServer();
         std::cerr << RED << "Location path in server nb : " << servId
@@ -42,10 +42,45 @@ RequestServer::RequestServer(Config config, std::string servName, std::string lo
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         if (!serv.undefined(static_cast<e_TokenType>(i)))
             setToken(serv, static_cast<e_TokenType>(i));
-    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
-        if (!serv.location(locId).undefined(static_cast<e_TokenType>(i)))
-            setToken(loc, static_cast<e_TokenType>(i));
+    if (!locPath.empty())
+        for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+            if (!serv.location(locId).undefined(static_cast<e_TokenType>(i)))
+                setToken(loc, static_cast<e_TokenType>(i));
 }
+
+//template <typename integer>
+//RequestServer::RequestServer(Config config, std::string locPath, integer port)
+//{
+//    size_t servId = config.find(tostring(port), SERVER_NAME);
+//    if (servId == std::string::npos)
+//    {
+//        *this = RequestServer();
+//        std::cerr << RED << "ServerName not found\n" << RESET;
+//        _isValid = false;
+//        return ;
+//    }
+//    size_t  locId = config.find(locPath, LOCATION_PATH);
+//    if (locId == std::string::npos && !locPath.empty())
+//    {
+//        *this = RequestServer();
+//        std::cerr << RED << "Location path in server nb : " << servId
+//            << " not found\n" << RESET;
+//        _isValid = false;
+//        return ;
+//    }
+//    
+//    Server      serv(config.getServerData(servId));
+//    Location    loc(serv.location(locId));
+//
+//    _isValid = true;
+//    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+//        if (!serv.undefined(static_cast<e_TokenType>(i)))
+//            setToken(serv, static_cast<e_TokenType>(i));
+//    if (!locPath.empty())
+//        for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+//            if (!serv.location(locId).undefined(static_cast<e_TokenType>(i)))
+//                setToken(loc, static_cast<e_TokenType>(i));
+//}
 
 RequestServer::RequestServer(const RequestServer &serv)
 {

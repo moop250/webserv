@@ -30,7 +30,7 @@ class RequestServer
     bool                                _autoindex; // both
     public:
         RequestServer();
-        RequestServer(Config, std::string, std::string);
+        RequestServer(Config, std::string port, std::string locPath);
         RequestServer(const RequestServer &);
         ~RequestServer();
 
@@ -38,7 +38,7 @@ class RequestServer
 
         void            setToken(Server serv, e_TokenType type);
         void            setToken(Location loc, e_TokenType type);
-        void            setToken(std::string str, e_TokenType type);
+//        void            setToken(std::string str, e_TokenType type);
 
         std::map<std::string, std::string>  cgi() const;
         std::vector<std::string>            methods() const;
@@ -55,6 +55,5 @@ class RequestServer
 };
 
 std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs);
-
 
 #endif

@@ -35,7 +35,7 @@ SRCS        = src/main.cpp \
 	      src/utils/Colors.cpp \
 	      src/utils/Debug.cpp \
 	      src/utils/Error.cpp \
-		  src/utils/utils.cpp \
+              src/utils/utils.cpp \
 	      src/configSetUp/Config.cpp \
 	      src/configSetUp/ConfigUtils.cpp \
 	      src/configSetUp/TokenUtils.cpp \

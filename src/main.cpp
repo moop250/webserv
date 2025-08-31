@@ -96,7 +96,7 @@ static void	testServer(Config *config)
 	Location	indloc = serv.location(0);
 
 	std::cout << "Location" << serv.location().path() << std::endl;
-	std::cout << (indloc.autoindex() ? "ON":"OFF");
+	std::cout << (indloc.autoindex() ? "ON":"OFF") << std::endl;
 	return ;
 }
 
@@ -114,7 +114,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	if (error.isConfigValid())
 	{
 		testServer(config);
-	//	RequestServer	rs(*config, "localhost", "/wtfwtf");
+	//	RequestServer	rs(*config, "8002", "/zbru");
 	//	std::cout << rs;
 	//	std::cout << "Server is : " << (rs.isValid() ? "Valid" : "Not Valid") << std::endl;
 		return (config);
