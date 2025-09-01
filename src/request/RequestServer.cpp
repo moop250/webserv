@@ -40,6 +40,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     Server      serv(config.getServerData(portId));
     Location    loc(serv.location(locId));
 
+    std::cout << "redir : " <<serv.redirect() << std::endl;
     _isValid = true;
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         if (!serv.undefined(static_cast<e_TokenType>(i)))
