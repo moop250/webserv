@@ -11,6 +11,7 @@ RequestServer::RequestServer() {
     _root = "UNDEFINED";
     _index = "UNDEFINED";
     _storage = "UNDEFINED";
+    _redirect = "UNDEFINED";
     _clientBodySize = 0;
     _autoindex = false;
 }
@@ -128,6 +129,8 @@ void    RequestServer::setToken(Server serv, e_TokenType type)
         case METHODS:
             _methods = serv.methods();
             break;
+        case REDIRECT:
+            _redirect = serv.redirect();
         default:
             break;
     }
@@ -170,6 +173,9 @@ void    RequestServer::setToken(Location loc, e_TokenType type)
         case METHODS:
             _methods = loc.methods();
             break;
+        case REDIRECT:
+            _redirect = loc.redirect();
+            break ;
         default:
             break;
     }
@@ -189,9 +195,30 @@ ErrorPages                          RequestServer::errorPages() const { return _
 std::string                         RequestServer::host() const { return _host;}
 std::string                         RequestServer::port() const { return _port;}
 std::string                         RequestServer::serverName() const { return _serverName;}
-std::string                         RequestServer::root() const { return _root;}
-std::string                         RequestServer::index() const { return _index;}
-std::string                         RequestServer::storage() const { return _storage;}
+std::string                         RequestServer::root() const { 
+    Color   c;
+    if (_root == "UNDEFINED" || _root == c.red() + "UNDEFINED" + c.reset())
+        return "";
+    return _root;
+    }
+std::string                         RequestServer::index() const {
+    Color   c;
+    if (_index == "UNDEFINED" || _index == c.red() + "UNDEFINED" + c.reset())
+        return "";
+    return _index;
+    }
+std::string                         RequestServer::storage() const {
+    Color   c;
+    if (_storage == "UNDEFINED" || _storage == c.red() + "UNDEFINED" + c.reset())
+        return "";
+    return _storage;
+    }
+std::string                         RequestServer::redirect() const {
+    Color   c;
+    if (_redirect == "UNDEFINED" || _redirect == c.red() + "UNDEFINED" + c.reset())
+        return "";
+    return _redirect;
+}
 size_t                              RequestServer::clientSize() const { return _clientBodySize;}
 bool                                RequestServer::autoindex() const { return _autoindex;}
 
@@ -202,7 +229,8 @@ std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
             << "Index file     : " << rs.index() << '\n'
             << "Auto index     : " << (rs.autoindex() ? "On" : "OFF") << '\n'
             << "Upload storage : " << rs.storage() << '\n'
-            << "Max client siz : " << rs.clientSize() << std::endl;
+            << "Max client siz : " << rs.clientSize() << '\n'
+            << "Redirection    : " << rs.redirect() << std::endl; 
     stream << "Methods        : ";
     for (std::vector<std::string>::iterator i = rs.methods().begin(); i != rs.methods().end(); i++)
         stream << " m :" << *i;

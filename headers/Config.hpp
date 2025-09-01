@@ -21,6 +21,7 @@ typedef enum TokenTypes
     CGI_DATA,
     CLIENT_MAX_BODY_SIZE,  // max request body
     METHODS,
+    REDIRECT,
     LOCATION,              // start of a location block
     LOCATION_PATH,
     TOKEN_TYPE_COUNT       //                       7
@@ -44,6 +45,7 @@ struct s_ServerData
     std::string                             root;
     std::string                             index;
     std::string                             upload_storage;
+    std::string                             redirect;
     size_t                                  client_max_body_size;
     bool                                    autoindex;
     bool                                    isLoc;

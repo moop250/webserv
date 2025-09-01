@@ -16,6 +16,7 @@ class Location
         std::string                         _root;
         std::string                         _index;
         std::string                         _upload_storage;
+        std::string                         _redirect;
         size_t                              _client_max_size;
         bool                                _autoindex;
     public:
@@ -41,6 +42,7 @@ class Location
         virtual std::string root() const;
         virtual std::string index() const;
         virtual std::string storage() const;
+        virtual std::string redirect() const;
         virtual size_t      clientSize() const;
         virtual bool        autoindex() const;
 

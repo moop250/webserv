@@ -47,6 +47,8 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
                 loc.data.methods.push_back(str);
             }
             break ;
+        case REDIRECT:
+            loc.data.redirect = tokenLine;
         default:
             break ;
     }
