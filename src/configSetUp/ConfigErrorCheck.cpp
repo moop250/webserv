@@ -144,17 +144,23 @@ bool    ConfigError::checkNbServers()
 
 bool    ConfigError::checkTokens()
 {
-    t_ServerData    serv;
-
-    for (int i = 0; i < _nbServers; i++)
+    for (int j = 0; j < _nbServers; j++)
     {
-        serv = _servers.at(i);
-        if (serv.host == "UNDEFINED" || serv.port == "UNDEFINED")
+        Server  s(_servers.at(j));
+        for (int i = 0; i < _nbServers; i++)
         {
-            std::cerr << "host or port not defined in server\n";
-            return (KO);    //  add here if more imperative tokens
+            Server  s2(_servers.at(i));
+            if (s2.undefined(HOST) || s2.undefined(LISTEN) || s2.undefined(SERVER_NAME))
+            {
+                std::cerr << "host or port not defined in server\n";
+                return (KO);    //  add here if more imperative tokens
+            }
+            if (i != j && (s.host() == s2.host() || s.port() == s2.port() || s.name() == s2.name()))
+            {
+                std::cerr << "Two servers share the same host, port or name\n";
+                return (KO);
+            }
         }
-        //  check if two times the same port ! (or host ?)
     }
     return (OK);
 }
