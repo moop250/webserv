@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 14:38:52 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/31 12:01:54 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,10 +90,7 @@ int parse_URL(Connection& connection, Config& config) {
 			connection.getRequest().setQuery(query);
 			url.erase(query_pos, url_pos);
 		}
-		
-		// Check if path is redirected before set!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		connection.getRequest().setPath(url);
-		
 		connection.buffer.erase(0, url_pos + 1);
 		connection.setState(READING_HTTPVERSION);
 		return READING_HTTPVERSION;
