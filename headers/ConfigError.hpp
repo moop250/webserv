@@ -29,6 +29,7 @@ enum e_config_errors
 
 enum e_format_errors
 {
+    FMT_DOUBLE,
     FMT_EOF,
     FMT_TOKEN,
     FMT_BRACKET,
