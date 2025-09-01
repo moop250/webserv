@@ -4,11 +4,14 @@
 #include "../../headers/request_handler.hpp"
 #include <cerrno>
 #include <climits>
+#include <cstring>
 #include <poll.h>
 #include <stdexcept>
+#include <string>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <limits>
+#include <sys/types.h>
 #include <unistd.h>
 
 static void addToPollfd(std::vector<pollfd> *fds, int newFD, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
@@ -98,6 +101,7 @@ static int handleClientData(int fd, std::map<int, Connection> *connectMap, Confi
 
 	switch (code) {
 		case MAKING_RESPONSE:
+			connect->setState(MAKING_RESPONSE);
 			return CLIENTDATASUCCESS;
 		default:
 			return CLOSEFD;
@@ -148,7 +152,34 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 }
 
 static void handlePOLLOUT(int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
+	Response &resp =  connectMap->at(fd).getResponse();
+	std::string out = resp.getResponseComplete();
+	size_t remainingBytes = out.size(), offset = 0;
+	const char *buf = out.c_str();
 
+	if (resp.offset != -2) {
+		buf += resp.offset;
+		offset = resp.offset;
+		remainingBytes -= offset;
+	}
+
+	while (remainingBytes > 0) {
+		ssize_t status = send(fd, buf, remainingBytes, MSG_DONTWAIT);
+		if (status < 0) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK){
+				break ;
+			} else {
+				throw std::runtime_error("Send error: " + std::string(strerror(errno)));
+			}
+		}
+		offset += status;
+		buf += status;
+		remainingBytes -= status;
+	}
+
+	if (offset != out.size()) {
+		resp.offset = offset; 
+	}
 }
 
 int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, char **env, std::map<int, Connection> *connectMap) {
