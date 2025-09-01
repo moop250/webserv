@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 16:57:20 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/08/31 12:07:54 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define REQUEST_HANDLER_HPP
 #include "Request.hpp"
 #include "Config.hpp"
+#include "RequestServer.hpp"
 #include "Connection.hpp"
 
 void	error_response(Connection& connection, int code);

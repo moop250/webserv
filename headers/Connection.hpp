@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 14:32:55 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/01 17:21:45 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Config.hpp"
+#include "RequestServer.hpp"
 
 enum State {
 	READING_METHOD = 1,
@@ -36,8 +37,9 @@ class Connection {
 		State			state;
 		Request			request;
 		Response		response;
-		t_ServerData	server;
+		RequestServer	server;
 		long			chunked_size;
+		long			offset;
 
 	public:
 		std::string		buffer;
@@ -48,12 +50,16 @@ class Connection {
 		State			getState() const;
 		Request&		getRequest();
 		Response&		getResponse();
-		t_ServerData	getServer() const;
+		RequestServer	getServer() const;
 		long			getChunkedSize() const;
+		long			getOffset() const;
 
 		Connection&		setState(State state);
-		Connection&		setServer(t_ServerData& server);
+		Connection&		setServer(RequestServer& server);
 		Connection&		setChunkedSize(long size);
+		Connection&		setOffset(long size);
+
+		Connection&		minusOffset(long size);
 };
 
 #endif

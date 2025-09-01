@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 13:54:56 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/01 17:21:50 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 Connection::Connection() {
 	this->state = READING_METHOD;
 	this->chunked_size = -1;
+	this->offset = -2;
 }
 
 Connection::~Connection() {
@@ -27,6 +28,10 @@ Connection::~Connection() {
 
 
 // ----------------- METHODS ----------------------
+Connection&		Connection::minusOffset(long size) {
+	this->offset -= size;
+	return *this;
+}
 
 
 // ----------------- GETTERS ----------------------
@@ -40,11 +45,14 @@ Request& Connection::getRequest() {
 Response& Connection::getResponse() {
 	return this->response;
 }
-t_ServerData Connection::getServer() const {
+RequestServer Connection::getServer() const {
 	return this->server;
 }
 long Connection::getChunkedSize() const {
 	return this->chunked_size;
+}
+long Connection::getOffset() const {
+	return this->offset;
 }
 
 
@@ -55,11 +63,15 @@ Connection& Connection::setState(State state) {
 	this->state = state;
 	return *this;
 }
-Connection& Connection::setServer(t_ServerData& server) {
+Connection& Connection::setServer(RequestServer& server) {
 	this->server = server;
 	return *this;
 }
 Connection& Connection::setChunkedSize(long size) {
 	this->chunked_size = size;
+	return *this;
+}
+Connection& Connection::setOffset(long size) {
+	this->offset = size;
 	return *this;
 }

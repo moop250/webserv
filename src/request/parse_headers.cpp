@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 15:34:20 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/01 17:22:32 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "request_handler.hpp"
 #include "support_file.hpp"
 #include "Config.hpp"
+#include "RequestServer.hpp"
 #include "Connection.hpp"
 
 std::string toLower(const std::string& str) {
@@ -47,7 +48,7 @@ int method_check(Connection& connection) {
 	std::string	method;
 
 	method = connection.getRequest().getMethod();
-	for (std::vector<std::string>::iterator it = connection.getServer().methods.begin(); it != connection.getServer().methods.end(); it++) {
+	for (std::vector<std::string>::iterator it = connection.getServer().methods().begin(); it != connection.getServer().methods().end(); it++) {
 		std::cout << *it << std::endl;
 		if (*it == method)
 			return CONTINUE_READ;
@@ -94,31 +95,24 @@ int parse_keepAlive(Connection& connection) {
 	return CONTINUE_READ;
 }
 
-//	find good l
-#include "Server.hpp"
-// Remake to check for location
-void matching_server(Connection& connection, Config& config) {
-	t_ServerData	server;
-	t_ServerData	fallback;
+// void matching_server(Connection& connection, Config& config) {
+// 	// t_ServerData	server;
+// 	t_ServerData	fallback;
 
+// 	fallback = config.getServerData(0);
+// 	connection.setServer(fallback);
 
-	fallback = config.getServerData(0);
-	connection.setServer(fallback);
-	for (int i = 0; i < config.getNbServers(); i++) {
-//		Server	serv(config.getServerData(0));
-//		Location	loc(serv.location(0));
-//
-//		std::string hos = serv.host();
-//		std::string path = loc.path();
+// 	// std::string	serverName;
+// 	// std::string path;
+
+// 	// serverName = connection.getRequest().getHost();
+// 	// path = connection.getRequest().getPath();
+// 	// RequestServer server(config, serverName, locpath);
+// 	// if (server.isValid() == true) {
+		
+// 	// }
 	
-		server = config.getServerData(i);
-		if (server.server_name == connection.getRequest().getHost()
-			&& atoi(server.port.c_str()) == connection.getRequest().getPort()) {
-			connection.setServer(server);
-			break;
-		}
-	}
-}
+// }
 
 // stuffs to do
 int parse_body_chunked(Connection& connection) {
@@ -205,8 +199,12 @@ int headers_content_check(Connection& connection, Config& config) {
 	if (host.empty())
 		return BAD_REQUEST;
 	parse_host(connection, host);
-	matching_server(connection, config);
+
+	(void)config;
+	// matching_server(connection, config);
 	
+	// Check if path is redirected
+
 	// // Allowed methods untested, to test later
 	// if (method_check(connection) == METHOD_NOT_ALLOWED)
 	// 	return METHOD_NOT_ALLOWED;
