@@ -114,9 +114,9 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	if (error.isConfigValid())
 	{
 		testServer(config);
-	//	RequestServer	rs(*config, "8002", "/zbru");
-	//	std::cout << rs;
-	//	std::cout << "Server is : " << (rs.isValid() ? "Valid" : "Not Valid") << std::endl;
+		RequestServer	rs(*config, "localhost2", "8002", "/zbru");
+		std::cout << rs;
+		std::cout << "Server is : " << (rs.isValid() ? "Valid" : "Not Valid") << std::endl;
 		return (config);
 	}
 	std::cerr << RED << "Program stopped\n" << RESET;

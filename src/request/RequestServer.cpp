@@ -15,27 +15,28 @@ RequestServer::RequestServer() {
     _autoindex = false;
 }
 
-RequestServer::RequestServer(Config config, std::string port, std::string locPath)
+RequestServer::RequestServer(Config config, std::string name, std::string port, std::string locPath)
 {
-    size_t servId = config.find(port, LISTEN);
-    if (servId == std::string::npos)
+    size_t portId = config.find(port, LISTEN);
+    size_t nameId = config.find(name, SERVER_NAME);
+    if (portId == std::string::npos || nameId != portId)
     {
         *this = RequestServer();
-        std::cerr << RED << "ServerName not found\n" << RESET;
+        std::cerr << RED << "ServerName or associeted port not found\n" << RESET;
         _isValid = false;
         return ;
     }
     size_t  locId = config.find(locPath, LOCATION_PATH);
-    if (locId == std::string::npos && !locPath.empty() && servId != locId)
+    if (locId == std::string::npos && !locPath.empty() && portId != locId)
     {
         *this = RequestServer();
-        std::cerr << RED << "Location path in server nb : " << servId
+        std::cerr << RED << "Location path in server nb : " << portId
             << " not found\n" << RESET;
         _isValid = false;
         return ;
     }
     
-    Server      serv(config.getServerData(servId));
+    Server      serv(config.getServerData(portId));
     Location    loc(serv.location(locId));
 
     _isValid = true;
@@ -204,7 +205,7 @@ std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
             << "Max client siz : " << rs.clientSize() << std::endl;
     stream << "Methods        : ";
     for (std::vector<std::string>::iterator i = rs.methods().begin(); i != rs.methods().end(); i++)
-        stream << " " << *i;
+        stream << " m :" << *i;
     stream << '\n';
     stream << "Host           : ";
     stream << rs.host();
