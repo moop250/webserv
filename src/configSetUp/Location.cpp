@@ -32,13 +32,18 @@ Location::Location(t_Location loc)
 Location::Location(t_ServerData serv)
 {
     _path = "UNDEFINED";
-    _cgi = serv.cgi;
     _errorPages = ErrorPages(serv.error_pages);
-//    for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
-//        std::cout << i->first << "\n";
 
-//    _error_pages = serv.error_pages;
-    _methods = serv.methods;
+    for (std::map<std::string, std::string>::iterator i = serv.cgi.begin(); i != serv.cgi.end();i++)
+    {
+     //   std::cout << i->first << " and " << i->second << std::endl;
+        _cgi.insert(std::make_pair(i->first, i->second));
+    }
+    for (std::vector<std::string>::iterator i = serv.methods.begin(); i != serv.methods.end(); i++)
+    {
+     //   std::cout << *i;
+        _methods.push_back(*i);
+    }
     _root = serv.root;
     _index = serv.index;
     _upload_storage = serv.upload_storage;

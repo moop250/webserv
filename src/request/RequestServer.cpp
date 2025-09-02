@@ -44,8 +44,10 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
             break ;
     Location    loc(serv.location(locId));
 
-    std::cout << "storage : " << serv.storage() << "\nAnd : " << config.getServerData(portId).upload_storage << std::endl;
+//    std::cout << "storage : " << serv.storage() << "\nAnd : " << config.getServerData(portId).upload_storage << std::endl;
+
     _isValid = true;
+    std::cout << "Hi\n";
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         if (!serv.undefined(static_cast<e_TokenType>(i)))
             setToken(serv, static_cast<e_TokenType>(i));
@@ -53,6 +55,9 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
             if (!serv.location(locId).undefined(static_cast<e_TokenType>(i)))
                 setToken(loc, static_cast<e_TokenType>(i));
+    if (serv.undefined(METHODS) || serv.undefined(CGI_DATA))
+        std::cout << "WTF\n";
+    std::cout << "bye \n";
 }
 
 //template <typename integer>
@@ -126,13 +131,23 @@ void    RequestServer::setToken(Server serv, e_TokenType type)
             _storage = serv.storage();
             break;
         case CGI_DATA:
-            _cgi = serv.cgi();
+            for (std::map<std::string, std::string>::iterator i = _cgi.begin(); i != _cgi.end(); i++)
+            {
+                _cgi.insert(std::make_pair(i->first, i->second));
+                std::cout << "first : " << i->first << " second : " << i->second << std::endl; 
+            }
+           // _cgi = serv.cgi();
             break;
         case CLIENT_MAX_BODY_SIZE:
             _clientBodySize = serv.clientSize();
             break;
         case METHODS:
+            for (std::vector<std::string>::iterator i = serv.methods().begin(); i != serv.methods().end();i++)
+                _methods.push_back(*i);
             _methods = serv.methods();
+         //   for (std::vector<std::string>::iterator i = _methods.begin(); i != _methods.end();i++)
+         //       std::cout << "Method in loc : " << *i << std::endl;
+
             break;
         case REDIRECT:
             _redirect = serv.redirect();
@@ -143,6 +158,8 @@ void    RequestServer::setToken(Server serv, e_TokenType type)
 
 void    RequestServer::setToken(Location loc, e_TokenType type)
 {
+    if (loc.undefined(type))
+        return ;
     switch (type)
     {
         case HOST:
@@ -155,39 +172,37 @@ void    RequestServer::setToken(Location loc, e_TokenType type)
             //  nothing
             break;
         case ROOT_PATH:
-            if (!loc.undefined(ROOT_PATH))
-                _root = loc.root();
+            _root = loc.root();
             break ;
         case HTLM_INDEX:
-            if (!loc.undefined(HTLM_INDEX))
-                _index = loc.index();
+            _index = loc.index();
             break;
         case AUTOINDEX:
             _autoindex = loc.autoindex();
             break;
         case ERROR_PAGE:
-            if (!loc.undefined(ERROR_PAGE))
-                _errorPages = loc.errorPages(); // check if push_back instead
+            _errorPages = loc.errorPages(); // check if push_back instead
             break ;
         case UPLOAD_STORAGE:
-            if (!loc.undefined(UPLOAD_STORAGE))
-                _storage = loc.storage();
+            _storage = loc.storage();
             break;
         case CGI_DATA:
-            if (!loc.undefined(CGI_DATA))
-                _cgi = loc.cgi();
-            break;
+            for (std::map<std::string, std::string>::iterator i = _cgi.begin(); i != _cgi.end(); i++)
+            {
+                _cgi.insert(std::make_pair(i->first, i->second));
+                std::cout << "first : " << i->first << " second : " << i->second << std::endl; 
+            }
+            break ;
         case CLIENT_MAX_BODY_SIZE:
-            if (!loc.undefined(CLIENT_MAX_BODY_SIZE))
-                _clientBodySize = loc.clientSize();
+            _clientBodySize = loc.clientSize();
             break;
         case METHODS:
-            if (!loc.undefined(METHODS))
-                _methods = loc.methods();
+           // _methods = loc.methods();
+            for (std::vector<std::string>::iterator i = loc.methods().begin(); i != loc.methods().end();i++)
+                _methods.push_back(*i);
             break;
         case REDIRECT:
-            if (!loc.undefined(REDIRECT))
-                _redirect = loc.redirect();
+            _redirect = loc.redirect();
             break ;
         default:
             break;
