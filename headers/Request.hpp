@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 11:25:29 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 23:03:38 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,8 @@ class Request {
 
 	public:
 		Request();
+		Request(const Request& copy);
+		Request& operator =(const Request& assign);
 		~Request();
 		
 		std::string	getMethod() const;

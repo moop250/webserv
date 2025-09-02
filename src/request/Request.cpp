@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 11:33:01 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 23:03:41 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,30 @@ Request::Request() {
 	this->contentLength = 0;
 	this->keepAliveTimeout = -1;
 	this->keepAliveMax = -1;
+}
+Request::Request(const Request& copy) {
+	*this = copy;
+}
+Request& Request::operator =(const Request& assign) {
+	if (this != &assign) {
+		this->method = assign.method;
+		this->path = assign.path;
+		this->query = assign.query;
+		this->httpVersion = assign.httpVersion;
+		this->headers = assign.headers;
+		this->cookies = assign.cookies;
+		this->requestType = assign.requestType;
+		this->fileType = assign.fileType;
+		this->body = assign.body;
+		this->host = assign.host;
+		this->port = assign.port;
+		this->contentLength = assign.contentLength;
+		this->contentType = assign.contentType;
+		this->keepAlive = assign.keepAlive;
+		this->keepAliveTimeout = assign.keepAliveTimeout;
+		this->keepAliveMax = assign.keepAliveMax;
+	}
+	return *this;
 }
 Request::~Request() {
 	

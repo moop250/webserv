@@ -18,6 +18,7 @@ RequestServer::RequestServer() {
 
 RequestServer::RequestServer(Config config, std::string name, std::string port, std::string locPath)
 {
+
     size_t portId = config.find(port, LISTEN);
     size_t nameId = config.find(name, SERVER_NAME);
     if (portId == std::string::npos || nameId != portId)
@@ -36,8 +37,8 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
         _isValid = false;
         return ;
     }
-    
     Server      serv(config.getServerData(portId));
+    std::cout << "Location count: " << serv.locations().size() << std::endl;
     locId = 0;
     for (std::vector<Location>::iterator i = serv.locations().begin(); i != serv.locations().end(); i++, locId++)
         if (i->path() == locPath)
@@ -211,7 +212,21 @@ void    RequestServer::setToken(Location loc, e_TokenType type)
 
 RequestServer   &RequestServer::operator=(const RequestServer &srv)
 {
-    (void)srv;
+    if (this != &srv) {
+        _isValid = srv._isValid;
+        _cgi = srv._cgi;
+        _methods = srv._methods;
+        _errorPages = srv._errorPages;
+        _host = srv._host;
+        _port = srv._port;
+        _serverName = srv._serverName;
+        _root = srv._root;
+        _index = srv._index;
+        _storage = srv._storage;
+        _redirect = srv._redirect;
+        _clientBodySize = srv._clientBodySize;
+        _autoindex = srv._autoindex;
+    }
     return *this;
 }
 

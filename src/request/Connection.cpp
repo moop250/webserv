@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/01 17:21:50 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 22:55:27 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,22 @@ Connection::Connection() {
 	this->state = READING_METHOD;
 	this->chunked_size = -1;
 	this->offset = -2;
+}
+Connection::Connection(const Connection& copy) {
+	*this = copy;
+}
+
+Connection& Connection::operator =(const Connection& assign) {
+	if (this != &assign) {
+		this->state = assign.state;
+		this->request = assign.request;
+		this->response = assign.response;
+		this->server = assign.server;
+		this->chunked_size = assign.chunked_size;
+		this->offset = assign.offset;
+		this->buffer = assign.buffer;
+	}
+	return *this;
 }
 
 Connection::~Connection() {

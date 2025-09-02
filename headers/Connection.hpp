@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 11:23:52 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 22:55:29 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ class Connection {
 		std::string		buffer;
 
 		Connection();
+		Connection(const Connection& copy);
+		Connection& operator =(const Connection& assign);
 		~Connection();
 
 		State			getState() const;
