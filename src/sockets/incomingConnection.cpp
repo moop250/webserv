@@ -151,15 +151,16 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 	return 0;
 }
 
-static void handlePOLLOUT(int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
-	Response &resp =  connectMap->at(fd).getResponse();
+static int handlePOLLOUT(int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
+	Connection connect = connectMap->at(fd);
+	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
 	size_t remainingBytes = out.size(), offset = 0;
 	const char *buf = out.c_str();
 
-	if (resp.offset != -2) {
-		buf += resp.offset;
-		offset = resp.offset;
+	if (connect.getOffset() > 0) {
+		buf += connect.getOffset();
+		offset = connect.getOffset();
 		remainingBytes -= offset;
 	}
 
@@ -178,8 +179,10 @@ static void handlePOLLOUT(int fd, ServerSocket *sockets, std::map<int, Connectio
 	}
 
 	if (offset != out.size()) {
-		resp.offset = offset; 
+		connect.setOffset(offset); 
+		return 1;
 	}
+	return 0;
 }
 
 int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, char **env, std::map<int, Connection> *connectMap) {
@@ -189,10 +192,16 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 				continue;
 			}
 		}
-		if ((*fds)[i].revents & POLLOUT) {
-			handlePOLLOUT((*fds)[i].fd, sockets, connectMap);
-			connectMap->at((*fds)[i].fd).setState(WAITING_REQUEST);
-			setPOLLIN((*fds)[i].fd, fds);
+		if ((*fds)[i].revents & POLLOUT) {		
+			// Func to create response
+			switch (handlePOLLOUT((*fds)[i].fd, sockets, connectMap)) {
+				case 0:
+					connectMap->at((*fds)[i].fd).setState(WAITING_REQUEST);
+					setPOLLIN((*fds)[i].fd, fds);
+					break;
+				case 1:
+					continue;
+			}
 		}
 	}
 
