@@ -38,19 +38,17 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     }
     
     Server      serv(config.getServerData(portId));
+    locId = 0;
+    for (std::vector<Location>::iterator i = serv.locations().begin(); i != serv.locations().end(); i++, locId++)
+        if (i->path() == locPath)
+            break ;
     Location    loc(serv.location(locId));
 
-//    std::cout << "Constructor\n";
-//    std::cout << "redir : " << serv.redirect() << std::endl;
-//    std::cout << "redir in struct : " << config.getServerData(portId).redirect << std::endl;
-//    std::cout << "other : " << serv.index() << '\n';
-//    std::cout << "root : " << serv.root() << std::endl;
-//    std::cout << "size : " << serv.clientSize() << '\n';
+    std::cout << "storage : " << serv.storage() << "\nAnd : " << config.getServerData(portId).upload_storage << std::endl;
     _isValid = true;
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         if (!serv.undefined(static_cast<e_TokenType>(i)))
             setToken(serv, static_cast<e_TokenType>(i));
-//    return ;
     if (!locPath.empty())
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
             if (!serv.location(locId).undefined(static_cast<e_TokenType>(i)))
@@ -157,31 +155,39 @@ void    RequestServer::setToken(Location loc, e_TokenType type)
             //  nothing
             break;
         case ROOT_PATH:
-            _root = loc.root();
+            if (!loc.undefined(ROOT_PATH))
+                _root = loc.root();
             break ;
         case HTLM_INDEX:
-            _index = loc.index();
+            if (!loc.undefined(HTLM_INDEX))
+                _index = loc.index();
             break;
         case AUTOINDEX:
             _autoindex = loc.autoindex();
             break;
         case ERROR_PAGE:
-            _errorPages = loc.errorPages(); // check if push_back instead
+            if (!loc.undefined(ERROR_PAGE))
+                _errorPages = loc.errorPages(); // check if push_back instead
             break ;
         case UPLOAD_STORAGE:
-            _storage = loc.storage();
+            if (!loc.undefined(UPLOAD_STORAGE))
+                _storage = loc.storage();
             break;
         case CGI_DATA:
-            _cgi = loc.cgi();
+            if (!loc.undefined(CGI_DATA))
+                _cgi = loc.cgi();
             break;
         case CLIENT_MAX_BODY_SIZE:
-            _clientBodySize = loc.clientSize();
+            if (!loc.undefined(CLIENT_MAX_BODY_SIZE))
+                _clientBodySize = loc.clientSize();
             break;
         case METHODS:
-            _methods = loc.methods();
+            if (!loc.undefined(METHODS))
+                _methods = loc.methods();
             break;
         case REDIRECT:
-            _redirect = loc.redirect();
+            if (!loc.undefined(REDIRECT))
+                _redirect = loc.redirect();
             break ;
         default:
             break;

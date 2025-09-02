@@ -70,6 +70,7 @@ Location    &Location::operator=(const Location &l)
 bool    Location::undefined(e_TokenType type)
 {
     int general = TOKEN_TYPE_COUNT;
+    Color      c;
 
     switch (type)
     {
@@ -83,11 +84,11 @@ bool    Location::undefined(e_TokenType type)
             }
             return (true);
         case ROOT_PATH:
-            if (_root == "UNDEFINED")
+            if (_root == "UNDEFINED" || _root == c.red() + "UNDEFINED" + c.reset() || _root.empty())
                 return true;
             return (false);
         case HTLM_INDEX:
-            if ("UNDEFINED" == _index)
+            if (_index == "UNDEFINED" || _index == c.red() + "UNDEFINED" + c.reset() || _index.empty())
                 return true;
             return (false);
         case AUTOINDEX:
@@ -98,7 +99,7 @@ bool    Location::undefined(e_TokenType type)
             //  if empty
             return (false);
         case UPLOAD_STORAGE:
-            if ("UNDEFINED" == _upload_storage)
+            if (_upload_storage == "UNDEFINED" || _upload_storage == c.red() + "UNDEFINED" + c.reset() || _upload_storage.empty())
                 return true;
             return (false);
         case CGI_DATA:
@@ -110,7 +111,7 @@ bool    Location::undefined(e_TokenType type)
                 return true;
             return (false);
         case REDIRECT:
-            if (_redirect.empty() || _redirect == "UNDEFINED")
+            if (_redirect == "UNDEFINED" || _redirect == c.red() + "UNDEFINED" + c.reset() || _redirect.empty())
                 return true;
             return (false);
         case CLIENT_MAX_BODY_SIZE:
