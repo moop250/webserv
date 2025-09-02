@@ -30,6 +30,14 @@ ErrorPages::ErrorPages(std::map<int, std::string> m)
     }
 }
 
+ErrorPages& ErrorPages::operator=(const ErrorPages& pages) {
+    if (this != &pages) {
+        _html_content = pages._html_content;
+        _data = pages._data;
+    }
+    return *this;
+}
+
 ErrorPages::~ErrorPages() {
     return ;
 }
