@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 16:49:49 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 11:33:01 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ Request::Request() {
 	this->contentLength = 0;
 	this->keepAliveTimeout = -1;
 	this->keepAliveMax = -1;
-	this->port = -1;
 }
 Request::~Request() {
 	
@@ -81,7 +80,7 @@ int Request::getKeepAliveMax() const {
 std::string Request::getHost() const {
 	return this->host;
 }
-int Request::getPort() const {
+std::string Request::getPort() const {
 	return this->port;
 }
 
@@ -150,7 +149,7 @@ Request& Request::setHost(const std::string host) {
 	this->host= host;
 	return *this;
 }
-Request& Request::setPort(const int port) {
+Request& Request::setPort(const std::string port) {
 	this->port = port;
 	return *this;
 }
