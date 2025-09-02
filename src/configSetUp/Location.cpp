@@ -44,6 +44,7 @@ Location::Location(t_ServerData serv)
     _upload_storage = serv.upload_storage;
     _client_max_size = serv.client_max_body_size;
     _autoindex = serv.autoindex;
+    _redirect = serv.redirect;
 }
 
 Location::Location(const Location &l) :
@@ -177,7 +178,7 @@ bool    Location::has(std::string token, e_TokenType type = TOKEN_TYPE_COUNT)
 }
 
 template <typename Token>
-Token   Location::attribut(e_TokenType type)
+Token   Location::attributl(e_TokenType type)
 {
     switch (type)
     {

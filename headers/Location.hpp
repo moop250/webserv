@@ -29,7 +29,8 @@ class Location
 
         Location    &operator=(const Location &);
     
-    //    virtual Token       attribut(std::string tokenType, int member = 0);    //  find through a switch case after levenstein
+        template <typename Token>
+        Token       attributl(e_TokenType);    //  find through a switch case after levenstein
 
         //  getters
         std::string path() const;
@@ -49,8 +50,8 @@ class Location
         virtual bool        undefined(e_TokenType type);
         virtual bool        has(std::string token, e_TokenType type);// = TOKEN_TYPE_COUNT);
         private:
-            template <typename Token>
-            Token       attribut(e_TokenType type);
+    //        template <typename Token>
+    //        Token       attribut(e_TokenType type);
 };
 
 //template <typename Token>
