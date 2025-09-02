@@ -26,6 +26,7 @@ class RequestServer
     std::string                         _root;  //  both
     std::string                         _index;     // both
     std::string                         _storage;   // both
+    std::string                         _redirect;
     size_t                              _clientBodySize;    //both
     bool                                _autoindex; // both
     public:
@@ -49,6 +50,7 @@ class RequestServer
         std::string                         root() const;
         std::string                         index() const;
         std::string                         storage() const;
+        std::string                         redirect() const;
         size_t                              clientSize() const;
         bool                                autoindex() const;
         bool                                isValid() const;

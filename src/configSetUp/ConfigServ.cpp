@@ -67,6 +67,9 @@ void    Config::assignToken(t_ServerData &serv, std::string &content, size_t pos
                 serv.methods.push_back(str);
             }
             break ;
+        case REDIRECT:
+            serv.redirect = tokenLine;
+            break ;
         case LOCATION:
             parseLocation(serv, content, tokenLine);
             break ;

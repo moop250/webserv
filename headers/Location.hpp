@@ -16,6 +16,7 @@ class Location
         std::string                         _root;
         std::string                         _index;
         std::string                         _upload_storage;
+        std::string                         _redirect;
         size_t                              _client_max_size;
         bool                                _autoindex;
     public:
@@ -28,7 +29,8 @@ class Location
 
         Location    &operator=(const Location &);
     
-    //    virtual Token       attribut(std::string tokenType, int member = 0);    //  find through a switch case after levenstein
+        template <typename Token>
+        Token       attributl(e_TokenType);    //  find through a switch case after levenstein
 
         //  getters
         std::string path() const;
@@ -41,14 +43,15 @@ class Location
         virtual std::string root() const;
         virtual std::string index() const;
         virtual std::string storage() const;
+        virtual std::string redirect() const;
         virtual size_t      clientSize() const;
         virtual bool        autoindex() const;
 
         virtual bool        undefined(e_TokenType type);
         virtual bool        has(std::string token, e_TokenType type);// = TOKEN_TYPE_COUNT);
         private:
-            template <typename Token>
-            Token       attribut(e_TokenType type);
+    //        template <typename Token>
+    //        Token       attribut(e_TokenType type);
 };
 
 //template <typename Token>

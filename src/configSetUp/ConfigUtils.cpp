@@ -9,6 +9,7 @@ t_ServerData    getDefaultServ(bool with_location)
     default_server_values.root = c.red() + "UNDEFINED" + c.reset();
     default_server_values.index = c.red() + "UNDEFINED" + c.reset();
     default_server_values.upload_storage = c.red() + "UNDEFINED" + c.reset();
+    default_server_values.redirect = c.red() + "UNDEFINED" + c.reset();
 //    default_server_values.cgi_ext = c.red() + "UNDEFINED" + c.reset();
 //    default_server_values.cgi_path = c.red() + "UNDEFINED" + c.reset();
     default_server_values.client_max_body_size = 1;
@@ -75,6 +76,9 @@ void    assignDefaultToken(t_ServerData &serv, std::string &content, size_t pos,
         case METHODS:
         //    serv.methods.push_back("U");
             break ;
+        case REDIRECT:
+            serv.redirect = msg;
+            break ;
         case LOCATION:
             serv.locations.push_back(getDefaultServ(1).locations.at(0));
             break ;
@@ -99,7 +103,8 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\tIndex file     : " << print.index << '\n'
                 << "\tAuto index     : " << (print.autoindex ? "On" : "OFF") << '\n'
                 << "\tUpload storage : " << print.upload_storage << '\n'
-                << "\tMax client siz : " << print.client_max_body_size << std::endl;
+                << "\tMax client siz : " << print.client_max_body_size << '\n'
+                << "\tRedirection    : " << print.redirect << std::endl;
         stream << "\tMethods        : ";
         for (std::vector<std::string>::iterator i = print.methods.begin(); i != print.methods.end(); i++)
             stream << " " << *i;
@@ -131,6 +136,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 << "\t\tAuto index status       : " << (i->data.autoindex ? "On" : "OFF") << '\n'
                 << "\t\tHTLM index file         : " << i->data.index << '\n'
                 << "\t\tUpload storage          : " << i->data.upload_storage << '\n'
+                << "\t\tRedirection             : " << i->data.redirect << "'\n'"
                 << "\t\tMethods allowed         : ";
             if (i->data.methods.empty())
                 stream << RED << "UNDEFINED" << RESET;

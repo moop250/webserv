@@ -2,7 +2,7 @@
 
 Location::Location() : _path("UNDEFINED"),
     _root("UNDEFINED"), _index("UNDEFINED"), _upload_storage("UNDEFINED"),
-    _client_max_size(1), _autoindex(false)
+    _redirect("UNDEFINED"), _client_max_size(1), _autoindex(false)
 {
     _cgi.insert(std::make_pair("UNDEFINED", "UNDEFINED"));
     _errorPages = ErrorPages();
@@ -44,11 +44,12 @@ Location::Location(t_ServerData serv)
     _upload_storage = serv.upload_storage;
     _client_max_size = serv.client_max_body_size;
     _autoindex = serv.autoindex;
+    _redirect = serv.redirect;
 }
 
 Location::Location(const Location &l) :
     _path(l.path()), _root(l.root()),
-    _index(l.index()), _upload_storage(l.storage()),
+    _index(l.index()), _upload_storage(l.storage()), _redirect(l.redirect()),
     _client_max_size(l.clientSize()), _autoindex(l.autoindex())
 {
     //  cp cgi
@@ -106,6 +107,10 @@ bool    Location::undefined(e_TokenType type)
             return (false);
         case METHODS:
             if (_methods.empty())
+                return true;
+            return (false);
+        case REDIRECT:
+            if (_redirect.empty() || _redirect == "UNDEFINED")
                 return true;
             return (false);
         case CLIENT_MAX_BODY_SIZE:
@@ -173,7 +178,7 @@ bool    Location::has(std::string token, e_TokenType type = TOKEN_TYPE_COUNT)
 }
 
 template <typename Token>
-Token   Location::attribut(e_TokenType type)
+Token   Location::attributl(e_TokenType type)
 {
     switch (type)
     {
@@ -217,6 +222,7 @@ size_t  Location::clientSize() const { return _client_max_size; }
 
 bool    Location::autoindex() const { return _autoindex; }
 
+std::string Location::redirect() const { return _redirect; }
 
 std::ostream &operator<<(std::ostream &stream, const Location &loc)
 {

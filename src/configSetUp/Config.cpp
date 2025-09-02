@@ -14,6 +14,7 @@ void    Config::initTokenMaps()
         "<CGI>",
         "<client_max_body_size>",
         "<allow>",
+        "<return>",
         "location",
         NULL
     };

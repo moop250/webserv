@@ -37,14 +37,71 @@ Server    &Server::operator=(const Server &s)
 
 bool    Server::undefined(e_TokenType type)
 {
-    (void)type;
+    Color   c;
+    switch (type)
+    {
+        case LISTEN:
+            if (_port == "UNDEFINED" || _port.empty() || _port == c.red() + "UNDEFINED" + c.reset())
+                return true;
+            return false;
+        case HOST:
+            if (_host == "UNDEFINED" || _host.empty() || _host == c.red() + "UNDEFINED" + c.reset())
+                return true;
+            return false;
+        case SERVER_NAME:
+            if (_server_name == "UNDEFINED" || _server_name.empty() || _server_name == c.red() + "UNDEFINED" + c.reset())
+                return true;
+            return false;
+        case ROOT_PATH:
+            if (_root == "UNDEFINED" || _root.empty() || _root == c.red() + "UNDEFINED" + c.reset())
+                return true;
+            return false;
+        case HTLM_INDEX:
+            if (_index == "UNDEFINED" || _index.empty() || _index == c.red() + "UNDEFINED" + c.reset())
+                return true;
+            return false;
+        case AUTOINDEX:
+            if (!_autoindex)
+                return true;
+            return false;
+        case ERROR_PAGE:
+            if (_errorPages.content().empty())
+                return true;
+            return false;
+        case UPLOAD_STORAGE:
+            if (_upload_storage == "UNDEFINED" || _upload_storage.empty() || _upload_storage == c.red() + "UNDEFINED" + c.reset())
+                return true;
+            return false;
+        case CGI_DATA:
+            if (_cgi.empty())
+                return true;
+            return false;
+        case METHODS:
+            if (_methods.empty())
+                return true;
+            return false;
+        case REDIRECT:
+            if (_redirect.empty())
+                return true;
+            return false;
+        case LOCATION:
+            if (_locations.empty())
+                return true;
+            return false;
+        case LOCATION_PATH:
+            std::cerr << "Logic for loc path not implemented\n";
+            return (false);
+        default:
+            break;
+    }
     return false;
 }
 
 bool    Server::has(e_TokenType type)
 {
-    (void)type;
-    return (false);
+    if (undefined(type))
+        return (false);
+    return (true);
 }
 
 bool    Server::has(std::string token, e_TokenType type)
@@ -98,6 +155,10 @@ bool    Server::has(std::string token, e_TokenType type)
             for (std::vector<std::string>::iterator i = _methods.begin(); i != _methods.end(); i++)
                 if (token == *i)
                     return true;
+            return false;
+        case REDIRECT:
+            if (token == _redirect)
+                return true;
             return false;
         case LOCATION:
             if (!_locations.empty())

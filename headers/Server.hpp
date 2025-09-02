@@ -35,9 +35,7 @@ class Server : public Location
         std::string             name() const;
         
         Location                location(int at = 0) const;
-        std::vector<Location>   locations() const;
-        
-    //    int                     f(std::string token, e_TokenType type = TOKEN_TYPE_COUNT);
+        std::vector<Location>   locations() const;      
 };
 
 std::string tostring(int n);
