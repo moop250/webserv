@@ -40,17 +40,17 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     Server      serv(config.getServerData(portId));
     Location    loc(serv.location(locId));
 
-    std::cout << "Constructor\n";
-    std::cout << "redir : " << serv.redirect() << std::endl;
-    std::cout << "redir in struct : " << config.getServerData(portId).redirect << std::endl;
-    std::cout << "other : " << serv.index() << '\n';
-    std::cout << "root : " << serv.root() << std::endl;
-    std::cout << "size : " << serv.clientSize() << '\n';
+//    std::cout << "Constructor\n";
+//    std::cout << "redir : " << serv.redirect() << std::endl;
+//    std::cout << "redir in struct : " << config.getServerData(portId).redirect << std::endl;
+//    std::cout << "other : " << serv.index() << '\n';
+//    std::cout << "root : " << serv.root() << std::endl;
+//    std::cout << "size : " << serv.clientSize() << '\n';
     _isValid = true;
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         if (!serv.undefined(static_cast<e_TokenType>(i)))
             setToken(serv, static_cast<e_TokenType>(i));
-    return ;
+//    return ;
     if (!locPath.empty())
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
             if (!serv.location(locId).undefined(static_cast<e_TokenType>(i)))
