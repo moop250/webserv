@@ -1,5 +1,5 @@
 #include "Config.hpp"
-
+#include "Server.hpp"
 void    Config::initTokenMaps()
 {
     static const char *mainTokenMap[] = {
@@ -14,6 +14,7 @@ void    Config::initTokenMaps()
         "<CGI>",
         "<client_max_body_size>",
         "<allow>",
+        "<return>",
         "location",
         NULL
     };
@@ -164,4 +165,20 @@ void    Config::sanitize()
         _servers.at(i).locations.pop_back();
         _servers.at(i).locations.erase(_servers.at(i).locations.begin());
     }
+}
+
+size_t Config::find(std::string token, e_TokenType type)
+{
+    int id = 0;
+
+    for (std::vector<t_ServerData>::iterator i = _servers.begin(); i != _servers.end(); i++)
+    {
+        Server  serv(*i);
+        if (serv.has(token, type))
+            break ;
+        id++;
+    }
+    if (id == _nbServers)
+        return (std::string::npos);
+    return (id);
 }

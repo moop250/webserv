@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 13:57:48 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 11:41:28 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ TEST_CASE("Request class default constructor") {
 	REQUIRE(connection.getRequest().getKeepAliveTimeout() == -1);
 	REQUIRE(connection.getRequest().getKeepAliveMax() == -1);
 	REQUIRE(connection.getRequest().getHost() == "");
-	REQUIRE(connection.getRequest().getPort() == -1);
+	REQUIRE(connection.getRequest().getPort() == "");
 }
 
 TEST_CASE("Parse Unit", "[Success]") {
@@ -48,7 +48,7 @@ TEST_CASE("Parse Unit", "[Success]") {
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
 	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
-						"Host: localhost:8002\r\n"
+						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
 						"Content-Length: 12\r\n"
@@ -57,7 +57,7 @@ TEST_CASE("Parse Unit", "[Success]") {
 	int code = parse_method(connection);
 	REQUIRE(code == READING_PATH);
 	REQUIRE(connection.buffer == "/cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
-								 "Host: localhost:8002\r\n"
+								 "Host: localhost1:8001\r\n"
 								 "Connection: Keep-Alive\r\n"
 								 "Keep-Alive: timeout=5, max=200\r\n"
 								 "Content-Length: 12\r\n"
@@ -67,7 +67,7 @@ TEST_CASE("Parse Unit", "[Success]") {
 	code = parse_URL(connection, config);
 	REQUIRE(code == READING_HTTPVERSION);
 	REQUIRE(connection.buffer == "HTTP/1.1\r\n"
-								 "Host: localhost:8002\r\n"
+								 "Host: localhost1:8001\r\n"
 								 "Connection: Keep-Alive\r\n"
 								 "Keep-Alive: timeout=5, max=200\r\n"
 								 "Content-Length: 12\r\n"
@@ -77,7 +77,7 @@ TEST_CASE("Parse Unit", "[Success]") {
 	REQUIRE(connection.getRequest().getQuery() == "user=Nguyen&school=42");
 	code = parse_http_ver(connection);
 	REQUIRE(code == READING_HEADERS);
-	REQUIRE(connection.buffer == "Host: localhost:8002\r\n"
+	REQUIRE(connection.buffer == "Host: localhost1:8001\r\n"
 								 "Connection: Keep-Alive\r\n"
 								 "Keep-Alive: timeout=5, max=200\r\n"
 								 "Content-Length: 12\r\n"
@@ -87,9 +87,9 @@ TEST_CASE("Parse Unit", "[Success]") {
 	code = parse_headers(connection, config);
 	REQUIRE(code == READING_BODY);
 	REQUIRE(connection.buffer == "Hello World!");
-	REQUIRE(connection.getRequest().getHeader("host") == "localhost:8002");
-	REQUIRE(connection.getRequest().getHost() == "localhost");
-	REQUIRE(connection.getRequest().getPort() == 8002);
+	REQUIRE(connection.getRequest().getHeader("host") == "localhost1:8001");
+	REQUIRE(connection.getRequest().getHost() == "localhost1");
+	REQUIRE(connection.getRequest().getPort() == "8001");
 	REQUIRE(connection.getRequest().getKeepAlive() == "keep-alive");
 	REQUIRE(connection.getRequest().getKeepAliveTimeout() == 5);
 	REQUIRE(connection.getRequest().getKeepAliveMax() == 200);
@@ -108,7 +108,7 @@ TEST_CASE("Parse complete, content-length", "[Success]") {
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
 	connection.buffer = "POST http://www.test.com/cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
-						"Host: localhost:8002\r\n"
+						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
 						"Content-Length: 12\r\n"
@@ -120,13 +120,13 @@ TEST_CASE("Parse complete, content-length", "[Success]") {
 	REQUIRE(connection.getRequest().getPath() == "/cgi/test.java");
 	REQUIRE(connection.getRequest().getQuery() == "user=Nguyen&school=42");
 	REQUIRE(connection.getRequest().getHttpVersion() == "HTTP/1.1");
-	REQUIRE(connection.getRequest().getHeader("host") == "localhost:8002");
+	REQUIRE(connection.getRequest().getHeader("host") == "localhost1:8001");
 	REQUIRE(connection.getRequest().getHeader("connection") == "Keep-Alive");
 	REQUIRE(connection.getRequest().getHeader("keep-alive") == "timeout=5, max=200");
 	REQUIRE(connection.getRequest().getHeader("content-length") == "12");
 	REQUIRE(connection.getRequest().getBody() == "Hello World!");
-	REQUIRE(connection.getRequest().getHost() == "localhost");
-	REQUIRE(connection.getRequest().getPort() == 8002);
+	REQUIRE(connection.getRequest().getHost() == "localhost1");
+	REQUIRE(connection.getRequest().getPort() == "8001");
 	REQUIRE(connection.getRequest().getContentLength() == 12);
 	REQUIRE(connection.getRequest().getKeepAlive() == "keep-alive");
 	REQUIRE(connection.getRequest().getKeepAliveTimeout() == 5);
@@ -139,7 +139,7 @@ TEST_CASE("Parse complete, chunked", "[Success]") {
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
 	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
-						"Host: localhost:8002\r\n"
+						"Host: localhost1:8001\r\n"
 						"Transfer-Encoding: chunked\r\n"
 						"\r\n"
 						"D\r\n"
@@ -154,11 +154,11 @@ TEST_CASE("Parse complete, chunked", "[Success]") {
 	REQUIRE(connection.getRequest().getPath() == "/cgi/test.java");
 	REQUIRE(connection.getRequest().getQuery() == "user=Nguyen&school=42");
 	REQUIRE(connection.getRequest().getHttpVersion() == "HTTP/1.1");
-	REQUIRE(connection.getRequest().getHeader("host") == "localhost:8002");
+	REQUIRE(connection.getRequest().getHeader("host") == "localhost1:8001");
 	REQUIRE(connection.getRequest().getHeader("transfer-encoding") == "chunked");
 	REQUIRE(connection.getRequest().getBody() == "Hello World!\nThis is a greeting from Lausanne");
-	REQUIRE(connection.getRequest().getHost() == "localhost");
-	REQUIRE(connection.getRequest().getPort() == 8002);
+	REQUIRE(connection.getRequest().getHost() == "localhost1");
+	REQUIRE(connection.getRequest().getPort() == "8001");
 }
 
 TEST_CASE("Connection state request section", "[Success]") {
@@ -167,7 +167,7 @@ TEST_CASE("Connection state request section", "[Success]") {
 	Config			config("../configFiles/goodConfigs/default.config", dfile);
 	Connection		connection;
 	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
-						"Host: localhost:8002\r\n"
+						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
 						"Transfer-Encoding: chunked\r\n"
@@ -289,7 +289,7 @@ TEST_CASE("Parse headers", "[Error]") {
 	}
 	SECTION("Both Content-Length and Transfer-Encoding", "[Error]") {
 		connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
-							"Host: localhost:8002\r\n"
+							"Host: localhost1:8001\r\n"
 							"Connection: Keep-Alive\r\n"
 							"Keep-Alive: timeout=5, max=200\r\n"
 							"Transfer-Encoding: chunked\r\n"
@@ -313,7 +313,7 @@ TEST_CASE("Parse headers", "[Error]") {
 	// 	parse_http_ver(connection);
 	// 	int code = parse_headers(connection, config);
 	// 	REQUIRE(connection.getRequest().getHost() == "localhost");
-	// 	REQUIRE(connection.getRequest().getPort() == 3000);
+	// 	REQUIRE(connection.getRequest().getPort() == "3000");
 	// 	REQUIRE(code == METHOD_NOT_ALLOWED);
 	// }
 }
@@ -341,4 +341,19 @@ TEST_CASE("File GET", "[Success]") {
 												"</html>\n"
 												);
 	REQUIRE(connection.getResponse().getContentLength() == 371);
+}
+
+// TEST_CASE("File DELETE", "[Success]") {
+// 	Connection		connection;
+// 	connection.getRequest().setPath("../test.txt");
+// 	int code = delete_file(connection);
+// 	REQUIRE(code == 0);
+// }
+
+TEST_CASE("File POST", "[Success]") {
+	Connection		connection;
+	connection.getRequest().setPath("../test.txt");
+	connection.getRequest().setBody("THIS PART SHOULD APPEND TO THE FILE!\n");
+	int code = post_file(connection);
+	REQUIRE(code == 0);
 }

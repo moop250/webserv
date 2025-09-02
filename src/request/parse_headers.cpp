@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 15:34:20 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 12:23:54 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "request_handler.hpp"
 #include "support_file.hpp"
 #include "Config.hpp"
+#include "RequestServer.hpp"
 #include "Connection.hpp"
 
 std::string toLower(const std::string& str) {
@@ -34,20 +35,20 @@ void parse_host(Connection& connection, std::string& host) {
 	colon_pos = host.find(":");
 	if (colon_pos == std::string::npos) {
 		connection.getRequest().setHost(host);
-		connection.getRequest().setPort(80);
+		connection.getRequest().setPort("80");
 		return;
 	}
 	host_name = host.substr(0, colon_pos);
 	connection.getRequest().setHost(host_name);
 	port_number = host.substr(colon_pos + 1);
-	connection.getRequest().setPort(atoi(port_number.c_str()));
+	connection.getRequest().setPort(port_number);
 }
 
 int method_check(Connection& connection) {
 	std::string	method;
 
 	method = connection.getRequest().getMethod();
-	for (std::vector<std::string>::iterator it = connection.getServer().methods.begin(); it != connection.getServer().methods.end(); it++) {
+	for (std::vector<std::string>::iterator it = connection.getServer().methods().begin(); it != connection.getServer().methods().end(); it++) {
 		std::cout << *it << std::endl;
 		if (*it == method)
 			return CONTINUE_READ;
@@ -94,20 +95,25 @@ int parse_keepAlive(Connection& connection) {
 	return CONTINUE_READ;
 }
 
-// Remake to check for location
 void matching_server(Connection& connection, Config& config) {
-	t_ServerData	server;
-	t_ServerData	fallback;
+	std::string	name;
+	std::string path;
+	std::string port;
 
-	fallback = config.getServerData(0);
-	connection.setServer(fallback);
-	for (int i = 0; i < config.getNbServers(); i++) {
-		server = config.getServerData(i);
-		if (server.server_name == connection.getRequest().getHost()
-			&& atoi(server.port.c_str()) == connection.getRequest().getPort()) {
-			connection.setServer(server);
-			break;
-		}
+	name = connection.getRequest().getHost();
+	path = connection.getRequest().getPath();
+	port = connection.getRequest().getPort();
+	std::cout << "Name is : " << name << '\n'
+		<< "port is : " << port << '\n'
+		<< "path is : " << path << std::endl;
+	RequestServer server(config, name, port, path);
+
+	if (server.isValid() == true) {
+		connection.setServer(server);
+		std::cout << server << std::endl;
+	} else {
+		std::cout << "NO SERVER MATCHED" << std::endl;
+		// add fall back server
 	}
 }
 
@@ -131,9 +137,6 @@ int parse_body_chunked(Connection& connection) {
 			// 	return CONTENT_TOO_LARGE;
 			if (connection.getChunkedSize() == 0) {
 				connection.buffer.erase(0, end_pos + 4);
-				// Trailer header not supported because only partially supported in Firefox.
-				// All other major browsers doesnt support it. Can be insert here if wanted.
-				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Trailer
 				connection.setState(MAKING_RESPONSE);
 				return MAKING_RESPONSE;
 			}
@@ -198,6 +201,8 @@ int headers_content_check(Connection& connection, Config& config) {
 	parse_host(connection, host);
 	matching_server(connection, config);
 	
+	// Check if path is redirected
+
 	// // Allowed methods untested, to test later
 	// if (method_check(connection) == METHOD_NOT_ALLOWED)
 	// 	return METHOD_NOT_ALLOWED;

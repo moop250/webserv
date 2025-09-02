@@ -21,7 +21,9 @@ typedef enum TokenTypes
     CGI_DATA,
     CLIENT_MAX_BODY_SIZE,  // max request body
     METHODS,
+    REDIRECT,
     LOCATION,              // start of a location block
+    LOCATION_PATH,
     TOKEN_TYPE_COUNT       //                       7
 }   e_TokenType;
 
@@ -43,6 +45,7 @@ struct s_ServerData
     std::string                             root;
     std::string                             index;
     std::string                             upload_storage;
+    std::string                             redirect;
     size_t                                  client_max_body_size;
     bool                                    autoindex;
     bool                                    isLoc;
@@ -61,7 +64,7 @@ class Config
     protected:
         Debug                                   *_dfile;
         int                                     _nbServers;
-    std::string                                 _fileName;
+        std::string                             _fileName;
         std::string                             _content;
         std::string                             _Tokens[NUM_MAIN_TOKENS + 1];
         std::vector<t_ServerData>               _servers;
@@ -73,8 +76,6 @@ class Config
         Config(const Config &);
         virtual ~Config();
 
-
-
         Config  &operator=(const Config &);
 
         //  setters
@@ -84,7 +85,10 @@ class Config
 //        void            *getServerParam(int serverID, std::string param) const;
         t_ServerData    getServerData(int serverID) const;
         int             getNbServers() const;
-    
+
+        //  nice getters
+        size_t          find(std::string token, e_TokenType type);
+        
         //  active parsing
         bool            checkServerData(int index) const;
         void            parseLocation(t_ServerData &serv, std::string &content, std::string getTokenLine);
