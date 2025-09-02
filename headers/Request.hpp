@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 16:04:19 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 11:25:29 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ class Request {
 		std::string							fileType;
 		std::string							body;
 		std::string							host;
-		int									port;
+		std::string							port;
 		size_t								contentLength;
 		std::string							contentType;
 		std::string							keepAlive;
@@ -95,7 +95,7 @@ class Request {
 		int			getKeepAliveTimeout() const;
 		int			getKeepAliveMax() const;
 		std::string	getHost() const;
-		int			getPort() const;
+		std::string	getPort() const;
 
 		Request&	setMethod(const std::string& method);
 		Request&	setPath(const std::string& path);
@@ -112,7 +112,7 @@ class Request {
 		Request&	setKeepAliveTimeout(const int time);
 		Request&	setKeepAliveMax(const int time);
 		Request&	setHost(const std::string host);
-		Request&	setPort(const int port);
+		Request&	setPort(const std::string port);
 
 		// static void	setEnv(Connection& connection, char **env);
 		Request&	appendBody(const std::string& line);

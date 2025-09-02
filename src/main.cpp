@@ -159,7 +159,9 @@ int main(int ac, char** av, char **env)
 {
 	Debug	dfile("General.log");
 	Config	*config = NULL;
-	ServerSocket *socket = NULL;
+	// ServerSocket *socket = NULL;
+
+	(void)env;
 
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
@@ -169,21 +171,29 @@ int main(int ac, char** av, char **env)
 	if (!config)
 		return (-1);
 
-	delete config;
-	return 1;
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 	
-	try {
-		socket = initalizeServer(config);
-	} catch (std::exception &e) {
-		std::cerr << RED << e.what() << RESET << std::endl;
-		delete config;
-		return (-2);
-	}
+	// try {
+	// 	socket = initalizeServer(config);
+	// } catch (std::exception &e) {
+	// 	std::cerr << RED << e.what() << RESET << std::endl;
+	// 	delete config;
+	// 	return (-2);
+	// }
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	
-	eventLoop(config, socket, env);
+	// eventLoop(config, socket, env);
+
+	Connection		connection;
+	connection.buffer = "POST http://www.test.com/cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
+						"Host: localhost1:8001\r\n"
+						"Connection: Keep-Alive\r\n"
+						"Keep-Alive: timeout=5, max=200\r\n"
+						"Content-Length: 12\r\n"
+						"\r\n"
+						"Hello World!";
+	parse_request(connection, *config, env);
 
 	ErrorDebug(dfile, "Event Loop Undefined");
 

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/01 17:22:32 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 12:23:54 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,13 @@ void parse_host(Connection& connection, std::string& host) {
 	colon_pos = host.find(":");
 	if (colon_pos == std::string::npos) {
 		connection.getRequest().setHost(host);
-		connection.getRequest().setPort(80);
+		connection.getRequest().setPort("80");
 		return;
 	}
 	host_name = host.substr(0, colon_pos);
 	connection.getRequest().setHost(host_name);
 	port_number = host.substr(colon_pos + 1);
-	connection.getRequest().setPort(atoi(port_number.c_str()));
+	connection.getRequest().setPort(port_number);
 }
 
 int method_check(Connection& connection) {
@@ -95,24 +95,23 @@ int parse_keepAlive(Connection& connection) {
 	return CONTINUE_READ;
 }
 
-// void matching_server(Connection& connection, Config& config) {
-// 	// t_ServerData	server;
-// 	t_ServerData	fallback;
+void matching_server(Connection& connection, Config& config) {
+	std::string	name;
+	std::string path;
+	std::string port;
 
-// 	fallback = config.getServerData(0);
-// 	connection.setServer(fallback);
-
-// 	// std::string	serverName;
-// 	// std::string path;
-
-// 	// serverName = connection.getRequest().getHost();
-// 	// path = connection.getRequest().getPath();
-// 	// RequestServer server(config, serverName, locpath);
-// 	// if (server.isValid() == true) {
-		
-// 	// }
-	
-// }
+	name = connection.getRequest().getHost();
+	path = connection.getRequest().getPath();
+	port = connection.getRequest().getPort();
+	RequestServer server(config, name, port, path);
+	if (server.isValid() == true) {
+		connection.setServer(server);
+		std::cout << server << std::endl;
+	} else {
+		std::cout << "NO SERVER MATCHED" << std::endl;
+		// add fall back server
+	}
+}
 
 // stuffs to do
 int parse_body_chunked(Connection& connection) {
@@ -134,9 +133,6 @@ int parse_body_chunked(Connection& connection) {
 			// 	return CONTENT_TOO_LARGE;
 			if (connection.getChunkedSize() == 0) {
 				connection.buffer.erase(0, end_pos + 4);
-				// Trailer header not supported because only partially supported in Firefox.
-				// All other major browsers doesnt support it. Can be insert here if wanted.
-				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Trailer
 				connection.setState(MAKING_RESPONSE);
 				return MAKING_RESPONSE;
 			}
@@ -199,9 +195,7 @@ int headers_content_check(Connection& connection, Config& config) {
 	if (host.empty())
 		return BAD_REQUEST;
 	parse_host(connection, host);
-
-	(void)config;
-	// matching_server(connection, config);
+	matching_server(connection, config);
 	
 	// Check if path is redirected
 
