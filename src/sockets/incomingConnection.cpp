@@ -23,7 +23,7 @@ static void addToPollfd(std::vector<pollfd> *fds, int newFD, ServerSocket *socke
 	fds->push_back(newPollFD);
 	
 	Connection	newConnection;
-	connectMap->insert({newFD, newConnection});
+	connectMap[newFD] = newConnection;
 
 	sockets->incrementClientCount();
 }
@@ -151,7 +151,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 	return 0;
 }
 
-static int handlePOLLOUT(int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
+static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap) {
 	Connection connect = connectMap->at(fd);
 	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
@@ -169,8 +169,10 @@ static int handlePOLLOUT(int fd, ServerSocket *sockets, std::map<int, Connection
 		if (status < 0) {
 			if (errno == EAGAIN || errno == EWOULDBLOCK){
 				break ;
-			} else {
+			} else if (errno == EFAULT || errno == EINVAL) {
 				throw std::runtime_error("Send error: " + std::string(strerror(errno)));
+			} else {
+				return 2;
 			}
 		}
 		offset += status;
@@ -194,13 +196,16 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 		}
 		if ((*fds)[i].revents & POLLOUT) {		
 			// Func to create response
-			switch (handlePOLLOUT((*fds)[i].fd, sockets, connectMap)) {
+			switch (handlePOLLOUT((*fds)[i].fd, connectMap)) {
 				case 0:
 					connectMap->at((*fds)[i].fd).setState(WAITING_REQUEST);
 					setPOLLIN((*fds)[i].fd, fds);
 					break;
 				case 1:
 					continue;
+				case 2:
+					close((*fds)[i].fd);
+					removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
 			}
 		}
 	}
