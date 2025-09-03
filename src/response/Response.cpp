@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 14:18:53 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 23:08:00 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,22 @@ Response::Response() {
 	this->code = -1;
 	this->contentLength = 0;
 }
-
+Response::Response(const Response& copy) {
+	*this = copy;
+}
+Response& Response::operator =(const Response& assign) {
+	if (this != &assign) {
+		this->httpVersion = assign.httpVersion;
+		this->code = assign.code;
+		this->codeMessage = assign.codeMessage;
+		this->headers = assign.headers;
+		this->body = assign.body;
+		this->contentLength = assign.contentLength;
+		this->contentType = assign.contentType;
+		this->responseComplete = assign.responseComplete;
+	}
+	return *this;
+}
 Response::~Response() {
 	
 }

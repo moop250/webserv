@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:18:51 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 16:52:02 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 23:07:46 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ class Response {
 	
 	public:
 		Response();
+		Response(const Response& copy);
+		Response& operator =(const Response& assign);
 		~Response();
 
 		std::string	getHttpVersion() const;

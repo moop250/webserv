@@ -9,6 +9,7 @@ class ErrorPages
     public:
         ErrorPages();
         ErrorPages(std::map<int, std::string>);
+        ErrorPages& operator=(const ErrorPages& pages);
         ~ErrorPages();
 
         int         error(int index = 0) const;

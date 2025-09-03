@@ -188,7 +188,7 @@ bool    ConfigError::checkLine()
             break ;
         case LINE_TOK:
             for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
-                if (_errorLine.find(_Tokens[i]) != std::string::npos)
+                if (!_Tokens[i].empty() && _errorLine.find(_Tokens[i]) != std::string::npos)
                     return (OK);
             while (endTok < _errorLine.length() && _errorLine[endTok] != '>')
                 endTok++;
