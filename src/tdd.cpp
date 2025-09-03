@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 22:49:17 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/02 23:37:49 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,6 +320,24 @@ TEST_CASE("Parse headers", "[Error]") {
 		int code = 	parse_request(connection, *config, env);
 		REQUIRE(code == -1);
 	}
+	
+	// SECTION("Max body size surpassed", "[Error]") {
+	// 	connection.buffer = "POST /cgi/test.java?user=Nguyen&school=42 HTTP/1.1\r\n"
+	// 						"Host: localhost1:8001\r\n"
+	// 						"Connection: Keep-Alive\r\n"
+	// 						"Keep-Alive: timeout=5, max=200\r\n"
+	// 						"Content-Length: 4000000\r\n"
+	// 						"\r\n"
+	// 						"Hello World!";
+	// 	parse_method(connection);
+	// 	parse_URL(connection, *config);
+	// 	parse_http_ver(connection);
+	// 	int code = parse_headers(connection, *config);
+	// 	REQUIRE(connection.getRequest().getHost() == "localhost1");
+	// 	REQUIRE(connection.getRequest().getPort() == "8001");
+	// 	REQUIRE(code == CONTENT_TOO_LARGE);
+	// }
+
 	// SECTION("Method not allowed", "[Error]") {
 	// 	connection.buffer = "DELETE /wtfwtf?user=Nguyen&school=42 HTTP/1.1\r\n"
 	// 						"Host:localhost:3000\r\n"

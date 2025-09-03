@@ -97,8 +97,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
 
 RequestServer::RequestServer(const RequestServer &serv)
 {
-    (void)serv;
-    return ;
+    *this = serv;
 }
 
 RequestServer::~RequestServer() {}

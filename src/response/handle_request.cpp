@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 16:54:46 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/03 21:33:55 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,8 +87,8 @@ int parse_request_type(Connection& connection) {
 int handle_request(Connection& connection, char **env) {
 	int	requestType;
 
-	// if (parse_request_type(connection) == -1)
-	// 	return -1;
+	if (parse_request_type(connection) == -1)
+		return -1;
 	
 	requestType = static_cast<int>(connection.getRequest().getRequestType());
 	if (requestType == CGI)

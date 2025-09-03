@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 22:55:29 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/03 20:07:49 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,12 +56,13 @@ class Connection {
 		long			getChunkedSize() const;
 		long			getOffset() const;
 
-		Connection&		setState(State state);
-		Connection&		setServer(RequestServer& server);
-		Connection&		setChunkedSize(long size);
-		Connection&		setOffset(long size);
+		Connection&		setState(const State state);
+		Connection&		setServer(const RequestServer& server);
+		Connection&		setChunkedSize(const long size);
+		Connection&		setOffset(const long size);
 
 		Connection&		minusOffset(long size);
+		Connection&		plusOffset(long size);
 };
 
 #endif
