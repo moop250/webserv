@@ -203,9 +203,9 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 				case 0:
 					connectMap->at((*fds)[i].fd).setState(WAITING_REQUEST);
 					setPOLLIN((*fds)[i].fd, fds);
-					break;
+					continue ;
 				case 1:
-					continue;
+					continue ;
 				case 2:
 					close((*fds)[i].fd);
 					removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
