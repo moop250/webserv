@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 20:14:22 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/28 13:58:04 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/03 22:25:54 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ std::set<std::string> listCGI() {
 	supported.insert(".cgi");
 	supported.insert(".java");
 	supported.insert(".js");
+	supported.insert(".php");
+	supported.insert(".py");
 	return supported;
 }
 

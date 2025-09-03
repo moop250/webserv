@@ -49,6 +49,7 @@ Getter:
 - `getKeepAlive()` -> Return the Connection header of the request in bool. ATTENTION: The value is sanitized to lower case -> keep-alive, close!
 - `getKeepAliveTimeout()` -> Return the keep alive timeout in int. Default is -1.
 - `getKeepAliveMax()` -> Return the keep alive max in int. Default is -1.
+- `getRedirect()` -> Return the path to redirected to in std::string. If no redirect specified, return an empty string instead.
 
 Method:
 - `appendBody(const std::string& line)` -> Append line to the current body.
