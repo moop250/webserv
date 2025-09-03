@@ -13,6 +13,7 @@
 #include <limits>
 #include <sys/types.h>
 #include <unistd.h>
+#include <utility>
 
 static void addToPollfd(std::vector<pollfd> *fds, int newFD, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
 	pollfd newPollFD;
@@ -23,7 +24,7 @@ static void addToPollfd(std::vector<pollfd> *fds, int newFD, ServerSocket *socke
 	fds->push_back(newPollFD);
 	
 	Connection	newConnection;
-	connectMap[newFD] = &newConnection;
+	connectMap->insert(std::make_pair(newFD, newConnection));
 
 	sockets->incrementClientCount();
 }
@@ -198,7 +199,6 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 			continue;
 		}
 		if ((*fds)[i].revents & POLLOUT) {		
-			// Func to create response
 			switch (handlePOLLOUT((*fds)[i].fd, connectMap)) {
 				case 0:
 					connectMap->at((*fds)[i].fd).setState(WAITING_REQUEST);
