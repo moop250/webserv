@@ -16,6 +16,17 @@ RequestServer::RequestServer() {
     _autoindex = false;
 }
 
+void   helpFuckHelp(Config config, size_t servId, size_t locPath)
+{
+    std::vector<std::string>    m = config.getServerData(servId).methods;
+
+    for (std::vector<std::string>::iterator i = m.begin(); i != m.end(); i++)
+    {
+        std::cout << GREEN << "Method : " << *i << " \n" << RESET;
+    }
+    (void)locPath;
+}
+
 RequestServer::RequestServer(Config config, std::string name, std::string port, std::string locPath)
 {
 
@@ -59,6 +70,9 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     if (serv.undefined(METHODS) || serv.undefined(CGI_DATA))
         std::cout << "WTF\n";
     std::cout << "bye \n";
+    helpFuckHelp(config, portId, locId);
+    _methods = config.getServerData(portId).methods;
+    std::cout << GREEN << "OUT" << '\n' << RESET;
 }
 
 //template <typename integer>
