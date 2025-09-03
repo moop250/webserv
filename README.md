@@ -8,6 +8,30 @@ todo:
 
 # Request handler documentation:
 
+## Connection class methods:
+Getter:
+- `getState()` -> Return the current state of the connection: 		
+	READING_METHOD = 1,
+	READING_PATH = 2,
+	READING_HTTPVERSION = 3,
+	READING_HEADERS = 4,
+	READING_BODY = 5,
+	READING_CHUNKED = 6,
+	CONTINUE_READ = 7,
+	MAKING_RESPONSE = 8,
+	SENDING_RESPONSE = 9,
+	WAITING_REQUEST = 10
+- `getRequest()` -> Return the Request object the Connection is processing.
+- `getResponse()` -> Return the Response object the Connection is processing.
+- `getServer()` -> Return the RequestServer object the Connection is connecting to.
+- `getChunkedSize()` -> Return the bytes left to read in long. Only use in `Transfer-Encoding: chunked` Header
+- `getOffset()` -> Return the bytes already sent by send() call. Only use when sending response.
+
+Method:
+- `minusOffset(long size)` -> Subtract size from the current offset.
+- `plusOffset(long size)` -> Add size from the current offset.
+
+
 
 ## Request class methods:
 Getter:
@@ -25,6 +49,7 @@ Getter:
 - `getKeepAlive()` -> Return the Connection header of the request in bool. ATTENTION: The value is sanitized to lower case -> keep-alive, close!
 - `getKeepAliveTimeout()` -> Return the keep alive timeout in int. Default is -1.
 - `getKeepAliveMax()` -> Return the keep alive max in int. Default is -1.
+- `getRedirect()` -> Return the path to redirected to in std::string. If no redirect specified, return an empty string instead.
 
 Method:
 - `appendBody(const std::string& line)` -> Append line to the current body.

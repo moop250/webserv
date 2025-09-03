@@ -29,7 +29,9 @@ ErrorPages::ErrorPages(std::map<int, std::string> m)
             _html_content.push_back("HTML FILE EMPTY");
     }
 }
-
+ErrorPages::ErrorPages(const ErrorPages& copy) {
+    *this = copy;
+}
 ErrorPages& ErrorPages::operator=(const ErrorPages& pages) {
     if (this != &pages) {
         _html_content = pages._html_content;

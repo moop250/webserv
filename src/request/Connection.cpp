@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 22:55:27 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/03 20:07:23 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,11 @@ Connection&		Connection::minusOffset(long size) {
 	return *this;
 }
 
+Connection&		Connection::plusOffset(long size) {
+	this->offset += size;
+	return *this;
+}
+
 
 // ----------------- GETTERS ----------------------
 
@@ -75,19 +80,19 @@ long Connection::getOffset() const {
 
 // ----------------- SETTERS ----------------------
 
-Connection& Connection::setState(State state) {
+Connection& Connection::setState(const State state) {
 	this->state = state;
 	return *this;
 }
-Connection& Connection::setServer(RequestServer& server) {
+Connection& Connection::setServer(const RequestServer& server) {
 	this->server = server;
 	return *this;
 }
-Connection& Connection::setChunkedSize(long size) {
+Connection& Connection::setChunkedSize(const long size) {
 	this->chunked_size = size;
 	return *this;
 }
-Connection& Connection::setOffset(long size) {
+Connection& Connection::setOffset(const long size) {
 	this->offset = size;
 	return *this;
 }
