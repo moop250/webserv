@@ -46,7 +46,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     Location    loc(serv.location(locId));
 
     _isValid = true;
-    std::cout << serv << "\n" << loc;
+  //  std::cout << serv << "\n" << loc;
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         if (!serv.undefined(static_cast<e_TokenType>(i)))
             setToken(serv, static_cast<e_TokenType>(i));
@@ -62,6 +62,9 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
         _cgi = config.getServerData(portId).locations.at(locId).data.cgi;
     if (loc.clientSize() != 1)
         _clientBodySize = loc.clientSize();
+    std::cout << "HELLO \n";
+    std::map<std::string, std::string> cgi = config.getServerData(portId).cgi;
+    _cgi = cgi;
     std::cout << GREEN << "OUT" << '\n' << RESET;
 }
 
@@ -256,12 +259,13 @@ std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
     stream << rs.port();
     stream << "\n";
     stream << "CGI             : \n";
-    return stream;
+  //  return stream;
+    std::map<std::string, std::string> mprint = rs.cgi();
    if (rs.cgi().empty())
        stream << RED << "\t\t\tUNDEFINED\n" << RESET;
    else
-       for (std::map<std::string, std::string>::iterator j = rs.cgi().begin(); j != rs.cgi().end(); j++)
-           stream << "\textension :" << j->first << " <==> path : " << j->second << '\n';
+       for (std::map<std::string, std::string>::const_iterator j = mprint.begin(); j != mprint.end(); j++)
+          stream << "\textension :" << j->first << " <==> path : " << j->second << '\n';
     stream << "error pages       : ";
     if (rs.errorPages().content(0).empty())
         stream << RED << "\t\tUNDEFINED" << RESET;
