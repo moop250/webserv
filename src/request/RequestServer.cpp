@@ -38,7 +38,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     size_t portId = config.find(port, LISTEN);
     size_t nameId = config.find(name, SERVER_NAME);
     size_t  locId = config.find(locPath, LOCATION_PATH);
-    
+ 
     if (!check(config, portId, nameId, locId, locPath))
     {
         _isValid = false;
@@ -63,11 +63,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
             setToken(l, static_cast<e_TokenType>(i));
     for (int i = 0; i < LOCATION; i++)
         setToken(s, static_cast<e_TokenType>(i));
-    std::cout << ErrorPages(s.error_pages).content(404);
-    _errorPages = ErrorPages(l.data.error_pages);
-    if (!_errorPages.getNbPages())
-        _errorPages = ErrorPages(s.error_pages);
-    std::cout << YELLOW << _errorPages.content(404) << RESET;
+  //  std::cout << YELLOW << _errorPages.content(404) << RESET;
 }
 
 RequestServer::RequestServer(const RequestServer &serv)
@@ -103,6 +99,7 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
             _autoindex = serv.autoindex;
             break;
         case ERROR_PAGE:
+            _errorPages = ErrorPages(serv.error_pages);
             break ;
        //     _errorPages = serv.errorPages();
             break;
@@ -151,6 +148,7 @@ void    RequestServer::setToken(t_Location loc, e_TokenType type)
             _autoindex = loc.data.autoindex;
             break;
         case ERROR_PAGE:
+            _errorPages = ErrorPages(loc.data.error_pages);
         //    _errorPages = loc.errorPages(); // check if push_back instead
             break ;
         case UPLOAD_STORAGE:

@@ -113,7 +113,7 @@ void matching_server(Connection& connection, Config& config) {
 
 	RequestServer server(config, name, port, path);
 
-	std::cout << server;
+//	std::cout << server;
 	if (server.isValid() == true) {
 		std::cout << "A SERVER IS MATCHED" << std::endl;
 		connection.setServer(server);

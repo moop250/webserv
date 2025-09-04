@@ -17,8 +17,6 @@ Location::Location(t_Location loc)
     _cgi = loc.data.cgi;
     _errorPages = ErrorPages(loc.data.error_pages);
   //  std::cout << "path : " << loc.path;
-    for (std::map<int, std::string>::iterator i = loc.data.error_pages.begin(); i != loc.data.error_pages.end(); i++)
-        std::cout << i->first;
 //    _error_pages = loc.data.error_pages;
     _methods = loc.data.methods;
     _root = loc.data.root;
