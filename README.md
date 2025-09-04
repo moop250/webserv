@@ -1,5 +1,4 @@
 todo:
-- Check path if redirected
 - Match location if apply.
 - Preappend root or cgi path to URL path
 - Check allowed methods
@@ -24,8 +23,8 @@ Getter:
 - `getRequest()` -> Return the Request object the Connection is processing.
 - `getResponse()` -> Return the Response object the Connection is processing.
 - `getServer()` -> Return the RequestServer object the Connection is connecting to.
-- `getChunkedSize()` -> Return the bytes left to read in long. Only use in `Transfer-Encoding: chunked` Header
-- `getOffset()` -> Return the bytes already sent by send() call. Only use when sending response.
+- `getChunkedSize()` -> Return the bytes left to read in long. Only use in `Transfer-Encoding: chunked` Header.
+- `getOffset()` -> Return the bytes already sent by send() call. Only use when sending response. Default is -2.
 
 Method:
 - `minusOffset(long size)` -> Subtract size from the current offset.
