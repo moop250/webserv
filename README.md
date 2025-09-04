@@ -25,10 +25,12 @@ Getter:
 - `getServer()` -> Return the RequestServer object the Connection is connecting to.
 - `getChunkedSize()` -> Return the bytes left to read in long. Only use in `Transfer-Encoding: chunked` Header.
 - `getOffset()` -> Return the bytes already sent by send() call. Only use when sending response. Default is -2.
+- `getReconnect()` -> Return the reconnect state. It is false during the first connection to search for server. Subsequence connections are true so server won't be searched again.
 
 Method:
 - `minusOffset(long size)` -> Subtract size from the current offset.
 - `plusOffset(long size)` -> Add size from the current offset.
+- `clear()` -> Reset the connection (Request, Response, chunked_size, offset, buffer). Server is not reseted, state is set to WAITING_REQUEST and reconnect is set to true.
 
 
 

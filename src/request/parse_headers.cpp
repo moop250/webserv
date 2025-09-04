@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/03 22:48:46 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:54:01 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,21 +115,9 @@ void matching_server(Connection& connection, Config& config) {
 	path = connection.getRequest().getPath();
 	port = connection.getRequest().getPort();
 	RequestServer server(config, name, port, path);
-
-//	std::cout << server;
 	if (server.isValid() == true) {
-		std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
+		// std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
 		connection.setServer(server);
-
-	//	std::cout << server.errorPages().content(static_cast<RequestError>(404));
-		std::cout << YELLOW << server.errorPages().content(REQUEST_ERROR_NOT_FOUND);
-		// same as 
-		std::cout << ROSE << server.errorPages().content(NOT_FOUND);
-		// same as 
-		std::cout << BLUE << server.errorPages().content(404) << RESET;
-	//	std::cout << connection.getServer() << std::endl;
-	//	std::cout << connection.getServer().errorPages().find(static_cast<RequestError>(404)) <<std::endl;
-		std::cout << server.errorPages().find(static_cast<RequestError>(404)) << std::endl;
 	} else {
 		std::cout << "NO SERVER MATCHED" << std::endl;
 		// add fall back server
@@ -249,7 +237,8 @@ int headers_content_check(Connection& connection, Config& config) {
 	if (host.empty())
 		return BAD_REQUEST;
 	parse_host(connection, host);
-	matching_server(connection, config);
+	if (connection.getReconnect() == false)
+		matching_server(connection, config);
 	redirect = connection.getServer().redirect();
 	if (!redirect.empty())
 		return parse_redirect(connection, redirect);
