@@ -21,7 +21,7 @@ ServerSocket::~ServerSocket() {
 }
 
 void	ServerSocket::initializeNewSocket(std::string combo) {
-	int socketfd = -1, status = -1;
+	int socketfd = -1;
 	struct addrinfo	info, *res;
 	int del = combo.find("|");
 	std::string		host = combo.substr(0, del),
@@ -32,13 +32,13 @@ void	ServerSocket::initializeNewSocket(std::string combo) {
 	info.ai_family = AF_INET;
 	info.ai_socktype = SOCK_STREAM;
 
-	if ((status = getaddrinfo(host.c_str(), port.c_str(), &info, &res)) < 0)
-		{throw std::runtime_error("getaddrinfo error:" + std::string(strerror(errno)));}
+	if (getaddrinfo(host.c_str(), port.c_str(), &info, &res) < 0)
+		{throw std::runtime_error("getaddrinfo error: " + std::string(strerror(errno)));}
 	socketfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (socketfd < 0)
-		{throw std::runtime_error("Socket initialization error:" + std::string(strerror(errno)));}
-	if ((status = bind(socketfd, res->ai_addr, res->ai_addrlen)) < 0)
-		{throw std::runtime_error("Socket binding error:" + std::string(strerror(errno)));}
+		{throw std::runtime_error("Socket initialization error: " + std::string(strerror(errno)));}
+	if (bind(socketfd, res->ai_addr, res->ai_addrlen) < 0)
+		{throw std::runtime_error("Socket binding error: combo: " + combo + " : " + std::string(strerror(errno)));}
 
 	freeaddrinfo(res);
 	
