@@ -102,8 +102,15 @@ Config::~Config()
     return ;
 }
 
-Config  &Config::operator=(const Config &)
+Config  &Config::operator=(const Config &conf)
 {
+    this->_dfile = conf._dfile;
+    this->_nbServers = conf._nbServers;
+    this->_fileName = conf._fileName;
+    this->_content = conf._content;
+    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
+        this->_Tokens[i] = conf._Tokens[i];
+    this->_servers = conf._servers;
     return *this;
 }
 
