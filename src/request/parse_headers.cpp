@@ -115,14 +115,21 @@ void matching_server(Connection& connection, Config& config) {
 	path = connection.getRequest().getPath();
 	port = connection.getRequest().getPort();
 	RequestServer server(config, name, port, path);
-//	std::cout << config;
+
+//	std::cout << server;
 	if (server.isValid() == true) {
 		std::cout << "A SERVER IS MATCHED" << std::endl;
 		connection.setServer(server);
 
-		// std::cout << connection.getServer() << std::endl;
-		// std::cout << connection.getServer().errorPages().find(400) <<std::endl;
-		// std::cout << server.errorPages().find(400) << std::endl;
+	//	std::cout << server.errorPages().content(static_cast<RequestError>(404));
+		std::cout << YELLOW << server.errorPages().content(REQUEST_ERROR_NOT_FOUND);
+		// same as 
+		std::cout << ROSE << server.errorPages().content(NOT_FOUND);
+		// same as 
+		std::cout << BLUE << server.errorPages().content(404) << RESET;
+	//	std::cout << connection.getServer() << std::endl;
+	//	std::cout << connection.getServer().errorPages().find(static_cast<RequestError>(404)) <<std::endl;
+		std::cout << server.errorPages().find(static_cast<RequestError>(404)) << std::endl;
 	} else {
 		// std::cout << "NO SERVER MATCHED" << std::endl;
 		// add fall back server
