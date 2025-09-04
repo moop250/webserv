@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 23:37:49 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:53:04 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ TEST_CASE("Request class default constructor") {
 	REQUIRE(connection.getRequest().getKeepAliveMax() == -1);
 	REQUIRE(connection.getRequest().getHost() == "");
 	REQUIRE(connection.getRequest().getPort() == "");
+	REQUIRE(connection.getRequest().getRedirect() == "");
 }
 
 TEST_CASE("Parse Unit", "[Success]") {
@@ -135,6 +136,30 @@ TEST_CASE("Parse complete, content-length", "[Success]") {
 	REQUIRE(connection.getRequest().getKeepAlive() == "keep-alive");
 	REQUIRE(connection.getRequest().getKeepAliveTimeout() == 5);
 	REQUIRE(connection.getRequest().getKeepAliveMax() == 200);
+	REQUIRE(connection.getState() == MAKING_RESPONSE);
+	REQUIRE(connection.getReconnect() == false);
+	connection.clear();
+	REQUIRE(connection.getState() == WAITING_REQUEST);
+	REQUIRE(connection.getReconnect() == true);
+	REQUIRE(connection.getRequest().getMethod() == "");
+	REQUIRE(connection.getRequest().getPath() == "");
+	REQUIRE(connection.getRequest().getQuery() == "");
+	REQUIRE(connection.getRequest().getHttpVersion() == "");
+	REQUIRE(connection.getRequest().getHeader("host") == "");
+	REQUIRE(connection.getRequest().getBody() == "");
+	REQUIRE(connection.getRequest().getHost() == "");
+	REQUIRE(connection.getRequest().getPort() == "");
+	REQUIRE(connection.getRequest().getContentLength() == 0);
+	REQUIRE(connection.getRequest().getKeepAlive() == "");
+	REQUIRE(connection.getRequest().getKeepAliveTimeout() == -1);
+	REQUIRE(connection.getRequest().getKeepAliveMax() == -1);
+	REQUIRE(connection.getResponse().getBody() == "");
+	REQUIRE(connection.getResponse().getCode() == -1);
+	REQUIRE(connection.getResponse().getCodeMessage() == "");
+	REQUIRE(connection.getResponse().getResponseComplete() == "");
+	REQUIRE(connection.getOffset() == -2);
+	REQUIRE(connection.getChunkedSize() == -1);
+	REQUIRE(connection.buffer == "");
 }
 
 TEST_CASE("Parse complete, chunked", "[Success]") {

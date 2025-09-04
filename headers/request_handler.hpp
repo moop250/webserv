@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/03 22:09:19 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/03 22:34:41 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include "RequestServer.hpp"
 #include "Connection.hpp"
 
-void		error_redirect(Connection& connection, int code);
 void		error_response(Connection& connection, int code);
 
 int			parse_method(Connection& connection);

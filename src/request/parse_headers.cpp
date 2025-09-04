@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/03 21:56:04 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:54:01 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,14 +112,11 @@ void matching_server(Connection& connection, Config& config) {
 	std::string	port = "8001";
 
 	RequestServer server(config, name, port, path);
-
-//	std::cout << server;
 	if (server.isValid() == true) {
-		std::cout << "A SERVER IS MATCHED" << std::endl;
+		// std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
 		connection.setServer(server);
-
 	} else {
-		// std::cout << "NO SERVER MATCHED" << std::endl;
+		std::cout << "NO SERVER MATCHED" << std::endl;
 		// add fall back server
 	}
 }
@@ -237,7 +234,8 @@ int headers_content_check(Connection& connection, Config& config) {
 	if (host.empty())
 		return BAD_REQUEST;
 	parse_host(connection, host);
-	matching_server(connection, config);
+	if (connection.getReconnect() == false)
+		matching_server(connection, config);
 	redirect = connection.getServer().redirect();
 	if (!redirect.empty())
 		return parse_redirect(connection, redirect);
