@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 22:49:09 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:54:01 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,16 @@
 #include "RequestServer.hpp"
 #include "Connection.hpp"
 
+std::string trim(const std::string &str) {
+	std::string::size_type	first;
+	std::string::size_type	last;
+
+	first = str.find_first_not_of(" \t\n\r\f\v");
+	if (first == std::string::npos)
+		return "";
+	last = str.find_last_not_of(" \t\n\r\f\v");
+	return str.substr(first, last - first + 1);
+}
 std::string toLower(const std::string& str) {
 	std::string	lower;
 
@@ -81,7 +91,7 @@ int parse_keepAlive(Connection& connection) {
 		while (!subHeader.empty() && (subHeader[subHeader.size() - 1] == ' ' || subHeader[subHeader.size() - 1] == '\t'))
 			subHeader.erase(subHeader.size() - 1, 1);
 		if (subHeader.empty())
-    		continue;
+			continue;
 		equal_pos = subHeader.find("=");
 		if (equal_pos == std::string::npos)
 			return BAD_REQUEST;
@@ -95,18 +105,18 @@ int parse_keepAlive(Connection& connection) {
 	return CONTINUE_READ;
 }
 
+// stuffs to do
 void matching_server(Connection& connection, Config& config) {
 	std::string	name;
-	std::string path;
-	std::string port;
+	std::string	path;
+	std::string	port;
 
 	name = connection.getRequest().getHost();
 	path = connection.getRequest().getPath();
 	port = connection.getRequest().getPort();
 	RequestServer server(config, name, port, path);
-
 	if (server.isValid() == true) {
-		std::cout << "A SERVER IS MATCHED" << std::endl;
+		// std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
 		connection.setServer(server);
 	} else {
 		std::cout << "NO SERVER MATCHED" << std::endl;
@@ -139,7 +149,7 @@ int parse_body_chunked(Connection& connection) {
 			}
 		}
 		if (static_cast<long>(connection.buffer.size()) < connection.getChunkedSize() + 2)
-            return CONTINUE_READ;
+			return CONTINUE_READ;
 		connection.getRequest().appendBody(connection.buffer.substr(0, connection.getChunkedSize()));
 		connection.buffer.erase(0, connection.getChunkedSize());
 		if (connection.buffer.substr(0, 2) != "\r\n")
@@ -173,7 +183,7 @@ int content_length_check(Connection& connection) {
 		connection.getRequest().setContentLength(strtol(contentLength.c_str(), NULL, 10));
 		if (connection.getRequest().getContentLength() <= 0)
 			return BAD_REQUEST;
-		// if (connection.getRequest().getContentLength() > connection.getServer().client_max_body_size)
+		// if (connection.getRequest().getContentLength() > connection.getServer().clientSize()) {}
 		// 	return CONTENT_TOO_LARGE;
 		connection.setState(READING_BODY);
 		return READING_BODY;
@@ -186,20 +196,53 @@ int content_length_check(Connection& connection) {
 		return NOT_IMPLEMENTED;
 }
 
+int parse_redirect(Connection& connection, std::string& redirect) {
+	std::string				code;
+	std::string				redirect_path;
+	std::string::size_type	space_pos;
+
+	space_pos = redirect.find(" ");
+	if (space_pos == std::string::npos)
+		code = redirect;
+	else
+		code = redirect.substr(0, space_pos);
+	if (code == "403") {
+		if (space_pos != std::string::npos)
+			return INTERNAL_ERROR;
+		return FORBIDDEN;
+	}
+	if (code == "301" || code == "302") {
+		if (space_pos == std::string::npos)
+			return INTERNAL_ERROR;
+		redirect_path = trim(redirect.substr(space_pos + 1));
+		if (redirect_path.empty())
+			return INTERNAL_ERROR;
+		connection.getRequest().setRedirect(redirect_path);
+		if (code == "301")
+			return MOVED_PERMANENTLY;
+		if (code == "302")
+			return FOUND;
+	}
+	return INTERNAL_ERROR;
+}
+
 // stuffs to do
 int headers_content_check(Connection& connection, Config& config) {
 	std::string	host;
 	std::string keepAlive;
 	std::string	contentType;
+	std::string	redirect;
 
 	host = connection.getRequest().getHeader("host");
 	if (host.empty())
 		return BAD_REQUEST;
 	parse_host(connection, host);
-	matching_server(connection, config);
+	if (connection.getReconnect() == false)
+		matching_server(connection, config);
+	redirect = connection.getServer().redirect();
+	if (!redirect.empty())
+		return parse_redirect(connection, redirect);
 	
-	// Check if path is redirected
-
 	// // Allowed methods untested, to test later
 	// if (method_check(connection) == METHOD_NOT_ALLOWED)
 	// 	return METHOD_NOT_ALLOWED;

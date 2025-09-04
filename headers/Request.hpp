@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 23:03:38 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:23:05 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 #include <sys/stat.h>	// stat()
 #include <errno.h>
 
+#define MOVED_PERMANENTLY 301
+#define FOUND 302
 #define BAD_REQUEST 400
 #define FORBIDDEN 403
 #define NOT_FOUND 404
@@ -31,9 +33,9 @@
 #define LENGTH_REQUIRED 411
 #define CONTENT_TOO_LARGE 413
 #define UNSUPPORTED_MEDIA_TYPE 415
+#define INTERNAL_ERROR 500
 #define NOT_IMPLEMENTED 501
 #define HTTP_VERSION_MISMATCH 505
-#define INTERNAL_ERROR 500
 
 #define NO_CONTENT 204
 
@@ -75,6 +77,7 @@ class Request {
 		std::string							keepAlive;
 		int									keepAliveTimeout;
 		int									keepAliveMax;
+		std::string							redirect;
 
 	public:
 		Request();
@@ -98,6 +101,7 @@ class Request {
 		int			getKeepAliveMax() const;
 		std::string	getHost() const;
 		std::string	getPort() const;
+		std::string getRedirect() const;
 
 		Request&	setMethod(const std::string& method);
 		Request&	setPath(const std::string& path);
@@ -110,14 +114,16 @@ class Request {
 		Request&	setBody(const std::string& body);
 		Request&	setContentLength(const size_t len);
 		Request&	setContentType(const std::string& type);
-		Request&	setKeepAlive(const std::string config);
+		Request&	setKeepAlive(const std::string& config);
 		Request&	setKeepAliveTimeout(const int time);
 		Request&	setKeepAliveMax(const int time);
-		Request&	setHost(const std::string host);
-		Request&	setPort(const std::string port);
+		Request&	setHost(const std::string& host);
+		Request&	setPort(const std::string& port);
+		Request&	setRedirect(const std::string& redirect);
 
 		// static void	setEnv(Connection& connection, char **env);
 		Request&	appendBody(const std::string& line);
+		Request&	clear();
 };
 
 #endif

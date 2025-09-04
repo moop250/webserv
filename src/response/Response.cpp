@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 23:08:00 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:43:21 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,20 @@ int Response::sendResponse(int fd_client) {
 		bytes_left -= sent;
 	}
 	return sent;
+}
+
+Response& Response::clear() {
+	this->code = -1;
+	this->codeMessage.clear();
+	this->headers.clear();
+	this->setHeader("Date", getCurrentHttpTime());
+	this->setHeader("Server", "42_Webserv/1.0.0");
+	this->setHeader("Authors", "hoannguy, hlibine, aseite");
+	this->body.clear();
+	this->contentLength = 0;
+	this->contentType.clear();
+	this->responseComplete.clear();
+	return *this;
 }
 
 std::ostream& operator <<(std::ostream& o, Response& response) {

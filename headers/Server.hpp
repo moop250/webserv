@@ -40,4 +40,6 @@ class Server : public Location
 
 std::string tostring(int n);
 
+std::ostream    &operator<<(std::ostream &steam, const Server &serv);
+
 #endif

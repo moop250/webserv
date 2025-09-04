@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 23:03:41 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:42:27 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ Request& Request::operator =(const Request& assign) {
 		this->keepAlive = assign.keepAlive;
 		this->keepAliveTimeout = assign.keepAliveTimeout;
 		this->keepAliveMax = assign.keepAliveMax;
+		this->redirect = assign.redirect;
 	}
 	return *this;
 }
@@ -49,7 +50,33 @@ Request::~Request() {
 	
 }
 
+// ----------------- METHODS ----------------------
 
+Request& Request::appendBody(const std::string& line) {
+	this->body += line;
+	return *this;
+}
+
+Request& Request::clear() {
+	this->method.clear();
+	this->path.clear();
+	this->query.clear();
+	this->httpVersion.clear();
+	this->headers.clear();
+	this->cookies.clear();
+	this->requestType = None;
+	this->fileType.clear();
+	this->body.clear();
+	this->host.clear();
+	this->port.clear();
+	this->contentLength = 0;
+	this->contentType.clear();
+	this->keepAlive.clear();
+	this->keepAliveTimeout = -1;
+	this->keepAliveMax = -1;
+	this->redirect.clear();
+	return *this;
+}
 
 // ----------------- GETTERS ----------------------
 
@@ -107,6 +134,9 @@ std::string Request::getHost() const {
 std::string Request::getPort() const {
 	return this->port;
 }
+std::string Request::getRedirect() const {
+	return this->redirect;
+}
 
 
 // ----------------- SETTERS ----------------------
@@ -145,10 +175,6 @@ Request& Request::setBody(const std::string& body) {
 	this->body = body;
 	return *this;
 }
-Request& Request::appendBody(const std::string& line) {
-	this->body += line;
-	return *this;
-}
 Request& Request::setContentLength(const size_t len) {
 	this->contentLength = len;
 	return *this;
@@ -157,7 +183,7 @@ Request& Request::setContentType(const std::string& type) {
 	this->contentType = type;
 	return *this;
 }
-Request& Request::setKeepAlive(const std::string config) {
+Request& Request::setKeepAlive(const std::string& config) {
 	this->keepAlive = config;
 	return *this;
 }
@@ -169,11 +195,15 @@ Request& Request::setKeepAliveMax(const int time) {
 	this->keepAliveMax = time;
 	return *this;
 }
-Request& Request::setHost(const std::string host) {
+Request& Request::setHost(const std::string& host) {
 	this->host= host;
 	return *this;
 }
-Request& Request::setPort(const std::string port) {
+Request& Request::setPort(const std::string& port) {
 	this->port = port;
+	return *this;
+}
+Request& Request::setRedirect(const std::string& redirect) {
+	this->redirect = redirect;
 	return *this;
 }

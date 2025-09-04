@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:18:51 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 23:07:46 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:43:06 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,10 @@ class Response {
 		Response&	setContentLength(const size_t len);
 		Response&	setContentType(const std::string& type);
 
-		// to do: get error path 
 		std::string	headersToString();
 		std::string	constructResponse();
 		int			sendResponse(int fd_client);
+		Response&	clear();
 };
 
 std::ostream& operator <<(std::ostream& o, Response& response);

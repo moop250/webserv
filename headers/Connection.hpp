@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/02 22:55:29 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:34:41 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ class Connection {
 		RequestServer	server;
 		long			chunked_size;
 		long			offset;
+		bool			reconnect;
 
 	public:
 		std::string		buffer;
@@ -55,13 +56,17 @@ class Connection {
 		RequestServer	getServer() const;
 		long			getChunkedSize() const;
 		long			getOffset() const;
+		bool			getReconnect() const;
 
-		Connection&		setState(State state);
-		Connection&		setServer(RequestServer& server);
-		Connection&		setChunkedSize(long size);
-		Connection&		setOffset(long size);
+		Connection&		setState(const State state);
+		Connection&		setServer(const RequestServer& server);
+		Connection&		setChunkedSize(const long size);
+		Connection&		setOffset(const long size);
+		Connection&		setReconnect(const bool reconnect);
 
 		Connection&		minusOffset(long size);
+		Connection&		plusOffset(long size);
+		Connection&		clear();
 };
 
 #endif

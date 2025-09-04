@@ -29,7 +29,9 @@ ErrorPages::ErrorPages(std::map<int, std::string> m)
             _html_content.push_back("HTML FILE EMPTY");
     }
 }
-
+ErrorPages::ErrorPages(const ErrorPages& copy) {
+    *this = copy;
+}
 ErrorPages& ErrorPages::operator=(const ErrorPages& pages) {
     if (this != &pages) {
         _html_content = pages._html_content;
@@ -57,14 +59,11 @@ std::string ErrorPages::path(int member) const {
 }
 
 std::string ErrorPages::content(int member) const {
-    try {
-        if (static_cast<size_t>(member) >= _html_content.size())
-            return ("");
-        return _html_content.at(member);
-    } catch (std::out_of_range()) {
-        std::cerr << "Out of range bitch\n";
-        return ("");
-    }
+    int index = 0;
+    for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, index++)
+        if (member == i->first)
+            return _html_content.at(index);
+    return ("");
 }
 
 /*	Error pages ANNEXE : 
@@ -166,3 +165,9 @@ int ErrorPages::find(int error) const
             return member;
     return -1;
 }
+
+//std::ostream    &operator<<(std::ostream &stream, const ErrorPages &p)
+//{
+//    for (int i = 0;)
+//    return stream;
+//}
