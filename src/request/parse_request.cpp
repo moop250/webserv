@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/03 22:00:10 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/03 22:35:03 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,8 +181,7 @@ int parse_request(Connection& connection, Config& config, char **env) {
 				case MOVED_PERMANENTLY:
 					// fall through
 				case FOUND:
-					error_redirect(connection, code);
-					return -1;
+					// fall through
 				case FORBIDDEN:
 					// fall through
 				case METHOD_NOT_ALLOWED:
