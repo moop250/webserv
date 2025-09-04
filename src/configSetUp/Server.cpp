@@ -303,3 +303,20 @@ std::vector<Location>   Server::locations() const { return _locations; }
 //    }
 //    return NULL;
 //}
+
+std::ostream    &operator<<(std::ostream &stream, const Server &serv)
+{
+    stream << CYAN << "SERVER CONTENT\n";
+    stream << "server name : " << serv.name() << '\n';
+    stream << "client size : " << serv.clientSize() << '\n'
+        << "Redirection : " << serv.redirect() << '\n'
+        << "Host : " << serv.host() << '\n'
+        << "methods : ";
+    for (size_t i = 0; i < serv.methods().size(); i++)
+        stream << " " << serv.methods().at(i);
+    stream << "\nCgi : \n";
+//    for (std::map<std::string, std::string>::iterator i = serv.cgi().begin(); i != serv.cgi().end(); i++)
+//        stream << "extention : " << i->first << " path : " << i->second << '\n';
+    stream << RESET;
+    return stream;
+ }

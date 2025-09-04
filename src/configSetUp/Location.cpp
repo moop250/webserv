@@ -34,11 +34,12 @@ Location::Location(t_ServerData serv)
     _path = "UNDEFINED";
     _errorPages = ErrorPages(serv.error_pages);
 
-    for (std::map<std::string, std::string>::iterator i = serv.cgi.begin(); i != serv.cgi.end();i++)
-    {
-     //   std::cout << i->first << " and " << i->second << std::endl;
-        _cgi.insert(std::make_pair(i->first, i->second));
-    }
+    _cgi = serv.cgi;
+    //for (std::map<std::string, std::string>::iterator i = serv.cgi.begin(); i != serv.cgi.end();i++)
+    //{
+    // //   std::cout << i->first << " and " << i->second << std::endl;
+    //    _cgi.insert(std::make_pair(i->first, i->second));
+    //}
     for (std::vector<std::string>::iterator i = serv.methods.begin(); i != serv.methods.end(); i++)
     {
      //   std::cout << *i;
@@ -233,5 +234,15 @@ std::string Location::redirect() const { return _redirect; }
 std::ostream &operator<<(std::ostream &stream, const Location &loc)
 {
     stream << "Loc path : " << loc.path() << std::endl;
+    stream << ROSE << "LOCATION CONTENT\n";
+    stream << "server name : " << " no nome" << '\n';
+    stream << "client size : " << loc.clientSize() << '\n'
+        << "Redirection : " << loc.redirect() << '\n'
+        << "Storage : " << loc.storage() << '\n'
+        << "methods : ";
+    for (size_t i = 0; i < loc.methods().size(); i++)
+        stream << " " << loc.methods().at(i);
+    stream << "\nCgi : \n";
+
     return stream;
 }
