@@ -16,17 +16,6 @@ RequestServer::RequestServer() {
     _autoindex = false;
 }
 
-void   helpFuckHelp(Config config, size_t servId, size_t locPath)
-{
-    std::vector<std::string>    m = config.getServerData(servId).methods;
-
-    for (std::vector<std::string>::iterator i = m.begin(); i != m.end(); i++)
-    {
-        std::cout << GREEN << "Method : " << *i << " \n" << RESET;
-    }
-    (void)locPath;
-}
-
 RequestServer::RequestServer(Config config, std::string name, std::string port, std::string locPath)
 {
 
@@ -56,10 +45,8 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
             break ;
     Location    loc(serv.location(locId));
 
-//    std::cout << "storage : " << serv.storage() << "\nAnd : " << config.getServerData(portId).upload_storage << std::endl;
-
     _isValid = true;
-    std::cout << "Hi\n";
+    std::cout << serv << "\n" << loc;
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         if (!serv.undefined(static_cast<e_TokenType>(i)))
             setToken(serv, static_cast<e_TokenType>(i));
@@ -67,47 +54,16 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
         for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
             if (!serv.location(locId).undefined(static_cast<e_TokenType>(i)))
                 setToken(loc, static_cast<e_TokenType>(i));
-    if (serv.undefined(METHODS) || serv.undefined(CGI_DATA))
-        std::cout << "WTF\n";
-    std::cout << "bye \n";
-    helpFuckHelp(config, portId, locId);
     _methods = config.getServerData(portId).methods;
+    if (!config.getServerData(portId).locations.at(locId).data.methods.empty())
+        _methods = config.getServerData(portId).locations.at(locId).data.methods;
+    _cgi = config.getServerData(portId).cgi;
+    if (!config.getServerData(portId).locations.at(locId).data.cgi.empty())
+        _cgi = config.getServerData(portId).locations.at(locId).data.cgi;
+    if (loc.clientSize() != 1)
+        _clientBodySize = loc.clientSize();
     std::cout << GREEN << "OUT" << '\n' << RESET;
 }
-
-//template <typename integer>
-//RequestServer::RequestServer(Config config, std::string locPath, integer port)
-//{
-//    size_t servId = config.find(tostring(port), SERVER_NAME);
-//    if (servId == std::string::npos)
-//    {
-//        *this = RequestServer();
-//        std::cerr << RED << "ServerName not found\n" << RESET;
-//        _isValid = false;
-//        return ;
-//    }
-//    size_t  locId = config.find(locPath, LOCATION_PATH);
-//    if (locId == std::string::npos && !locPath.empty())
-//    {
-//        *this = RequestServer();
-//        std::cerr << RED << "Location path in server nb : " << servId
-//            << " not found\n" << RESET;
-//        _isValid = false;
-//        return ;
-//    }
-//    
-//    Server      serv(config.getServerData(servId));
-//    Location    loc(serv.location(locId));
-//
-//    _isValid = true;
-//    for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
-//        if (!serv.undefined(static_cast<e_TokenType>(i)))
-//            setToken(serv, static_cast<e_TokenType>(i));
-//    if (!locPath.empty())
-//        for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
-//            if (!serv.location(locId).undefined(static_cast<e_TokenType>(i)))
-//                setToken(loc, static_cast<e_TokenType>(i));
-//}
 
 RequestServer::RequestServer(const RequestServer &serv)
 {
@@ -145,19 +101,19 @@ void    RequestServer::setToken(Server serv, e_TokenType type)
             _storage = serv.storage();
             break;
         case CGI_DATA:
-            for (std::map<std::string, std::string>::iterator i = _cgi.begin(); i != _cgi.end(); i++)
-            {
-                _cgi.insert(std::make_pair(i->first, i->second));
-                std::cout << "first : " << i->first << " second : " << i->second << std::endl; 
-            }
-           // _cgi = serv.cgi();
+          //  for (std::map<std::string, std::string>::iterator i = _cgi.begin(); i != _cgi.end(); i++)
+          //  {
+          //      _cgi.insert(std::make_pair(i->first, i->second));
+          //      std::cout << "first : " << i->first << " second : " << i->second << std::endl; 
+            //}
+            _cgi = serv.cgi();
             break;
         case CLIENT_MAX_BODY_SIZE:
             _clientBodySize = serv.clientSize();
             break;
         case METHODS:
-            for (std::vector<std::string>::iterator i = serv.methods().begin(); i != serv.methods().end();i++)
-                _methods.push_back(*i);
+        //   for (std::vector<std::string>::iterator i = serv.methods().begin(); i != serv.methods().end();i++)
+        //       _methods.push_back(*i);
             _methods = serv.methods();
          //   for (std::vector<std::string>::iterator i = _methods.begin(); i != _methods.end();i++)
          //       std::cout << "Method in loc : " << *i << std::endl;
@@ -165,6 +121,7 @@ void    RequestServer::setToken(Server serv, e_TokenType type)
             break;
         case REDIRECT:
             _redirect = serv.redirect();
+            break ;
         default:
             break;
     }
@@ -201,11 +158,12 @@ void    RequestServer::setToken(Location loc, e_TokenType type)
             _storage = loc.storage();
             break;
         case CGI_DATA:
-            for (std::map<std::string, std::string>::iterator i = _cgi.begin(); i != _cgi.end(); i++)
-            {
-                _cgi.insert(std::make_pair(i->first, i->second));
-                std::cout << "first : " << i->first << " second : " << i->second << std::endl; 
-            }
+         //   for (std::map<std::string, std::string>::iterator i = _cgi.begin(); i != _cgi.end(); i++)
+         //   {
+         //       _cgi.insert(std::make_pair(i->first, i->second));
+         //       std::cout << "first : " << i->first << " second : " << i->second << std::endl; 
+         //   }
+            _cgi = loc.cgi();
             break ;
         case CLIENT_MAX_BODY_SIZE:
             _clientBodySize = loc.clientSize();
@@ -288,8 +246,9 @@ std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
             << "Max client siz : " << rs.clientSize() << '\n'
             << "Redirection    : " << rs.redirect() << std::endl; 
     stream << "Methods        : ";
-    for (std::vector<std::string>::iterator i = rs.methods().begin(); i != rs.methods().end(); i++)
-        stream << " m :" << *i;
+
+    for (size_t i = 0; i < rs.methods().size(); i++)
+        stream << " " << rs.methods().at(i);
     stream << '\n';
     stream << "Host           : ";
     stream << rs.host();
@@ -297,11 +256,12 @@ std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
     stream << rs.port();
     stream << "\n";
     stream << "CGI             : \n";
-    if (rs.cgi().empty())
-        stream << RED << "\t\t\tUNDEFINED\n" << RESET;
-    else
-        for (std::map<std::string, std::string>::iterator j = rs.cgi().begin(); j != rs.cgi().end(); j++)
-            stream << "\textension :" << j->first << " <==> path : " << j->second << '\n';
+    return stream;
+   if (rs.cgi().empty())
+       stream << RED << "\t\t\tUNDEFINED\n" << RESET;
+   else
+       for (std::map<std::string, std::string>::iterator j = rs.cgi().begin(); j != rs.cgi().end(); j++)
+           stream << "\textension :" << j->first << " <==> path : " << j->second << '\n';
     stream << "error pages       : ";
     if (rs.errorPages().content(0).empty())
         stream << RED << "\t\tUNDEFINED" << RESET;
