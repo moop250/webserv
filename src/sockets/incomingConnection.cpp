@@ -201,6 +201,7 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 		if ((*fds)[i].revents & POLLOUT) {		
 			switch (handlePOLLOUT((*fds)[i].fd, connectMap)) {
 				case 0:
+					connectMap->at((*fds)[i].fd).clear();
 					connectMap->at((*fds)[i].fd).setState(WAITING_REQUEST);
 					setPOLLIN((*fds)[i].fd, fds);
 					continue ;
