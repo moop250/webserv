@@ -37,9 +37,11 @@ class RequestServer
 
         RequestServer   &operator=(const RequestServer &);
 
-        void            setToken(Server serv, e_TokenType type);
-        void            setToken(Location loc, e_TokenType type);
+        void            setToken(t_ServerData serv, e_TokenType type);
+        void            setToken(t_Location loc, e_TokenType type);
 //        void            setToken(std::string str, e_TokenType type);
+        bool            undefined(e_TokenType);
+        bool            has(e_TokenType);
 
         std::map<std::string, std::string>  cgi() const;
         std::vector<std::string>            methods() const;

@@ -4,11 +4,13 @@ ErrorPages::ErrorPages()
 {
     _html_content.push_back("UNDEFINED");
     _data.insert(std::make_pair(0, "UNDEFINED"));
+    _nbPages = 0;
 }
 
 ErrorPages::ErrorPages(std::map<int, std::string> m)
 {
     _data = m;
+    _nbPages = 0;
     for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++)
     {
         const std::string   &filepath = i->second;
@@ -27,15 +29,20 @@ ErrorPages::ErrorPages(std::map<int, std::string> m)
         }
         else
             _html_content.push_back("HTML FILE EMPTY");
+        _nbPages += 1;
     }
 }
+
 ErrorPages::ErrorPages(const ErrorPages& copy) {
-    *this = copy;
+    this->_html_content = copy._html_content;
+    this->_data = copy._data;
+    this->_nbPages = copy._nbPages;
 }
 ErrorPages& ErrorPages::operator=(const ErrorPages& pages) {
     if (this != &pages) {
-        _html_content = pages._html_content;
-        _data = pages._data;
+        this->_html_content = pages._html_content;
+        this->_data = pages._data;
+        this->_nbPages = pages._nbPages;
     }
     return *this;
 }
@@ -43,6 +50,8 @@ ErrorPages& ErrorPages::operator=(const ErrorPages& pages) {
 ErrorPages::~ErrorPages() {
     return ;
 }
+
+int ErrorPages::getNbPages() const { return _nbPages; }
 
 int ErrorPages::error(int member) const {
     for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++)

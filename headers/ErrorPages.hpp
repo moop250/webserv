@@ -6,6 +6,7 @@
 
 class ErrorPages
 {
+    int _nbPages;
     public:
         ErrorPages();
         ErrorPages(std::map<int, std::string>);
@@ -13,6 +14,7 @@ class ErrorPages
         ErrorPages& operator=(const ErrorPages& pages);
         ~ErrorPages();
 
+        int         getNbPages() const;
         int         error(int index = 0) const;
         std::string path(int index = 0) const;
         std::string content(int index = 0) const;
