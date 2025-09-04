@@ -38,7 +38,6 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
         return ;
     }
     Server      serv(config.getServerData(portId));
-    std::cout << "Location count: " << serv.locations().size() << std::endl;
     locId = 0;
     for (std::vector<Location>::iterator i = serv.locations().begin(); i != serv.locations().end(); i++, locId++)
         if (i->path() == locPath)
@@ -46,7 +45,6 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     Location    loc(serv.location(locId));
 
     _isValid = true;
-  //  std::cout << serv << "\n" << loc;
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
         if (!serv.undefined(static_cast<e_TokenType>(i)))
             setToken(serv, static_cast<e_TokenType>(i));
@@ -62,10 +60,9 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
         _cgi = config.getServerData(portId).locations.at(locId).data.cgi;
     if (loc.clientSize() != 1)
         _clientBodySize = loc.clientSize();
-    std::cout << "HELLO \n";
     std::map<std::string, std::string> cgi = config.getServerData(portId).cgi;
     _cgi = cgi;
-    std::cout << GREEN << "OUT" << '\n' << RESET;
+    _errorPages = ErrorPages(config.getServerData(portId).error_pages);
 }
 
 RequestServer::RequestServer(const RequestServer &serv)
@@ -267,12 +264,9 @@ std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
        for (std::map<std::string, std::string>::const_iterator j = mprint.begin(); j != mprint.end(); j++)
           stream << "\textension :" << j->first << " <==> path : " << j->second << '\n';
     stream << "error pages       : ";
-    if (rs.errorPages().content(0).empty())
-        stream << RED << "\t\tUNDEFINED" << RESET;
-    else
-        stream << "Content to long to print...\n";
-   //     for (std::map<int, std::string>::iterator j = rs.errorPages(); j != rs.errorPages.end(); j++)
-   //         stream << "\t\t" << j->first << " <==> " << j->second << '\n';
+    for (int j = 0; j < OTHER; j++)
+        stream <<  rs.errorPages().content(j);
+         //  stream << "\t\t" << j->first << " <==> " << j->second << '\n';
     stream << '\n';
     return (stream);
 }
