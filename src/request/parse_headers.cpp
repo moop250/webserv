@@ -104,7 +104,7 @@ void matching_server(Connection& connection, Config& config) {
 	path = connection.getRequest().getPath();
 	port = connection.getRequest().getPort();
 	RequestServer server(config, name, port, path);
-
+//	std::cout << config;
 	if (server.isValid() == true) {
 		connection.setServer(server);
 		std::cout << server << std::endl;
