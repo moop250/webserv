@@ -23,6 +23,8 @@ static bool    check(Config config, size_t portId, size_t nameId, size_t locId, 
         std::cerr << RED << "ServerName or associeted port not found\n" << RESET;
         return false;
     }
+    if (locPath.empty())
+        return true;
     if ((locId == std::string::npos && !locPath.empty() && portId != locId)
         || locId >= config.getServerData(portId).locations.size())
     {
@@ -55,12 +57,13 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
             break ;
         locId++;
     }
-    t_Location      l = s.locations.at(locId);
-
     _isValid = true;
     if (!locPath.empty())
+    {
+        t_Location      l = s.locations.at(locId);
        for (int i = 0; i < LOCATION; i++)
             setToken(l, static_cast<e_TokenType>(i));
+    }
     for (int i = 0; i < LOCATION; i++)
         setToken(s, static_cast<e_TokenType>(i));
   //  std::cout << YELLOW << _errorPages.content(404) << RESET;
