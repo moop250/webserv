@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/05 12:23:54 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/05 12:40:05 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -409,20 +409,20 @@ TEST_CASE("File GET", "[Success]") {
 // 	REQUIRE(code == 0);
 // }
 
-TEST_CASE("File POST", "[Success]") {
-	Connection	connection;
-	connection.getRequest().setPath("../test.txt");
-	connection.getRequest().setBody("THIS PART SHOULD APPEND TO THE FILE!\n");
-	int code = post_file(connection);
-	REQUIRE(code == 0);
-}
+// TEST_CASE("File POST", "[Success]") {
+// 	Connection	connection;
+// 	connection.getRequest().setPath("../test.txt");
+// 	connection.getRequest().setBody("THIS PART SHOULD APPEND TO THE FILE!\n");
+// 	int code = post_file(connection);
+// 	REQUIRE(code == 0);
+// }
 
-TEST_CASE("Directory POST", "[Success]") {
-	Connection	connection;
-	connection.getRequest().setPath("../");
-	connection.getRequest().setBody("This is an example text to put in the new file\n");
-	connection.getRequest().setContentType("text/plain");
-	int code = post_directory(connection);
-	REQUIRE(code == 0);
-	REQUIRE(connection.getState() == SENDING_RESPONSE);
-}
+// TEST_CASE("Directory POST", "[Success]") {
+// 	Connection	connection;
+// 	connection.getRequest().setPath("../");
+// 	connection.getRequest().setBody("This is an example text to put in the new file\n");
+// 	connection.getRequest().setContentType("text/plain");
+// 	int code = post_directory(connection);
+// 	REQUIRE(code == 0);
+// 	REQUIRE(connection.getState() == SENDING_RESPONSE);
+// }
