@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 16:19:31 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/05 12:35:56 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,10 @@ void error_response(Connection& connection, int code) {
 		codeMessage = "Internal Error";
 	}
 	body = connection.getServer().errorPages().content(code);
-	if (code == 301 || code == 302)
+	if (code == 301 || code == 302) {
+		// Check later to return URI path instead of system path
 		connection.getResponse().setHeader("Location", connection.getRequest().getRedirect());
+	}
 	connection.getResponse().setCode(code); 
 	connection.getResponse().setCodeMessage(codeMessage);
 	connection.getResponse().setHeader("Connection", "close");
