@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 16:53:04 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/05 12:23:54 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ TEST_CASE("Parse Unit", "[Success]") {
 								 "\r\n"
 								 "Hello World!");
 	REQUIRE(connection.getRequest().getMethod() == "POST");
-	code = parse_URL(connection, *config);
+	code = parse_URL(connection);
 	REQUIRE(code == READING_HTTPVERSION);
 	REQUIRE(connection.buffer == "HTTP/1.1\r\n"
 								 "Host: localhost1:8001\r\n"
@@ -214,7 +214,7 @@ TEST_CASE("Connection state request section", "[Success]") {
 	REQUIRE(connection.getState() == READING_METHOD);
 	parse_method(connection);
 	REQUIRE(connection.getState() == READING_PATH);
-	parse_URL(connection, *config);
+	parse_URL(connection);
 	REQUIRE(connection.getState() == READING_HTTPVERSION);
 	parse_http_ver(connection);
 	REQUIRE(connection.getState() == READING_HEADERS);
@@ -264,7 +264,7 @@ TEST_CASE("Parse path", "[Error]") {
 	SECTION("Path not complete", "[Error]") {
 		connection.buffer = "GET /wtfw";
 		parse_method(connection);
-		int code = parse_URL(connection, *config);
+		int code = parse_URL(connection);
 		REQUIRE(code == CONTINUE_READ);
 		REQUIRE(connection.buffer == "/wtfw");
 		REQUIRE(connection.getRequest().getPath() == "");
@@ -281,7 +281,7 @@ TEST_CASE("Parse http version", "[Error]") {
 	SECTION("HTTP version not complete", "[Error]") {
 		connection.buffer = "GET /cgi/test.java?user=Nguyen&school=42 HTTP/1.";
 		parse_method(connection);
-		parse_URL(connection, *config);
+		parse_URL(connection);
 		int code = parse_http_ver(connection);
 		REQUIRE(code == CONTINUE_READ);
 		REQUIRE(connection.buffer == "HTTP/1.");
@@ -290,7 +290,7 @@ TEST_CASE("Parse http version", "[Error]") {
 	SECTION("HTTP version mismatch", "[Error]") {
 		connection.buffer = "GET /cgi/test.java?user=Nguyen&school=42 HTTP/1.0\r\n";
 		parse_method(connection);
-		parse_URL(connection, *config);
+		parse_URL(connection);
 		int code = parse_http_ver(connection);
 		REQUIRE(code == HTTP_VERSION_MISMATCH);
 		REQUIRE(connection.buffer == "HTTP/1.0\r\n");
@@ -312,7 +312,7 @@ TEST_CASE("Parse headers", "[Error]") {
 							"Host: localhost:3000\r\n"
 							"\r\n";
 		parse_method(connection);
-		parse_URL(connection, *config);
+		parse_URL(connection);
 		parse_http_ver(connection);
 		int code = parse_headers(connection, *config);
 		REQUIRE(code == BAD_REQUEST);
@@ -323,7 +323,7 @@ TEST_CASE("Parse headers", "[Error]") {
 							"Server: 42 Lausanne webserver\r\n"
 							"\r\n";
 		parse_method(connection);
-		parse_URL(connection, *config);
+		parse_URL(connection);
 		parse_http_ver(connection);
 		int code = parse_headers(connection, *config);
 		REQUIRE(code == BAD_REQUEST);
@@ -355,7 +355,7 @@ TEST_CASE("Parse headers", "[Error]") {
 	// 						"\r\n"
 	// 						"Hello World!";
 	// 	parse_method(connection);
-	// 	parse_URL(connection, *config);
+	// 	parse_URL(connection);
 	// 	parse_http_ver(connection);
 	// 	int code = parse_headers(connection, *config);
 	// 	REQUIRE(connection.getRequest().getHost() == "localhost1");
@@ -368,7 +368,7 @@ TEST_CASE("Parse headers", "[Error]") {
 	// 						"Host:localhost:3000\r\n"
 	// 						"\r\n";
 	// 	parse_method(connection);
-	// 	parse_URL(connection, config);
+	// 	parse_URL(connection);
 	// 	parse_http_ver(connection);
 	// 	int code = parse_headers(connection, config);
 	// 	REQUIRE(connection.getRequest().getHost() == "localhost");
@@ -378,7 +378,7 @@ TEST_CASE("Parse headers", "[Error]") {
 }
 
 TEST_CASE("File GET", "[Success]") {
-	Connection		connection;
+	Connection	connection;
 	connection.getRequest().setPath("../html/error/400.html");
 	connection.getRequest().setFileType(".html");
 	int code = get_file(connection);
@@ -403,16 +403,26 @@ TEST_CASE("File GET", "[Success]") {
 }
 
 // TEST_CASE("File DELETE", "[Success]") {
-// 	Connection		connection;
+// 	Connection	connection;
 // 	connection.getRequest().setPath("../test.txt");
 // 	int code = delete_file(connection);
 // 	REQUIRE(code == 0);
 // }
 
 TEST_CASE("File POST", "[Success]") {
-	Connection		connection;
+	Connection	connection;
 	connection.getRequest().setPath("../test.txt");
 	connection.getRequest().setBody("THIS PART SHOULD APPEND TO THE FILE!\n");
 	int code = post_file(connection);
 	REQUIRE(code == 0);
+}
+
+TEST_CASE("Directory POST", "[Success]") {
+	Connection	connection;
+	connection.getRequest().setPath("../");
+	connection.getRequest().setBody("This is an example text to put in the new file\n");
+	connection.getRequest().setContentType("text/plain");
+	int code = post_directory(connection);
+	REQUIRE(code == 0);
+	REQUIRE(connection.getState() == SENDING_RESPONSE);
 }

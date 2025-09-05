@@ -96,7 +96,7 @@ int main(int ac, char** av, char **env)
 	// ServerSocket *socket = NULL;
 
 	(void)env;
-
+	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
@@ -124,10 +124,12 @@ int main(int ac, char** av, char **env)
 						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
-						"Content-Length: 4000000\r\n"
+						"Content-Length: 12\r\n"
 						"\r\n"
 						"Hello World!";
-	parse_request(connection, *config, env);
+	int code = parse_request(connection, *config, env);
+	std::cout << code << std::endl;
+	std::cout << connection.getState() << std::endl;
 
 	ErrorDebug(dfile, "Event Loop Undefined");
 

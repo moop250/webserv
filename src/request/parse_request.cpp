@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/03 22:35:03 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 21:53:28 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,13 +57,11 @@ std::string extract_Query(std::string& url, std::string::size_type query_pos) {
 	}
 }
 
-// stuffs to do
-int parse_URL(Connection& connection, Config& config) {
+int parse_URL(Connection& connection) {
 	std::string::size_type	url_pos;
 	std::string::size_type	path_pos;
 	std::string::size_type	query_pos;
 
-	(void)config;
 	url_pos = connection.buffer.find(" ");
 	if (url_pos == std::string::npos)
 		return CONTINUE_READ;
@@ -138,7 +136,7 @@ int parse_request(Connection& connection, Config& config, char **env) {
 			break ;
 			
 		case READING_PATH:
-			code = parse_URL(connection, config);
+			code = parse_URL(connection);
 			switch (code) {
 				case CONTINUE_READ:
 					return CONTINUE_READ;

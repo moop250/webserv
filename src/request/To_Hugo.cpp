@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 16:42:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/08/29 13:55:53 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 21:35:07 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,5 +85,5 @@ void To_Hugo() {
 	// 7.	Envoyer la réponse, à voir encore avec le POLLOUT si c'est mieux d'envoyer ici ou ailleur.
 
 	// 8.	Remets le state en waiting request.
-	connection.setState(WAITING_REQUEST);
+	connection.clear();
 }

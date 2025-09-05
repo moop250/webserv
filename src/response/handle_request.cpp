@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/03 21:33:55 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 22:29:59 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Connection.hpp"
 #include "Config.hpp"
 #include "request_handler.hpp"
+#include "support_file.hpp"
 
 int CGI_handler(Connection& connection, char** env) {
 	(void)connection;
@@ -30,7 +31,7 @@ int CGI_handler(Connection& connection, char** env) {
 }
 
 // untested
-void parse_type(Connection& connection) {
+int parse_type(Connection& connection) {
 	std::string path;
 	std::string extension;
 
@@ -41,21 +42,23 @@ void parse_type(Connection& connection) {
 	} else {
 		connection.getRequest().setRequestType(File);
 	}
+	// if (getMIMEType(extension).empty()) {
+	// 	error_response(connection, UNSUPPORTED_MEDIA_TYPE);
+	// 	return -1;
+	// }
 	connection.getRequest().setFileType(extension);
-	// check content-type to see if compatible, if not UNSUPPORTED_MEDIA_TYPE
+	return 0;
 }
 
 // stuffs to do
 int parse_request_type(Connection& connection) {
 	struct stat	file_stat;
 	std::string	path;
-	std::string	method;
 	int			code;
 
 	// Check if path is cgi /cgi directory or not, pre-append the cgi path or root path
 	path = connection.getRequest().getPath();
 
-	method = connection.getRequest().getMethod();
 	code = stat(path.c_str(), &file_stat);
 	if (code == -1) {
 		switch (errno) {
@@ -75,13 +78,13 @@ int parse_request_type(Connection& connection) {
 	}
 	if (S_ISDIR(file_stat.st_mode)) {
 		connection.getRequest().setRequestType(Directory);
+		return 0;
 	} else if (S_ISREG(file_stat.st_mode)) {
-		parse_type(connection);
+		return parse_type(connection);
 	} else {
 		error_response(connection, BAD_REQUEST);
 		return -1;
 	}
-	return 0;
 }
 
 int handle_request(Connection& connection, char **env) {
