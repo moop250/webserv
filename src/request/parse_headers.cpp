@@ -107,9 +107,9 @@ int parse_keepAlive(Connection& connection) {
 
 // stuffs to do
 void matching_server(Connection& connection, Config& config) {
-	std::string	name = "localhost1";
-	std::string	path = "/html";
-	std::string	port = "8001";
+	std::string	name = "localhost2";
+	std::string	path = "";
+	std::string	port = "8002";
 
 	RequestServer server(config, name, port, path);
 	if (server.isValid() == true) {
