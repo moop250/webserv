@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/05 14:45:54 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/07 12:29:35 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,7 @@
 #include "request_handler.hpp"
 #include "support_file.hpp"
 
-int CGI_handler(Connection& connection, char** env) {
-	(void)connection;
-	(void)env;
-	// signal
-	// check method with connection.getRequest().getMethod()
-	// check cgi type connection.getRequest().getCgiType()
-	// fork
-	// pipe
-	// execve
-	// get result to connection.getResponse().setBody()
-	return 0;
-}
-
-// untested
+// stuffs to do
 int parse_type(Connection& connection) {
 	std::string path;
 	std::string extension;
@@ -42,6 +29,7 @@ int parse_type(Connection& connection) {
 	} else {
 		connection.getRequest().setRequestType(File);
 	}
+	// remake
 	// if (getMIMEType(extension).empty()) {
 	// 	error_response(connection, UNSUPPORTED_MEDIA_TYPE);
 	// 	return -1;
@@ -58,6 +46,9 @@ int parse_request_type(Connection& connection) {
 
 	// Check if path is cgi /cgi directory or not, pre-append the cgi path or root path
 	path = connection.getRequest().getPath();
+
+	// To test only
+	path = ".." + path;
 
 	code = stat(path.c_str(), &file_stat);
 	if (code == -1) {
@@ -92,7 +83,6 @@ int handle_request(Connection& connection, char **env) {
 
 	if (parse_request_type(connection) == -1)
 		return -1;
-	
 	requestType = static_cast<int>(connection.getRequest().getRequestType());
 	if (requestType == CGI)
 		return CGI_handler(connection, env);

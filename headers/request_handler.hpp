@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 22:26:58 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/07 12:30:49 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ int			directory_handler(Connection& connection);
 int			get_directory(Connection& connection);
 int			post_directory(Connection& connection);
 int			delete_directory(Connection& connection);
+int			CGI_handler(Connection& connection, char** env);
 
 std::string	size_to_string(size_t size);
 std::string	trim(const std::string &str);

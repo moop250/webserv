@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/05 14:48:12 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/07 12:06:04 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,12 @@ void parse_host(Connection& connection, std::string& host) {
 }
 
 int method_check(Connection& connection) {
-	std::string	method;
+	std::string					method;
+	std::vector<std::string>	allowed;
 
 	method = connection.getRequest().getMethod();
-	for (std::vector<std::string>::iterator it = connection.getServer().methods().begin(); it != connection.getServer().methods().end(); it++) {
-		std::cout << *it << std::endl;
+	allowed = connection.getServer().methods();
+	for (std::vector<std::string>::iterator it = allowed.begin(); it != allowed.end(); it++) {
 		if (*it == method)
 			return CONTINUE_READ;
 	}
@@ -107,13 +108,16 @@ int parse_keepAlive(Connection& connection) {
 
 // stuffs to do
 void matching_server(Connection& connection, Config& config) {
-	std::string	name = "localhost2";
-	std::string	path = "";
-	std::string	port = "8002";
+	std::string	name;
+	std::string	path;
+	std::string	port;
 
+	name = connection.getRequest().getHost();
+	path = connection.getRequest().getPath();
+	port = connection.getRequest().getPort();
 	RequestServer server(config, name, port, path);
 	if (server.isValid() == true) {
-		 std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
+		//  std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
 		connection.setServer(server);
 	} else {
 		std::cout << "NO SERVER MATCHED" << std::endl;
@@ -121,11 +125,12 @@ void matching_server(Connection& connection, Config& config) {
 	}
 }
 
-// stuffs to do
 int parse_body_chunked(Connection& connection) {
 	std::string::size_type	end_pos;
 	std::string				line;
 
+	// if (connection.buffer.size() > connection.getServer().clientSize())
+	// 		return CONTENT_TOO_LARGE;
 	while(true) {
 		if (connection.getChunkedSize() == -1) {
 			end_pos = connection.buffer.find("\r\n");
@@ -156,12 +161,13 @@ int parse_body_chunked(Connection& connection) {
 	}
 }
 
-// stuffs to do
 int content_length_check(Connection& connection) {
 	std::string	contentLength;
 	std::string	transferEncoding;
 	std::string	method;
 
+	if (connection.buffer.size() > connection.getServer().clientSize())
+			return CONTENT_TOO_LARGE;
 	contentLength = connection.getRequest().getHeader("content-length");
 	transferEncoding = connection.getRequest().getHeader("transfer-encoding");
 	method = connection.getRequest().getMethod();
@@ -174,14 +180,12 @@ int content_length_check(Connection& connection) {
 	}
 	if (!contentLength.empty() && !transferEncoding.empty())
 		return BAD_REQUEST;
-
-	// Max body size untested, to test later
 	if (!contentLength.empty()) {
 		connection.getRequest().setContentLength(strtol(contentLength.c_str(), NULL, 10));
 		if (connection.getRequest().getContentLength() <= 0)
 			return BAD_REQUEST;
-		// if (connection.getRequest().getContentLength() > connection.getServer().clientSize()) {}
-		// 	return CONTENT_TOO_LARGE;
+		if (connection.getRequest().getContentLength() > connection.getServer().clientSize())
+			return CONTENT_TOO_LARGE;
 		connection.setState(READING_BODY);
 		return READING_BODY;
 	}
@@ -223,7 +227,6 @@ int parse_redirect(Connection& connection, std::string& redirect) {
 	return INTERNAL_ERROR;
 }
 
-// stuffs to do
 int headers_content_check(Connection& connection, Config& config) {
 	std::string	host;
 	std::string keepAlive;
@@ -239,11 +242,8 @@ int headers_content_check(Connection& connection, Config& config) {
 	redirect = connection.getServer().redirect();
 	if (!redirect.empty())
 		return parse_redirect(connection, redirect);
-	
-	// // Allowed methods untested, to test later
-	// if (method_check(connection) == METHOD_NOT_ALLOWED)
-	// 	return METHOD_NOT_ALLOWED;
-
+	if (method_check(connection) == METHOD_NOT_ALLOWED)
+		return METHOD_NOT_ALLOWED;
 	keepAlive = connection.getRequest().getHeader("connection");
 	std::string::size_type comma;
 	comma = keepAlive.find(",");
