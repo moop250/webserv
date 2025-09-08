@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/07 12:30:49 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/08 21:53:30 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ int			parse_http_ver(Connection& connection);
 int			parse_headers(Connection& connection, Config& config);
 int			parse_body_chunked(Connection& connection);
 int			parse_body(Connection& connection);
-int			parse_request(Connection& connection, Config& config, char **env);
+int			parse_request(Connection& connection, Config& config);
 
-int			handle_request(Connection& connection, char **env);
+int			handle_request(Connection& connection);
 int			file_handler(Connection& connection);
 int			get_file(Connection& connection);
 int			post_file(Connection& connection);
@@ -36,7 +36,7 @@ int			directory_handler(Connection& connection);
 int			get_directory(Connection& connection);
 int			post_directory(Connection& connection);
 int			delete_directory(Connection& connection);
-int			CGI_handler(Connection& connection, char** env);
+int			CGI_handler(Connection& connection);
 
 std::string	size_to_string(size_t size);
 std::string	trim(const std::string &str);

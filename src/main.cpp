@@ -89,13 +89,12 @@ void	free(Config *conf)
 	return ;
 }
 
-int main(int ac, char** av, char **env)
+int main(int ac, char** av)
 {
 	Debug	dfile("General.log");
 	Config	*config = NULL;
 	// ServerSocket *socket = NULL;
 
-	(void)env;
 	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
@@ -117,7 +116,7 @@ int main(int ac, char** av, char **env)
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	
-	// eventLoop(config, socket, env);
+	// eventLoop(config, socket);
 
 	Connection		connection;
 	connection.buffer = "POST /cgi/CGI.java?user=Nguyen&school=42 HTTP/1.1\r\n"
@@ -127,7 +126,9 @@ int main(int ac, char** av, char **env)
 						"Content-Length: 12\r\n"
 						"\r\n"
 						"Hello World!";
-	parse_request(connection, *config, env);
+	parse_request(connection, *config);
+	handle_request(connection);
+
 	
 	ErrorDebug(dfile, "Event Loop Undefined");
 

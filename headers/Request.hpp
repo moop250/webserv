@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/07 11:12:32 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/08 14:25:01 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,6 @@ class Request {
 		Request&	setPort(const std::string& port);
 		Request&	setRedirect(const std::string& redirect);
 
-		// static void	setEnv(Connection& connection, char **env);
 		Request&	appendBody(const std::string& line);
 		Request&	clear();
 };
