@@ -132,6 +132,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 		switch(handleClientData(fd, connectMap, conf, env))
 		{
 			case CLOSEFD:
+				std::cout << YELLOW << "POLLIN: socket " << fd << " closed" << RESET << std::endl;
 				close(fd);
 				removeFromPollfd(fds, fd, sockets, connectMap);
 				return -1;
@@ -196,6 +197,7 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 		if ((*fds)[i].revents & POLLHUP) {
 			close((*fds)[i].fd);
 			removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
+			std::cout << YELLOW << "poll: socket " << (*fds)[i].fd << " hung up" << RESET << std::endl;
 			continue;
 		}
 		if ((*fds)[i].revents & POLLOUT) {		
@@ -208,6 +210,7 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 				case 1:
 					continue ;
 				case 2:
+					std::cout << YELLOW << "POLLOUT: non fatal error on socket " << (*fds)[i].fd << "... closing" << RESET << std::endl;
 					close((*fds)[i].fd);
 					removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
 			}
