@@ -23,7 +23,9 @@ ServerSocket::~ServerSocket() {
 void	ServerSocket::initializeNewSocket(std::string combo) {
 	int socketfd = -1;
 	struct addrinfo	info, *res;
-	int del = combo.find("|");
+	size_t del = combo.find("|");
+	if (del == std::string::npos)
+		{throw std::runtime_error("Socket initialization error: incomplete combo");}
 	std::string		host = combo.substr(0, del),
 					port = combo.substr(del + 1, combo.length());
 
@@ -43,7 +45,7 @@ void	ServerSocket::initializeNewSocket(std::string combo) {
 	freeaddrinfo(res);
 	
 	if (listen(socketfd,BACKLOG) < 0)
-		{throw std::runtime_error("Socket listen error:" + std::string(strerror(errno)));}
+		{throw std::runtime_error("Socket listen error: " + std::string(strerror(errno)));}
 
 	this->serverSocketFd_.push_back(socketfd);
 	this->serverPort_.push_back(atoi(port.c_str()));
