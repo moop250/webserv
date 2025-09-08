@@ -11,9 +11,19 @@ Server::Server(t_ServerData serv) : Location(serv)
     _host = serv.host;
     _port = serv.port;
     _server_name = serv.server_name;
-    _errorPages = ErrorPages(serv.error_pages);
-    for (std::vector<t_Location>::iterator i = serv.locations.begin(); i != serv.locations.end(); i++)
-        _locations.push_back(Location(*i));
+//    _errorPages = ErrorPages(serv.error_pages);
+//    if (serv.locations.size() > 0)
+//        std::cout << serv.locations.at(0).path;
+    this->_locations.push_back(Location());
+    for (size_t i = 0; i < serv.locations.size(); i++)
+    {
+        this->_locations.push_back(Location(serv.locations.at(i)));
+    }
+   // for (std::vector<t_Location>::iterator i = serv.locations.begin(); i != serv.locations.end();)
+   // {
+   //     _locations.push_back(Location(*i));
+   //     i++;
+   // }
     return ;
 }
 
@@ -263,6 +273,8 @@ std::string Server::port() const { return _port; }
 std::string Server::name() const { return _server_name; }
 
 Location    Server::location(int at) const {
+    if (_locations.size() < static_cast<size_t>(at))
+        return _locations.at(0);
     try {
         return _locations.at(at);
     } catch(std::exception &e) {

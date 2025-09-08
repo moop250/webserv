@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 20:14:22 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/03 22:25:54 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/04 22:24:54 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,21 +23,33 @@ std::set<std::string> listCGI() {
 	return supported;
 }
 
-std::map<std::string, std::string> listFormat() {
+std::map<std::string, std::string> listExtension() {
 	std::map<std::string, std::string> format;
-	format.insert(std::make_pair(".png", "image/png"));
-	format.insert(std::make_pair(".jpg", "image/jpeg"));
-	format.insert(std::make_pair(".jpeg", "image/jpeg"));
-	format.insert(std::make_pair(".html", "text/html"));
-	format.insert(std::make_pair(".css", "text/css"));
-	format.insert(std::make_pair(".txt", "text/plain"));
-	format.insert(std::make_pair(".pdf", "application/pdf"));
-	format.insert(std::make_pair(".js", "application/javascript"));
+	format[".png"] = "image/png";
+	format[".jpg"] = "image/jpeg";
+	format[".jpeg"] = "image/jpeg";
+	format[".html"] = "text/html";
+	format[".css"] = "text/css";
+	format[".txt"] = "text/plain";
+	format[".js"] = "application/javascript";
+	return format;
+}
+
+std::map<std::string, std::string> listDataType() {
+	std::map<std::string, std::string> format;
+	format["image/png"] = ".png";
+	format["image/jpeg"] = ".jpg";
+	format["image/jpeg"] = ".jpeg";
+	format["text/html"] = ".html";
+	format["text/css"] = ".css";
+	format["text/plain"] = ".txt";
+	format["application/javascript"] = ".js";
 	return format;
 }
 
 std::set<std::string> supportCgiExtension = listCGI();
-std::map<std::string, std::string> supportDataType = listFormat();
+std::map<std::string, std::string> supportExtension = listExtension();
+std::map<std::string, std::string> supportDataType = listDataType();
 
 
 bool isCGI(std::string& extension) {
@@ -45,9 +57,17 @@ bool isCGI(std::string& extension) {
 		return true;
 	return false;
 }
-std::string getMIMEType(const std::string type) {
+
+std::string getMIMEType(const std::string extension) {
+	std::map<std::string, std::string>::const_iterator it = supportExtension.find(extension);
+	if (it != supportExtension.end())
+		return it->second;
+	return "application/octet-stream";
+}
+
+std::string getExtension(const std::string& type) {
 	std::map<std::string, std::string>::const_iterator it = supportDataType.find(type);
 	if (it != supportDataType.end())
 		return it->second;
-	return "application/octet-stream";
+	return ".bin";
 }

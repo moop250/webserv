@@ -40,66 +40,6 @@
 	*
 	* for nguyen
 */
-static void	testServer(Config *config)
-{
-	return ;
-	Server	serv(config->getServerData(0));
-
-	/* pour les attributs basics en bool ou string on get avec le nom de l'attribut*/
-	std::cout << "autoindex : " << (serv.autoindex()? "ON":"OFF") << std::endl;	//	tu peux rajouter le prefixe get devant les fonctions		
-	//	si ca t'arrange
-	if (serv.undefined(UPLOAD_STORAGE))
-		std::cout << "server has not storage\n";
-	else
-		std::cout << "Server storage is defined\n";
-	if (serv.has("ADD"))
-		std::cout << "server allows method ADD\n";
-	if (serv.has("YAYA"))
-		std::cout << "YAYA is not a part of the server\n";							
-	/*	Pour les pages d'erreurs :
-		* Soit tu get toute la struct tel que
-	*/
-	ErrorPages	pages = serv.errorPages();
-
-	std::string c = pages.content(REQUEST_ERROR_BAD_REQUEST);
-	std::cout << CYAN << c << RESET << std::endl;
-	// puis...
-	std::cout << pages.error(/* position (0 by default)*/) << std::endl
-		<< pages.path(/* same */) << std::endl
-		<< pages.content(1) << std::endl;	//	Ca c'est pour les arguments basics
-	
-	/* 	Ou du coup :
-		* serv.errorPages.error(position);
-		* ou serv.errorPages.error(404)
-		* ou serv.errorPages.error(serv.errorPages.find(404))
-	*/
-
-	/* Tu peux get direment l'index de ce que tu cherches */
-	bool	is_there_an_error_page = pages.has(404); // or NOT_FOUND du coup
-	if (!is_there_an_error_page)
-		std::cout << "there is no error page\n";
-	// ou bien en enum :
-	is_there_an_error_page = pages.has(REQUEST_ERROR_BAD_REQUEST);	
-
-	/*	avec la methode find aussi */
-//	if (index == -1)
-//		std::cout << "Not found\n";
-	//	ou bien :
-	std::string content = pages.content(static_cast<requestType>(404));
-	// 	comme pour
-	content = pages.content(REQUEST_ERROR_HTTP_MISSMATCH);
-
-	/*	Les locations se get a peu pres de la meme maniere
-		* soit un vecteur de toutes les locations : 	
-	*/
-	std::vector<Location>	loc = serv.locations();
-	// soit par le bon index
-	Location	indloc = serv.location(0);
-
-	std::cout << "Location" << serv.location().path() << std::endl;
-	std::cout << (indloc.autoindex() ? "ON":"OFF") << std::endl;
-	return ;
-}
 
 Config	*parseConfigFile(std::string file, Debug &dfile)
 {
@@ -113,13 +53,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	dfile.append(msg.str().c_str());
 	ConfigError	error(*config);
 	if (error.isConfigValid())
-	{
-		testServer(config);
-		//RequestServer	rs(*config, "localhost2", "8002", "/zbru");	//	default server values 
-		//std::cout << rs;
-		//std::cout << "Server is : " << (rs.isValid() ? "Valid" : "Not Valid") << std::endl;
 		return (config);
-	}
 	std::cerr << RED << "Program stopped\n" << RESET;
 	delete config;
 	return NULL;
@@ -164,7 +98,7 @@ int main(int ac, char** av, char **env)
 	ServerSocket *socket = NULL;
 
 	(void)env;
-
+	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
