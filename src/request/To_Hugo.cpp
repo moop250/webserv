@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 16:42:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 21:35:07 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/08 21:54:33 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 
 void To_Hugo() {
 	// remove later ->
-	char	**env;
 	Debug	dfile;
 	Config	config("../../configFiles/goodConfigs/simple.config", dfile);
 	// <- remove later
@@ -44,7 +43,7 @@ void To_Hugo() {
 	//		Si code == -1, il y a un HTTP erreur.
 	while (code == CONTINUE_READ) {
 		// recv();
-		code = parse_request(connection, config, env);
+		code = parse_request(connection, config);
 	}
 
 	// 4.	Si la requête est reçue en entier, on va gérer le Keep-Alive.
@@ -79,7 +78,7 @@ void To_Hugo() {
 	}
 
 	// 6. Call handle_request
-	if (handle_request(connection, env) == -1)
+	if (handle_request(connection) == -1)
 		return -1;
 	
 	// 7.	Envoyer la réponse, à voir encore avec le POLLOUT si c'est mieux d'envoyer ici ou ailleur.

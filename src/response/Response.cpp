@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 16:43:21 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/08 22:20:03 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,17 @@ Response::~Response() {
 
 // ----------------- METHODS ----------------------
 
+
+
+// ----------------- METHODS ----------------------
+
 std::string Response::headersToString() {
 	std::string header;
 	for (size_t i = 0; i < this->headers.size(); i++) {
-		header += this->headers[i].first;
-		header += ": ";
-		header += this->headers[i].second;
-		header += "\r\n";
+		header.append(this->headers[i].first)
+			.append(": ")
+			.append(this->headers[i].second)
+			.append("\r\n");
 	}
 	return header;
 }
@@ -68,10 +72,15 @@ std::string Response::constructResponse() {
 	headers = this->headersToString();
 	temp << this->code;
 	code = temp.str();
-	this->responseComplete = this->httpVersion + " " + code + " " + this->codeMessage + "\r\n"
-							+ headers
-							+ "\r\n"
-							+ this->body;
+	this->responseComplete = this->httpVersion;
+	this->responseComplete.append(" ")
+						.append(code)
+						.append(" ")
+						.append(this->codeMessage)
+						.append("\r\n")
+						.append(headers)
+						.append("\r\n")
+						.append(this->body);
 	return this->responseComplete;
 }
 

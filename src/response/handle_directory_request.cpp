@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/07 12:32:26 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/09 14:58:42 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ int case_autoindex(Connection& connection) {
 	connection.getResponse().setHeader("Content-Type", "text/html");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	std::cout << connection.getResponse() << std::endl;
+	// std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
 
@@ -113,7 +113,7 @@ int get_directory(Connection& connection) {
 	}
 	if (!index.empty()) {
 		// To test only
-		//fix later to replace with absolute path
+		// fix later to replace with absolute path
 		index = ".." + index;
 
 		file.open(index.c_str(), std::ios::in | std::ios::binary);
@@ -189,7 +189,7 @@ int post_directory(Connection& connection) {
 		
 		connection.getResponse().constructResponse();
 		connection.setState(SENDING_RESPONSE);
-		std::cout << connection.getResponse() << std::endl;
+		// std::cout << connection.getResponse() << std::endl;
 		break ;
 	}
 	return 0;  

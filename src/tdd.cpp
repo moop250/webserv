@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 17:59:13 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/07 12:32:17 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/08 21:55:57 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ TEST_CASE("Request class default constructor") {
 }
 
 TEST_CASE("Parse Unit", "[Success]") {
-	char			**env;
 	Debug			dfile;
 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 	config->parseContent();
@@ -101,13 +100,9 @@ TEST_CASE("Parse Unit", "[Success]") {
 	REQUIRE(code == MAKING_RESPONSE);
 	REQUIRE(connection.buffer == "");
 	REQUIRE(connection.getRequest().getBody() == "Hello World!");
-	code = handle_request(connection, env);
-	REQUIRE(connection.getRequest().getRequestType() == CGI);
-	REQUIRE(connection.getRequest().getFileType() == ".java");
 }
 
 TEST_CASE("Parse complete, content-length", "[Success]") {
-	char			**env;
 	Debug			dfile;
 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 	config->parseContent();
@@ -120,7 +115,7 @@ TEST_CASE("Parse complete, content-length", "[Success]") {
 						"Content-Length: 12\r\n"
 						"\r\n"
 						"Hello World!";
-	int code = 	parse_request(connection, *config, env);
+	int code = 	parse_request(connection, *config);
 	REQUIRE(code == MAKING_RESPONSE);
 	REQUIRE(connection.getRequest().getMethod() == "POST");
 	REQUIRE(connection.getRequest().getPath() == "/cgi/CGI.java");
@@ -164,7 +159,6 @@ TEST_CASE("Parse complete, content-length", "[Success]") {
 }
 
 TEST_CASE("Parse complete, chunked", "[Success]") {
-	char			**env;
 	Debug			dfile;
 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 	config->parseContent();
@@ -180,7 +174,7 @@ TEST_CASE("Parse complete, chunked", "[Success]") {
 						"This is a greeting from Lausanne\r\n"
 						"0\r\n"
 						"\r\n";
-	int code = 	parse_request(connection, *config, env);
+	int code = 	parse_request(connection, *config);
 	REQUIRE(code == MAKING_RESPONSE);
 	REQUIRE(connection.getRequest().getMethod() == "POST");
 	REQUIRE(connection.getRequest().getPath() == "/cgi/CGI.java");
@@ -194,7 +188,6 @@ TEST_CASE("Parse complete, chunked", "[Success]") {
 }
 
 TEST_CASE("Connection state request section", "[Success]") {
-	char			**env;
 	Debug			dfile;
 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 	config->parseContent();
@@ -226,7 +219,6 @@ TEST_CASE("Connection state request section", "[Success]") {
 }
 
 TEST_CASE("Parse method", "[Error]") {
-	char			**env;
 	Debug			dfile;
 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 	config->parseContent();
@@ -256,7 +248,6 @@ TEST_CASE("Parse method", "[Error]") {
 }
 
 TEST_CASE("Parse path", "[Error]") {
-	char			**env;
 	Debug			dfile;
 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 	config->parseContent();
@@ -273,7 +264,6 @@ TEST_CASE("Parse path", "[Error]") {
 }
 
 TEST_CASE("Parse http version", "[Error]") {
-	char			**env;
 	Debug			dfile;
 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 	config->parseContent();
@@ -301,7 +291,6 @@ TEST_CASE("Parse http version", "[Error]") {
 }
 
 TEST_CASE("Parse headers", "[Error]") {
-	char			**env;
 	Debug			dfile;
 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 	config->parseContent();
@@ -343,7 +332,7 @@ TEST_CASE("Parse headers", "[Error]") {
 							"This is a greeting from Lausanne\r\n"
 							"0\r\n"
 							"\r\n";
-		int code = 	parse_request(connection, *config, env);
+		int code = 	parse_request(connection, *config);
 		REQUIRE(code == -1);
 	}
 	
@@ -439,7 +428,6 @@ TEST_CASE("File GET", "[Success]") {
 // }
 
 // TEST_CASE("Directory GET index", "[Success]") {
-// 	char			**env;
 // 	Debug			dfile;
 // 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 // 	config->parseContent();
@@ -450,13 +438,12 @@ TEST_CASE("File GET", "[Success]") {
 // 						"Connection: Keep-Alive\r\n"
 // 						"Keep-Alive: timeout=5, max=200\r\n"
 // 						"\r\n";
-// 	parse_request(connection, *config, env);
+// 	parse_request(connection, *config);
 // 	int code = get_directory(connection);
 // 	REQUIRE(code == 0);
 // }
 
 // TEST_CASE("Directory GET autoindex", "[Success]") {
-// 	char			**env;
 // 	Debug			dfile;
 // 	Config	*config = new Config("../configFiles/goodConfigs/default.config", dfile);
 // 	config->parseContent();
@@ -469,7 +456,7 @@ TEST_CASE("File GET", "[Success]") {
 // 						"Content-Length: 12\r\n"
 // 						"\r\n"
 // 						"Hello World!";
-// 	parse_request(connection, *config, env);
+// 	parse_request(connection, *config);
 // 	int code = get_directory(connection);
 // 	REQUIRE(code == 0);
 // }

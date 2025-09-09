@@ -91,13 +91,12 @@ void	free(Config *conf)
 	return ;
 }
 
-int main(int ac, char** av, char **env)
+int main(int ac, char** av)
 {
 	Debug	dfile("General.log");
 	Config	*config = NULL;
 	ServerSocket *socket = NULL;
 
-	(void)env;
 	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 21:53:28 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/09 15:04:51 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ int parse_method(Connection& connection) {
 	return BAD_REQUEST;
 }
 
-int parse_request(Connection& connection, Config& config, char **env) {
+int parse_request(Connection& connection, Config& config) {
 	int		code;
 
 	code = -1;
@@ -126,7 +126,7 @@ int parse_request(Connection& connection, Config& config, char **env) {
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case READING_PATH:
-					return parse_request(connection, config, env);
+					return parse_request(connection, config);
 				case NOT_IMPLEMENTED:
 					// fall through
 				case BAD_REQUEST:
@@ -141,7 +141,7 @@ int parse_request(Connection& connection, Config& config, char **env) {
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case READING_HTTPVERSION:
-					return parse_request(connection, config, env);
+					return parse_request(connection, config);
 				case INTERNAL_ERROR:
 					// fall through
 				case BAD_REQUEST:
@@ -156,7 +156,7 @@ int parse_request(Connection& connection, Config& config, char **env) {
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case READING_HEADERS:
-					return parse_request(connection, config, env);
+					return parse_request(connection, config);
 				case HTTP_VERSION_MISMATCH:
 					// fall through
 				case BAD_REQUEST:
@@ -171,7 +171,7 @@ int parse_request(Connection& connection, Config& config, char **env) {
 				case CONTINUE_READ:
 					return CONTINUE_READ;
 				case READING_BODY:
-					return parse_request(connection, config, env);
+					return parse_request(connection, config);
 				case READING_CHUNKED:
 					return parse_body_chunked(connection);
 				case MAKING_RESPONSE:

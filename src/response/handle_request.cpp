@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/07 12:29:35 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/08 21:54:46 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,11 @@ int parse_request_type(Connection& connection) {
 	// Check if path is cgi /cgi directory or not, pre-append the cgi path or root path
 	path = connection.getRequest().getPath();
 
-	// To test only
-	path = ".." + path;
-
+	// To TDD test only
+	// path = ".." + path;
+	// To main test
+	if (path[0] == '/')
+		path.erase(0, 1);
 	code = stat(path.c_str(), &file_stat);
 	if (code == -1) {
 		switch (errno) {
@@ -78,14 +80,14 @@ int parse_request_type(Connection& connection) {
 	}
 }
 
-int handle_request(Connection& connection, char **env) {
+int handle_request(Connection& connection) {
 	int	requestType;
 
 	if (parse_request_type(connection) == -1)
 		return -1;
 	requestType = static_cast<int>(connection.getRequest().getRequestType());
 	if (requestType == CGI)
-		return CGI_handler(connection, env);
+		return CGI_handler(connection);
 	if (requestType == Directory)
 		return directory_handler(connection);
 	if (requestType == File)
