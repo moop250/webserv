@@ -100,13 +100,7 @@ static int handleClientData(int fd, std::map<int, Connection> *connectMap, Confi
 		code = parse_request(*connect, *conf);
 	}
 
-	switch (code) {
-		case MAKING_RESPONSE:
-			connect->setState(MAKING_RESPONSE);
-			return CLIENTDATASUCCESS;
-		default:
-			return CLOSEFD;
-	}
+	return EXITPARSING;
 };
 
 static bool checkServ(ServerSocket *sockets, int fd) {
@@ -131,12 +125,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 	} else {
 		switch(handleClientData(fd, connectMap, conf))
 		{
-			case CLOSEFD:
-				std::cout << YELLOW << "POLLIN: socket " << fd << " closed" << RESET << std::endl;
-				close(fd);
-				removeFromPollfd(fds, fd, sockets, connectMap);
-				return -1;
-			case CLIENTDATASUCCESS:
+			case EXITPARSING:
 				setPOLLOUT(fd, fds);
 				return 1;
 			case HUNGUP:
@@ -219,6 +208,7 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 					std::cout << YELLOW << "POLLOUT: non fatal error on socket " << (*fds)[i].fd << "... closing" << RESET << std::endl;
 					close((*fds)[i].fd);
 					removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
+					break ;
 				case 3:
 				// if keepalive start timeout timer, 
 					connectMap->at((*fds)[i].fd).clear();
