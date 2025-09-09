@@ -22,13 +22,13 @@ public class CGI {
 		String result = input.toUpperCase().replace('2', '4');
 
 		System.out.print("Content-Type: text/html\r\n");
-		System.out.print("Content-Length: " + input.length() + "\r\n\r\n");
+		System.out.print("Content-Length: " + (130 + input.length() + result.length()) + "\r\n\r\n");
 
 		System.out.println("<!DOCTYPE html>");
-        System.out.println("<html><head><title>Result</title></head><body>");
-        System.out.println("<h1>Résultat:</h1>");
-        System.out.println("<p>Avant: " + input + "</p>");
-        System.out.println("<p>Après: " + result + "</p>");
-        System.out.println("</body></html>");
+		System.out.println("<html><head><title>Result</title></head><body>");
+		System.out.println("<h1>Résultat:</h1>");
+		System.out.println("<p>Avant: " + input + "</p>");
+		System.out.println("<p>Après: " + result + "</p>");
+		System.out.println("</body></html>");
 	}
 }
