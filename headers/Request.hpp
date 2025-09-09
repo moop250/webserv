@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/08 14:25:01 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/09 12:51:57 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <dirent.h>		// opendir(), readdir(), closedir()
 #include <sys/types.h>	// complement to dirent.h
+#include <csignal>
 
 #define MOVED_PERMANENTLY 301
 #define FOUND 302
