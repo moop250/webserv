@@ -78,7 +78,7 @@ static void setPOLLOUT(int fd, std::vector<pollfd> *fds) {
 	}
 }
 
-static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf, char **env) {
+static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf) {
 	int	code = CONTINUE_READ;
 	Connection *connect = &connectMap->at(fd);
 	connect->setState(READING_METHOD);
@@ -97,7 +97,7 @@ static int handleClientData(int fd, std::map<int, Connection> *connectMap, Confi
 		buf.resize(nbytes);
 
 		connect->buffer.append(buf);
-		code = parse_request(*connect, *conf, env);
+		code = parse_request(*connect, *conf);
 	}
 
 	switch (code) {
@@ -118,7 +118,7 @@ static bool checkServ(ServerSocket *sockets, int fd) {
 	return false;
 }
 
-static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds, std::map<int, Connection> *connectMap, Config *conf, char **env) {
+static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds, std::map<int, Connection> *connectMap, Config *conf) {
 	if (checkServ(sockets, fd)) {
 		int tmp = handleConnection(sockets, fds, fd, connectMap);
 		switch (tmp)
@@ -129,7 +129,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 				std::cout << YELLOW << "Accept: New connection on socket: " << tmp << RESET << std::endl;
 		}
 	} else {
-		switch(handleClientData(fd, connectMap, conf, env))
+		switch(handleClientData(fd, connectMap, conf))
 		{
 			case CLOSEFD:
 				std::cout << YELLOW << "POLLIN: socket " << fd << " closed" << RESET << std::endl;
@@ -184,13 +184,15 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap) {
 	}
 
 	connect.setOffset(-2);
+	if (connect.getRequest().getKeepAlive() == "keep-alive")
+		return 3;
 	return 0;
 }
 
-int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, char **env, std::map<int, Connection> *connectMap) {
+int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, std::map<int, Connection> *connectMap) {
 	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
 		if ((*fds)[i].revents & POLLIN) {
-			if (handlePOLLIN((*fds)[i].fd, sockets, fds, connectMap, config, env) <= 0) {
+			if (handlePOLLIN((*fds)[i].fd, sockets, fds, connectMap, config) <= 0) {
 				continue;
 			}
 		}
@@ -200,11 +202,15 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 			std::cout << YELLOW << "poll: socket " << (*fds)[i].fd << " hung up" << RESET << std::endl;
 			continue;
 		}
-		if ((*fds)[i].revents & POLLOUT) {		
+		if ((*fds)[i].revents & POLLOUT) {
+			// make sure connection isnt awaiting a cgi connection
+			if (connectMap->at((*fds)[i].fd).getState() != SENDING_RESPONSE) {
+				handle_request(connectMap->at((*fds)[i].fd));
+			}
+
 			switch (handlePOLLOUT((*fds)[i].fd, connectMap)) {
 				case 0:
 					connectMap->at((*fds)[i].fd).clear();
-					connectMap->at((*fds)[i].fd).setState(WAITING_REQUEST);
 					setPOLLIN((*fds)[i].fd, fds);
 					continue ;
 				case 1:
@@ -213,6 +219,11 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 					std::cout << YELLOW << "POLLOUT: non fatal error on socket " << (*fds)[i].fd << "... closing" << RESET << std::endl;
 					close((*fds)[i].fd);
 					removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
+				case 3:
+				// if keepalive start timeout timer, 
+					connectMap->at((*fds)[i].fd).clear();
+					setPOLLIN((*fds)[i].fd, fds);
+					continue;
 			}
 		}
 	}

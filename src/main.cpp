@@ -61,7 +61,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 
 // add	serv.findLoc();
 
-void	eventLoop(Config *config, ServerSocket *socket, char **env)
+void	eventLoop(Config *config, ServerSocket *socket)
 {
 	std::vector<pollfd> fds = initPoll(socket);
 	std::map<int, Connection> connectMap;
@@ -74,7 +74,7 @@ void	eventLoop(Config *config, ServerSocket *socket, char **env)
 				break;
 			}
 
-			incomingConnection(socket, &fds, config, env, &connectMap);
+			incomingConnection(socket, &fds, config, &connectMap);
 		}
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
@@ -120,7 +120,7 @@ int main(int ac, char** av, char **env)
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	
 	try {
-		eventLoop(config, socket, env);
+		eventLoop(config, socket);
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
 		delete config;

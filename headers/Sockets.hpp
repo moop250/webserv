@@ -7,6 +7,6 @@
 
 ServerSocket *initalizeServer(Config *serverConfig);
 std::vector<pollfd> initPoll(ServerSocket *socket);
-int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, char **env, std::map<int, Connection> *connectMap);
+int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, std::map<int, Connection> *connectMap);
 
 #endif // SOCKET_FUNCS_HPP
