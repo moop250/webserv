@@ -81,6 +81,11 @@ void print_env(char **env) {
 
 // stuffs to do
 int CGI_handler(Connection& connection) {
+
+	error_response(connection, NOT_FOUND);
+	return -1;
+
+	
 	std::string					cgi_path;
 	std::vector<std::string>	env_string;
 	std::vector<char*>			env_pointer;

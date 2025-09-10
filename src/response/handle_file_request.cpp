@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/05 14:14:36 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/10 14:01:46 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ int get_file(Connection& connection) {
 	size_t			size;
 
 	path = connection.getRequest().getPath();
+	if (path[0] == '/')
+		path.erase(0, 1);
 	if (access(path.c_str(), R_OK) == -1) {
 		switch (errno) {
 			case EACCES:
@@ -78,6 +80,8 @@ int post_file(Connection& connection) {
 	std::fstream	file;
 
 	path = connection.getRequest().getPath();
+	if (path[0] == '/')
+		path.erase(0, 1);
 	if (access(path.c_str(), W_OK) == -1) {
 		switch (errno) {
 			case EACCES:
@@ -111,21 +115,23 @@ int delete_file(Connection& connection) {
 	std::string parent_directory;
 
 	path = connection.getRequest().getPath();
-	parent_directory = path.substr(0, path.rfind("/"));
-	if (access(parent_directory.c_str(), W_OK | X_OK) == -1) {
+	if (path[0] == '/')
+		path.erase(0, 1);
+	if (std::remove(path.c_str()) != 0) {
 		switch (errno) {
 			case EACCES:
+				// fallthrough
+			case EPERM:
 				error_response(connection, FORBIDDEN);
-				break ;
+				break;
+			case ENOENT:
+				error_response(connection, NOT_FOUND);
+				break;
 			default:
 				error_response(connection, INTERNAL_ERROR);
 				break;
 		}
 		return -1;
-	}
-	if (std::remove(path.c_str()) != 0) {
-		error_response(connection, INTERNAL_ERROR);
-		return -1;	
 	}
 	connection.getResponse().setCode(204);
 	connection.getResponse().setCodeMessage("No Content");

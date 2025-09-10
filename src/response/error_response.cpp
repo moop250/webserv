@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/05 14:09:38 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/09 15:40:35 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,27 @@ void error_response(Connection& connection, int code) {
 	if (codeMessage.empty()) {
 		code = 500;
 		codeMessage = "Internal Error";
-	}
-	body = connection.getServer().errorPages().content(code);
-	if (code == 301 || code == 302) {
-		// Check later to return URI path instead of system path
-		connection.getResponse().setHeader("Location", connection.getRequest().getRedirect());
+		body = "<!DOCTYPE html>\n"
+				"\n"
+				"<html lang=\"fr\">\n"
+				"  <head>\n"
+				"    <meta charset=\"UTF-8\" />\n"
+				"  </head>\n"
+				"  <body>\n"
+				"    <div style=\"margin-top: 50px; margin-bottom:200px; text-align: center; text-justify: center;\">\n"
+				"      <h1 style=\"font-size: 5rem;\">500</h1>\n"
+				"      <h3 style=\"font-size: 2rem;\">Internal Server Error</h3>\n"
+				"      <br />\n"
+				"      <p>Un problème du serveur est survenu!</p>\n"
+				"    </div>\n"
+				"  </body>\n"
+				"</html>\n";
+	} else {
+		body = connection.getServer().errorPages().content(code);
+		if (code == 301 || code == 302) {
+			// Check later to return URI path instead of system path
+			connection.getResponse().setHeader("Location", connection.getRequest().getRedirect());
+		}
 	}
 	connection.getResponse().setCode(code); 
 	connection.getResponse().setCodeMessage(codeMessage);
