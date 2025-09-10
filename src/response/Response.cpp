@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/08 22:20:03 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/09 15:45:25 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ std::string Response::constructResponse() {
 						.append(headers)
 						.append("\r\n")
 						.append(this->body);
+	// std::cout << responseComplete << std::endl;
 	return this->responseComplete;
 }
 

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/08 22:31:11 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/10 13:37:37 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,8 @@ void matching_server(Connection& connection, Config& config) {
 	if (server.isValid() == true) {
 		//  std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
 		connection.setServer(server);
+		// std::cout << connection.getServer() << std::endl;
+		// std::cout << "body: " << connection.getServer().errorPages().content(404) << std::endl;
 	} else {
 		std::cout << "NO SERVER MATCHED" << std::endl;
 		// add fall back server
