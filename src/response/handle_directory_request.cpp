@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/09 14:58:42 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/10 13:54:32 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,11 @@ int case_autoindex(Connection& connection) {
 	std::string		buffer;
 
 	path = connection.getRequest().getPath();
+	if (path[0] == '/')
+		path.erase(0, 1);
 	dir = opendir(path.c_str());
 	if (dir == NULL) {
+		std::cout << "here" << std::endl;
 		if (errno == EACCES)
 			error_response(connection, FORBIDDEN);
 		else
@@ -70,8 +73,9 @@ int case_autoindex(Connection& connection) {
 					+ file_name
 					+ ">"
 					+ file_name
-					+ "</a></li>";
+					+ "</a></li>\n";
 	}
+	list.erase(list.size() - 1);
 	closedir(dir);
 	buffer = "<!DOCTYPE html>\n"
 			"\n"
@@ -114,10 +118,13 @@ int get_directory(Connection& connection) {
 	if (!index.empty()) {
 		// To test only
 		// fix later to replace with absolute path
-		index = ".." + index;
-
+		// index = ".." + index;
+		if (index[0] == '/')
+			index.erase(0, 1);
+		
 		file.open(index.c_str(), std::ios::in | std::ios::binary);
 		if (file.is_open()) {
+			std::cout << "here" << std::endl;
 			if (case_index(connection, file) == 0)
 				return 0;
 		}
@@ -154,7 +161,8 @@ int post_directory(Connection& connection) {
 		path = connection.getRequest().getPath();
 	else
 		path = connection.getServer().storage();
-	std::cout << path << std::endl;
+	if (path[0] == '/')
+		path.erase(0, 1);
 	if (access(path.c_str(), W_OK | X_OK) == -1) {
 		switch (errno) {
 			case EACCES:

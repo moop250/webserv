@@ -23,9 +23,6 @@ e_lineType    getLineType(std::string line)
     return LINE_EMPTY;
 }
 
-//#include <algorithm>    //  pas necessaire au fonctionnement du error check
-/*  Si ca pose probleme pour l'eval, enlever fonction levenstein ou est utilise std::min*/
-
 template <typename x>
 static x    min(const x &a, const x &b)
 {
