@@ -173,23 +173,26 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap) {
 	}
 
 	connect.setOffset(-2);
-	if (connect.getRequest().getKeepAlive() == "keep-alive")
+	if (connect.getClose())
+		return 4;
+	else if (connect.getRequest().getKeepAlive() == "keep-alive")
 		return 3;
 	return 0;
 }
 
 int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, std::map<int, Connection> *connectMap) {
 	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
-		if ((*fds)[i].revents & POLLIN) {
-			if (handlePOLLIN((*fds)[i].fd, sockets, fds, connectMap, config) <= 0) {
-				continue;
-			}
-		}
+
 		if ((*fds)[i].revents & POLLHUP) {
 			close((*fds)[i].fd);
 			removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
 			std::cout << YELLOW << "poll: socket " << (*fds)[i].fd << " hung up" << RESET << std::endl;
 			continue;
+		}
+		if ((*fds)[i].revents & POLLIN) {
+			if (handlePOLLIN((*fds)[i].fd, sockets, fds, connectMap, config) <= 0) {
+				continue;
+			}
 		}
 		if ((*fds)[i].revents & POLLOUT) {
 			// make sure connection isnt awaiting a cgi connection
@@ -205,7 +208,7 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 				case 1:
 					continue ;
 				case 2:
-					std::cout << YELLOW << "POLLOUT: non fatal error on socket " << (*fds)[i].fd << "... closing" << RESET << std::endl;
+					std::cout << YELLOW << "POLLOUT: non fatal error on socket: " << (*fds)[i].fd << "... closing" << RESET << std::endl;
 					close((*fds)[i].fd);
 					removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
 					break ;
@@ -214,6 +217,11 @@ int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *
 					connectMap->at((*fds)[i].fd).clear();
 					setPOLLIN((*fds)[i].fd, fds);
 					continue;
+				case 4:
+					std::cout << YELLOW << "POLLOUT: request returned an error on socket: " << (*fds)[i].fd << "... closing" << RESET << std::endl;
+					close((*fds)[i].fd);
+					removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
+					break ;
 			}
 		}
 	}
