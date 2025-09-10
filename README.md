@@ -26,6 +26,7 @@ Getter:
 - `getChunkedSize()` -> Return the bytes left to read in long. Only use in `Transfer-Encoding: chunked` Header.
 - `getOffset()` -> Return the bytes already sent by send() call. Only use when sending response. Default is -2.
 - `getReconnect()` -> Return the reconnect state. It is false during the first connection to search for server. Subsequence connections are true so server won't be searched again.
+- `getClose()` -> Return a boolean, if true then the connection will need to be closed.
 
 Method:
 - `minusOffset(long size)` -> Subtract size from the current offset.
