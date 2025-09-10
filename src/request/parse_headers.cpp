@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/10 13:37:37 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/10 15:51:35 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,8 +257,10 @@ int headers_content_check(Connection& connection, Config& config) {
 		if (!connection.getRequest().getHeader("keep-alive").empty())
 			if (parse_keepAlive(connection) == BAD_REQUEST)
 				return BAD_REQUEST;
-	} else if (keepAlive == "close")
+	} else if (keepAlive == "close") {
+		connection.setClose(true);
 		connection.getRequest().setKeepAlive(keepAlive);
+	}
 	contentType = connection.getRequest().getHeader("content-type");
 	if (contentType == "") {
 		contentType = "application/octet-stream";
