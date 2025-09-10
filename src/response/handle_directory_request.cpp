@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/10 13:54:32 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/10 15:55:12 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ int case_autoindex(Connection& connection) {
 		path.erase(0, 1);
 	dir = opendir(path.c_str());
 	if (dir == NULL) {
-		std::cout << "here" << std::endl;
 		if (errno == EACCES)
 			error_response(connection, FORBIDDEN);
 		else
@@ -124,7 +123,6 @@ int get_directory(Connection& connection) {
 		
 		file.open(index.c_str(), std::ios::in | std::ios::binary);
 		if (file.is_open()) {
-			std::cout << "here" << std::endl;
 			if (case_index(connection, file) == 0)
 				return 0;
 		}

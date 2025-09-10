@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 16:42:32 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/10 15:48:46 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ Connection::Connection() {
 	this->chunked_size = -1;
 	this->offset = -2;
 	this->reconnect = false;
+	this->close = false;
 }
 Connection::Connection(const Connection& copy) {
 	*this = copy;
@@ -64,6 +65,7 @@ Connection& Connection::clear() {
 	this->offset = -2;
 	this->buffer.clear();
 	this->reconnect = true;
+	this->close = false;
 	// Server not reset!
 	return *this;
 }
@@ -93,6 +95,9 @@ long Connection::getOffset() const {
 bool Connection::getReconnect() const {
 	return this->reconnect;
 }
+bool Connection::getClose() const {
+	return this->close;
+}
 
 
 
@@ -116,5 +121,9 @@ Connection& Connection::setOffset(const long size) {
 }
 Connection& Connection::setReconnect(const bool reconnect) {
 	this->reconnect = reconnect;
+	return *this;
+}
+Connection& Connection::setClose(const bool close) {
+	this->close = close;
 	return *this;
 }
