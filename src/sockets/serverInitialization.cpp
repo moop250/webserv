@@ -5,6 +5,7 @@
 #include <new>
 #include <poll.h>
 #include <sys/poll.h>
+#include <utility>
 
 static bool compareConfigs(std::string currentPair, std::vector<std::string> allPairs) {
 	if (allPairs.empty())
@@ -49,15 +50,14 @@ ServerSocket *initalizeServer(Config *serverConfig) {
 	return socket;
 };
 
-std::vector<pollfd> initPoll(ServerSocket *socket) {
-	std::vector<pollfd> out;
+void initPoll(ServerSocket *socket, t_fdInfo *fdInfo) {
+	std::vector<pollfd> *fds = &fdInfo->fds;
 
 	for (int i = 0; i < socket->getSocketCount(); ++i) {
 		pollfd newPollFD;
 		newPollFD.fd = socket->getSocketFd(i);
 		newPollFD.events = POLLIN;
-		out.push_back(newPollFD);
+		fds->push_back(newPollFD);
+		fdInfo->fdTypes.insert(std::make_pair(socket->getSocketFd(i), SERVER));
 	}
-
-	return out;
 };

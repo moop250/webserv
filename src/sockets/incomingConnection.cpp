@@ -15,8 +15,9 @@
 #include <unistd.h>
 #include <utility>
 
-static void addToPollfd(std::vector<pollfd> *fds, int newFD, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
+static void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<int, Connection> *connectMap, int fdType) {
 	pollfd newPollFD;
+	std::vector<pollfd> *fds = &fdInfo->fds;
 	
 	newPollFD.fd = newFD;
 	newPollFD.events = POLLIN;
@@ -25,11 +26,13 @@ static void addToPollfd(std::vector<pollfd> *fds, int newFD, ServerSocket *socke
 	
 	Connection	newConnection;
 	connectMap->insert(std::make_pair(newFD, newConnection));
+	fdInfo->fdTypes.insert(std::make_pair(newFD, fdType));
 
 	sockets->incrementClientCount();
 }
 
-static void removeFromPollfd(std::vector<pollfd> *fds, int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
+static void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
+	std::vector<pollfd> *fds = &fdInfo->fds;
 	std::vector<pollfd>::iterator it = fds->begin();
 	for (; it != fds->end(); ++it) {
 		if (it->fd == fd) {
@@ -38,11 +41,12 @@ static void removeFromPollfd(std::vector<pollfd> *fds, int fd, ServerSocket *soc
 		}
 	}
 	connectMap->erase(fd);
+	fdInfo->fdTypes.erase(fd);
 
 	sockets->decrementClientCount();
 }
 
-static int handleConnection(ServerSocket *sockets, std::vector<pollfd> *fds, int fd, std::map<int, Connection> *connectMap) {
+static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std::map<int, Connection> *connectMap) {
 	struct sockaddr_storage newRemote;
 	socklen_t               addrLen;
 	int remoteFD;
@@ -53,7 +57,7 @@ static int handleConnection(ServerSocket *sockets, std::vector<pollfd> *fds, int
 	if (remoteFD == -1) {
 		return ACCEPTERROR;
 	} else {
-		addToPollfd(fds, remoteFD, sockets, connectMap);
+		addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
 		return remoteFD;
 	}
 };
@@ -112,9 +116,9 @@ static bool checkServ(ServerSocket *sockets, int fd) {
 	return false;
 }
 
-static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds, std::map<int, Connection> *connectMap, Config *conf) {
+static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::map<int, Connection> *connectMap, Config *conf) {
 	if (checkServ(sockets, fd)) {
-		int tmp = handleConnection(sockets, fds, fd, connectMap);
+		int tmp = handleConnection(sockets, fdInfo, fd, connectMap);
 		switch (tmp)
 		{
 			case ACCEPTERROR:
@@ -126,16 +130,16 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, std::vector<pollfd> *fds,
 		switch(handleClientData(fd, connectMap, conf))
 		{
 			case EXITPARSING:
-				setPOLLOUT(fd, fds);
+				setPOLLOUT(fd, &fdInfo->fds);
 				return 1;
 			case HUNGUP:
 				std::cout << YELLOW << "Recv: socket " << fd << " hung up" << RESET << std::endl;
 				close(fd);
-				removeFromPollfd(fds, fd, sockets, connectMap);
+				removeFromPollfd(fdInfo, fd, sockets, connectMap);
 				return -1;
 			case RECVERROR:
 				close(fd);
-				removeFromPollfd(fds, fd, sockets, connectMap);
+				removeFromPollfd(fdInfo, fd, sockets, connectMap);
 				return -1;
 		}
 	}
@@ -180,47 +184,48 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap) {
 	return 0;
 }
 
-int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, std::map<int, Connection> *connectMap) {
+int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap) {
 	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
+		int fd = fdInfo->fds.at(i).fd;
 
-		if ((*fds)[i].revents & POLLHUP) {
-			close((*fds)[i].fd);
-			removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
-			std::cout << YELLOW << "poll: socket " << (*fds)[i].fd << " hung up" << RESET << std::endl;
+		if (fdInfo->fds.at(i).revents & POLLHUP) {
+			close(fd);
+			removeFromPollfd(fdInfo, fd, sockets, connectMap);
+			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
 			continue;
 		}
-		if ((*fds)[i].revents & POLLIN) {
-			if (handlePOLLIN((*fds)[i].fd, sockets, fds, connectMap, config) <= 0) {
+		if (fdInfo->fds.at(i).revents & POLLIN) {
+			if (handlePOLLIN(fd, sockets, fdInfo, connectMap, config) <= 0) {
 				continue;
 			}
 		}
-		if ((*fds)[i].revents & POLLOUT) {
+		if (fdInfo->fds.at(i).revents & POLLOUT) {
 			// make sure connection isnt awaiting a cgi connection
-			if (connectMap->at((*fds)[i].fd).getState() != SENDING_RESPONSE) {
-				handle_request(connectMap->at((*fds)[i].fd));
+			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
+				handle_request(connectMap->at(fd));
 			}
 
-			switch (handlePOLLOUT((*fds)[i].fd, connectMap)) {
+			switch (handlePOLLOUT(fd, connectMap)) {
 				case 0:
-					connectMap->at((*fds)[i].fd).clear();
-					setPOLLIN((*fds)[i].fd, fds);
+					connectMap->at(fd).clear();
+					setPOLLIN(fd, &fdInfo->fds);
 					continue ;
 				case 1:
 					continue ;
 				case 2:
-					std::cout << YELLOW << "POLLOUT: non fatal error on socket: " << (*fds)[i].fd << "... closing" << RESET << std::endl;
-					close((*fds)[i].fd);
-					removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
+					std::cout << YELLOW << "POLLOUT: non fatal error on socket: " << fd << "... closing" << RESET << std::endl;
+					close(fd);
+					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					break ;
 				case 3:
 				// if keepalive start timeout timer, 
-					connectMap->at((*fds)[i].fd).clear();
-					setPOLLIN((*fds)[i].fd, fds);
+					connectMap->at(fd).clear();
+					setPOLLIN(fd, &fdInfo->fds);
 					continue;
 				case 4:
-					std::cout << YELLOW << "POLLOUT: request returned an error on socket: " << (*fds)[i].fd << "... closing" << RESET << std::endl;
-					close((*fds)[i].fd);
-					removeFromPollfd(fds, (*fds)[i].fd, sockets, connectMap);
+					std::cout << YELLOW << "POLLOUT: request returned an error on socket: " << fd << "... closing" << RESET << std::endl;
+					close(fd);
+					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					break ;
 			}
 		}

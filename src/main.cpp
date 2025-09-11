@@ -63,18 +63,20 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 
 void	eventLoop(Config *config, ServerSocket *socket)
 {
-	std::vector<pollfd> fds = initPoll(socket);
+	t_fdInfo fdInfo;
+	initPoll(socket, &fdInfo);
 	std::map<int, Connection> connectMap;
+
 	try {
 		while (1) {
-			int	pollCount = poll(&fds[0], socket->getTotalSocketCount(), -1);
+			int	pollCount = poll(&fdInfo.fds[0], socket->getTotalSocketCount(), -1);
 
 			if (pollCount == -1) {
 				std::cerr << "Error: Poll" << std::endl;
 				break;
 			}
 
-			incomingConnection(socket, &fds, config, &connectMap);
+			incomingConnection(socket, &fdInfo, config, &connectMap);
 		}
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;

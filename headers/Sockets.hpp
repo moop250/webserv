@@ -5,8 +5,32 @@
 # include "Connection.hpp"
 # include <poll.h>
 
+
+enum connectionReturns {
+	ACCEPTERROR = -1,
+	CONNECTIONSUCCESS
+};
+
+enum recvReturns {
+	EXITPARSING = 0,
+	HUNGUP = -1,
+	RECVERROR = -2
+};
+
+enum fdTypes {
+	SERVER,
+	CLIENT
+};
+
+typedef struct s_fdInfo {
+
+	std::vector<pollfd> fds;
+	std::map<int, int> fdTypes;
+
+} t_fdInfo;
+
 ServerSocket *initalizeServer(Config *serverConfig);
-std::vector<pollfd> initPoll(ServerSocket *socket);
-int incomingConnection(ServerSocket *sockets, std::vector<pollfd> *fds, Config *config, std::map<int, Connection> *connectMap);
+void initPoll(ServerSocket *socket, t_fdInfo *fdInfo);
+int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap);
 
 #endif // SOCKET_FUNCS_HPP
