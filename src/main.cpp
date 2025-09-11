@@ -76,7 +76,7 @@ void	eventLoop(Config *config, ServerSocket *socket)
 	initPoll(socket, &fdInfo);
 	std::map<int, Connection> connectMap;
 	signal(SIGQUIT, close_all);
-	g_fds = fds;
+	g_fds = fdInfo.fds;
 	try {
 		while (1) {
 			int	pollCount = poll(&fdInfo.fds[0], socket->getTotalSocketCount(), -1);
