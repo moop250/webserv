@@ -59,12 +59,23 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	return NULL;
 }
 
+//	Remove variable for correction
+std::vector<pollfd>	g_fds;
 // add	serv.findLoc();
+
+static void close_all(int sig)
+{
+	(void)sig;
+	for (std::vector<pollfd>::iterator i = g_fds.begin(); i != g_fds.end(); i++)
+		close(i->fd);
+}
 
 void	eventLoop(Config *config, ServerSocket *socket)
 {
 	std::vector<pollfd> fds = initPoll(socket);
 	std::map<int, Connection> connectMap;
+	signal(SIGQUIT, close_all);
+	g_fds = fds;
 	try {
 		while (1) {
 			int	pollCount = poll(&fds[0], socket->getTotalSocketCount(), -1);
