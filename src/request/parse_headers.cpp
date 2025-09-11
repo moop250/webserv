@@ -117,7 +117,7 @@ void matching_server(Connection& connection, Config& config) {
 	port = connection.getRequest().getPort();
 	RequestServer server(config, name, port, path);
 
-	std::cout << "Defult serv : " << YELLOW << connection.getDefaultServer() << RESET;
+	std::cout << "Defult serv : " << connection.getDefaultServer() << RESET;
 	if (server.isValid() == true) {
 		//  std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
 		connection.setServer(server);

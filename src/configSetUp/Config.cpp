@@ -78,10 +78,8 @@ Config::Config() :
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
     formatContent(_content);
-    std::cout << _content;
+    this->parseContent();
     this->sanitize();
-    std::cout << *this;
-
 }
 
 
@@ -94,7 +92,7 @@ Config::Config(std::string fileName, Debug &dfile) :
     if (readFile.is_open())
     {
         while (std::getline(readFile, buf))
-            _content.append(buf);
+        _content.append(buf);
     }
     else
     {
@@ -106,6 +104,7 @@ Config::Config(std::string fileName, Debug &dfile) :
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
     formatContent(_content);
+    readFile.close();
 }
 
 Config::Config(const Config &conf)
