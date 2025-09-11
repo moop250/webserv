@@ -80,6 +80,7 @@ Config::Config() :
     formatContent(_content);
     this->parseContent();
     this->sanitize();
+    this->_servers.at(0).client_max_body_size = 300000;
 }
 
 
