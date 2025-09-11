@@ -55,6 +55,7 @@ class Connection {
 		Request&		getRequest();
 		Response&		getResponse();
 		RequestServer	getServer() const;
+		RequestServer	getDefaultServer() const;
 		long			getChunkedSize() const;
 		long			getOffset() const;
 		bool			getReconnect() const;

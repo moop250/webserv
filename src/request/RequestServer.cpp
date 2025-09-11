@@ -16,7 +16,7 @@ RequestServer::RequestServer() {
     _autoindex = false;
 }
 
-static bool    check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath)
+bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath)
 {
     if (portId == std::string::npos || nameId != portId)
     {
@@ -30,12 +30,24 @@ static bool    check(Config config, size_t portId, size_t nameId, size_t locId, 
     {
         std::cerr << RED << "Location path in server nb : " << portId
             << " not found\n" << RESET;
-        return false;
+        _isLocation = false;
     }
+    else
+        _isLocation = true;
     return true;
 }
 
-RequestServer::RequestServer(Config config, std::string name, std::string port, std::string locPath)
+RequestServer::RequestServer(Config config)
+{
+    t_ServerData    s = config.getServerData(0);
+    for (int i = 0; i < LOCATION; i++)
+        setToken(s, static_cast<e_TokenType>(i));
+    _isValid = 1;
+    _isLocation = 0;
+}
+
+RequestServer::RequestServer(Config config, std::string name, std::string port, std::string locPath) :
+    _isLocation(0)
 {
     size_t portId = config.find(port, LISTEN);
     size_t nameId = config.find(name, SERVER_NAME);
@@ -58,7 +70,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
         locId++;
     }
     _isValid = true;
-    if (!locPath.empty())
+    if (!locPath.empty() && _isLocation)
     {
         t_Location      l = s.locations.at(locId);
        for (int i = 0; i < LOCATION; i++)
@@ -66,7 +78,6 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     }
     for (int i = 0; i < LOCATION; i++)
         setToken(s, static_cast<e_TokenType>(i));
-  //  std::cout << YELLOW << _errorPages.content(404) << RESET;
 }
 
 RequestServer::RequestServer(const RequestServer &serv)
@@ -76,7 +87,6 @@ RequestServer::RequestServer(const RequestServer &serv)
 
 RequestServer::~RequestServer() { }
 
-/*  Ne me jugez pas j'avais la flemme ... */
 void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
 {
     if (!undefined(type))

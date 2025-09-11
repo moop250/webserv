@@ -22,6 +22,7 @@ Connection::Connection() {
 	this->offset = -2;
 	this->reconnect = false;
 	this->close = false;
+	this->server = getDefaultServer();
 }
 Connection::Connection(const Connection& copy) {
 	*this = copy;
@@ -101,7 +102,16 @@ bool Connection::getClose() const {
 	return this->close;
 }
 
+#include <dirent.h>
+#include <stdio.h>
 
+RequestServer	Connection::getDefaultServer() const {
+	std::cout << "Giving default configuration\n";
+	Config	*c = new Config();
+	RequestServer	rs(*c);
+	delete c;
+	return rs;
+}
 
 // ----------------- SETTERS ----------------------
 
