@@ -119,7 +119,7 @@ int main(int ac, char** av)
 	// eventLoop(config, socket);
 
 	Connection		connection;
-	connection.buffer = "GET /html HTTP/1.1\r\n"
+	connection.buffer = "DELETE /cgi/CGI.java?HelloFrom42 HTTP/1.1\r\n"
 						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
@@ -127,12 +127,12 @@ int main(int ac, char** av)
 						"\r\n"
 						"Hello World!";
 	int code = parse_request(connection, *config);
-	std::cout << code << std::endl;
+	// std::cout << code << std::endl;
 	if (code != -1) {
 		code = handle_request(connection);
-		std::cout << code << std::endl;
+		// std::cout << code << std::endl;
 	}
-	std::cout << connection.getResponse() << std::endl;
+	std::cout << "RESPONSE: " << connection.getResponse() << std::endl;
 
 	
 	ErrorDebug(dfile, "Event Loop Undefined");

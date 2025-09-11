@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/10 15:55:12 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/11 15:01:20 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,29 +16,56 @@
 #include "Config.hpp"
 #include "request_handler.hpp"
 
-int case_index(Connection& connection, std::fstream& file) {
-	size_t			size;
-	std::string		buffer;
+// stuffs to do
+// Blocking
+int case_index(Connection& connection, std::string& index) {
+	int			fd;
+	char		buffer[4096];
+	long		n;
+	std::string	body;
 
-	file.seekg(0, std::ios::end);
-	size = static_cast<size_t>(file.tellg());
-	connection.getResponse().setContentLength(size);
-	file.seekg(0, std::ios::beg);
-	buffer.resize(size);
-	// Probably will be blocking for huge file but meh whatever
-	if(file.read(&buffer[0], size)) {
-		file.close();
-		connection.getResponse().setBody(buffer);
-		connection.getResponse().setCode(200);
-		connection.getResponse().setCodeMessage("OK");
-		connection.getResponse().setHeader("Content-Length", size_to_string(size));
-		connection.getResponse().setHeader("Content-Type", "text/html");
-		connection.getResponse().constructResponse();
-		connection.setState(SENDING_RESPONSE);
-		// std::cout << connection.getResponse() << std::endl;
-		return 0;
+	// // for tdd only
+	// std::string	test;
+	// test = "../";
+	// test += index;
+	// index = test;
+	
+	fd = open(index.c_str(), O_RDONLY);
+	if (fd < 0) {
+		switch (errno) {
+			case EACCES:
+				error_response(connection, FORBIDDEN);
+				break ;
+			default:
+				error_response(connection, INTERNAL_ERROR);
+				break;
+		}
+		return -1;
 	}
-	return -1;
+	while (true) {
+		// Blocking here
+		n = read(fd, buffer, sizeof(buffer));
+		if (n > 0) {
+			body.append(buffer, n);
+		}
+		if (n == 0) {
+			break;
+		}
+		if (n < 0) {
+			close(fd);
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
+	}
+	connection.getResponse().setBody(body);
+	connection.getResponse().setCode(200);
+	connection.getResponse().setCodeMessage("OK");
+	connection.getResponse().setHeader("Content-Length", size_to_string(body.size()));
+	connection.getResponse().setHeader("Content-Type", "text/html");
+	connection.getResponse().constructResponse();
+	connection.setState(SENDING_RESPONSE);
+	std::cout << connection.getResponse() << std::endl;
+	return 0;
 }
 
 int case_autoindex(Connection& connection) {
@@ -106,7 +133,6 @@ int case_autoindex(Connection& connection) {
 int get_directory(Connection& connection) {
 	std::string		index;
 	bool			autoindex;
-	std::fstream	file;
 
 	index = connection.getServer().index();
 	autoindex = connection.getServer().autoindex();
@@ -115,17 +141,15 @@ int get_directory(Connection& connection) {
 		return -1;
 	}
 	if (!index.empty()) {
+		
 		// To test only
 		// fix later to replace with absolute path
 		// index = ".." + index;
 		if (index[0] == '/')
 			index.erase(0, 1);
-		
-		file.open(index.c_str(), std::ios::in | std::ios::binary);
-		if (file.is_open()) {
-			if (case_index(connection, file) == 0)
-				return 0;
-		}
+
+		if (case_index(connection, index) == 0)
+			return 0;
 	}
 	if (autoindex == true) {
 		return case_autoindex(connection);
@@ -149,11 +173,16 @@ std::string generate_name(const std::string& extension) {
 
 // Create a file with request body as content.
 // File's name is chosen by server.
+// stuffs to do
+// Blocking
 int post_directory(Connection& connection) {
 	std::string		file_name;
 	std::string		path;
 	std::string		extension;
-	std::fstream	file;
+	int				fd;
+	size_t			total;
+	long			written;
+	std::string		body;
 
 	if (connection.getServer().storage().empty())
 		path = connection.getRequest().getPath();
@@ -161,7 +190,18 @@ int post_directory(Connection& connection) {
 		path = connection.getServer().storage();
 	if (path[0] == '/')
 		path.erase(0, 1);
-	if (access(path.c_str(), W_OK | X_OK) == -1) {
+	extension = getExtension(connection.getRequest().getContentType());
+	while (true) {
+		file_name = generate_name(extension);
+		if (access(file_name.c_str(), F_OK) != -1)
+			continue ;
+		if (path[path.size() - 1] != '/')
+			path += '/';
+		path += file_name;
+		break ;
+	}
+	fd = open(path.c_str(), O_WRONLY | O_CREAT, 0644);
+	if (fd < 0) {
 		switch (errno) {
 			case EACCES:
 				error_response(connection, FORBIDDEN);
@@ -172,32 +212,30 @@ int post_directory(Connection& connection) {
 		}
 		return -1;
 	}
-	extension = getExtension(connection.getRequest().getContentType());
-	while (true) {
-		file_name = generate_name(extension);
-		if (access(file_name.c_str(), F_OK) != -1)
-			continue ;
-		if (path[path.size() - 1] != '/')
-			path += '/';
-		path += file_name;
-		file.open(path.c_str(), std::ios::out | std::ios::binary);
-		if (!file.is_open()) {
+	total = 0;
+	body = connection.getRequest().getBody();
+	while (total < body.size()) {
+		// Blocking here
+		written = write(fd, body.c_str() + total, body.size() - total);
+		if (written < 0) {
+			close(fd);
 			error_response(connection, INTERNAL_ERROR);
-			return -1;	
+			return -1;
 		}
-		file << connection.getRequest().getBody();
-		file.close();
-		connection.getResponse().setCode(201);
-		connection.getResponse().setCodeMessage("Created");
-		
-		// Check later to return URI path instead of system path
-		connection.getResponse().setHeader("Location", path);
-		
-		connection.getResponse().constructResponse();
-		connection.setState(SENDING_RESPONSE);
-		// std::cout << connection.getResponse() << std::endl;
-		break ;
+		if (written == 0)
+			break;
+		total += written;
 	}
+	close(fd);
+	connection.getResponse().setCode(201);
+	connection.getResponse().setCodeMessage("Created");
+	
+	// Check later to return URI path instead of system path
+	connection.getResponse().setHeader("Location", path);
+	
+	connection.getResponse().constructResponse();
+	connection.setState(SENDING_RESPONSE);
+	std::cout << connection.getResponse() << std::endl;
 	return 0;  
 }
 

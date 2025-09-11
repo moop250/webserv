@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/08 21:54:46 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/11 10:28:32 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ int parse_request_type(Connection& connection) {
 	std::string	path;
 	int			code;
 
-	// Check if path is cgi /cgi directory or not, pre-append the cgi path or root path
 	path = connection.getRequest().getPath();
 
 	// To TDD test only
