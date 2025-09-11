@@ -49,7 +49,6 @@ RequestServer::RequestServer(Config config)
 RequestServer::RequestServer(Config config, std::string name, std::string port, std::string locPath) :
     _isLocation(0)
 {
-    locPath = "wruvhlh";
     size_t portId = config.find(port, LISTEN);
     size_t nameId = config.find(name, SERVER_NAME);
     size_t  locId = config.find(locPath, LOCATION_PATH);
@@ -79,7 +78,6 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     }
     for (int i = 0; i < LOCATION; i++)
         setToken(s, static_cast<e_TokenType>(i));
-  //  std::cout << YELLOW << _errorPages.content(404) << RESET;
 }
 
 RequestServer::RequestServer(const RequestServer &serv)
