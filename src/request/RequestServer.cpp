@@ -37,6 +37,15 @@ bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t
     return true;
 }
 
+RequestServer::RequestServer(Config config)
+{
+    t_ServerData    s = config.getServerData(0);
+    for (int i = 0; i < LOCATION; i++)
+        setToken(s, static_cast<e_TokenType>(i));
+    _isValid = 1;
+    _isLocation = 0;
+}
+
 RequestServer::RequestServer(Config config, std::string name, std::string port, std::string locPath) :
     _isLocation(0)
 {

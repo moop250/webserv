@@ -32,6 +32,7 @@ class RequestServer
     bool                                _autoindex; // both
     public:
         RequestServer();
+        RequestServer(Config config);
         RequestServer(Config, std::string name, std::string port, std::string locPath);
         RequestServer(const RequestServer &);
         ~RequestServer();

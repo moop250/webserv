@@ -23,11 +23,6 @@ void    Config::initTokenMaps()
         _Tokens[i] = mainTokenMap[i];
 }
 
-Config::Config()
-{
-    std::cerr << YELLOW << "You are not supposed to use config without any file to look after\n" << RESET;
-}
-
 static void eraseComments(std::string &buf)
 {
     size_t  from = 0, to;
@@ -61,6 +56,34 @@ void    formatContent(std::string &buf)
     }
     eraseComments(buf);
 }
+
+Config::Config() :
+    _nbServers(0)
+{
+	std::string     path = "configFiles/goodConfigs/default.config";
+    std::ifstream   readFile(path.c_str());
+    std::string     buf;
+
+    if (readFile.is_open())
+    {
+        while (std::getline(readFile, buf))
+            _content.append(buf);
+    }
+    else
+    {
+        _content = "";
+        Error("File is empty or does not exist");
+        return ;
+    }
+    initTokenMaps();
+    _servers.push_back(getDefaultServ(0));
+    formatContent(_content);
+    std::cout << _content;
+    this->sanitize();
+    std::cout << *this;
+
+}
+
 
 Config::Config(std::string fileName, Debug &dfile) :
     _dfile(&dfile), _nbServers(0), _fileName(fileName)

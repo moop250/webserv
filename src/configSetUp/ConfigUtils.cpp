@@ -94,6 +94,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
     t_ServerData    print;
     int iteration = 0;
 
+    std::cout << GREEN << "PRINTING SERVER\n" << RESET;
     for (int i = 0; i < conf.getNbServers(); i++)
     {
         stream << "Server n* " << i << '\n';
