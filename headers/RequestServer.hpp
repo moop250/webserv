@@ -16,7 +16,8 @@
 
 class RequestServer
 {
-    bool    _isValid;
+    bool        _isValid;
+    bool        _isLocation;
     std::map<std::string, std::string>  _cgi;   // both
     std::vector<std::string>            _methods;   //  both
     ErrorPages                          _errorPages;    // both
@@ -31,6 +32,7 @@ class RequestServer
     bool                                _autoindex; // both
     public:
         RequestServer();
+        RequestServer(Config config);
         RequestServer(Config, std::string name, std::string port, std::string locPath);
         RequestServer(const RequestServer &);
         ~RequestServer();
@@ -39,6 +41,7 @@ class RequestServer
 
         void            setToken(t_ServerData serv, e_TokenType type);
         void            setToken(t_Location loc, e_TokenType type);
+        bool            check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath);
 //        void            setToken(std::string str, e_TokenType type);
         bool            undefined(e_TokenType);
         bool            has(e_TokenType);

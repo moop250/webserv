@@ -72,6 +72,7 @@ class Config
         void                                    initTokenMaps();
     public:
         Config();
+        Config(std::string fileName);
         Config(std::string fileName, Debug &dfile);
         Config(const Config &);
         virtual ~Config();

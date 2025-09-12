@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/10 15:51:35 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/11 11:58:41 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,9 @@ void matching_server(Connection& connection, Config& config) {
 	path = connection.getRequest().getPath();
 	port = connection.getRequest().getPort();
 	RequestServer server(config, name, port, path);
+
+	// server = connection.getDefaultServer();	--> ca passe mtn
+	std::cout << server;
 	if (server.isValid() == true) {
 		//  std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
 		connection.setServer(server);
@@ -123,7 +126,7 @@ void matching_server(Connection& connection, Config& config) {
 		// std::cout << "body: " << connection.getServer().errorPages().content(404) << std::endl;
 	} else {
 		std::cout << "NO SERVER MATCHED" << std::endl;
-		// add fall back server
+		// To do: default server should be already set in Connection object
 	}
 }
 
@@ -229,6 +232,17 @@ int parse_redirect(Connection& connection, std::string& redirect) {
 	return INTERNAL_ERROR;
 }
 
+// // get the location, replace the location with root if root is not empty
+// void path_merge(Connection& connection) {
+// 	std::string	path;
+// 	std::string	root;
+
+// 	path = connection.getRequest().getPath();
+// 	root = connection.getServer().root();
+// 	// if (root[root.size() - 1] == '/')
+// 	// 	root.erase(root.size() - 1, 1);
+// }
+
 int headers_content_check(Connection& connection, Config& config) {
 	std::string	host;
 	std::string keepAlive;
@@ -266,6 +280,7 @@ int headers_content_check(Connection& connection, Config& config) {
 		contentType = "application/octet-stream";
 	}
 	connection.getRequest().setContentType(contentType);
+	// path_merge(connection);
 	return content_length_check(connection);
 }
 

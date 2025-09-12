@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/10 15:48:46 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/11 11:54:09 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,15 @@
 
 // -------- CONSTRUCTORS/DESTRUCTORS --------------
 
+// stuffs to do
+// set default server
 Connection::Connection() {
 	this->state = READING_METHOD;
 	this->chunked_size = -1;
 	this->offset = -2;
 	this->reconnect = false;
 	this->close = false;
+	this->server = getDefaultServer();
 }
 Connection::Connection(const Connection& copy) {
 	*this = copy;
@@ -99,7 +102,16 @@ bool Connection::getClose() const {
 	return this->close;
 }
 
+#include <dirent.h>
+#include <stdio.h>
 
+RequestServer	Connection::getDefaultServer() const {
+	std::cout << "Giving default configuration\n";
+	Config	*c = new Config();
+	RequestServer	rs(*c);
+	delete c;
+	return rs;
+}
 
 // ----------------- SETTERS ----------------------
 

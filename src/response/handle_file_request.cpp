@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/10 14:01:46 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/11 14:49:45 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,22 @@ std::string size_to_string(size_t size) {
 }
 
 // return the file
+// stuffs to do
 int get_file(Connection& connection) {
-	std::string		path;
-	std::fstream	file;
-	std::string		buffer;
-	size_t			size;
+	std::string	path;
+	std::string	body;
+	int			fd;
+	char		buffer[4096];
+	long		n;
 
 	path = connection.getRequest().getPath();
+
+	// remove later
 	if (path[0] == '/')
 		path.erase(0, 1);
-	if (access(path.c_str(), R_OK) == -1) {
+	
+	fd = open(path.c_str(), O_RDONLY);
+	if (fd < 0) {
 		switch (errno) {
 			case EACCES:
 				error_response(connection, FORBIDDEN);
@@ -46,27 +52,27 @@ int get_file(Connection& connection) {
 		}
 		return -1;
 	}
-	file.open(path.c_str(), std::ios::in | std::ios::binary);
-	if (!file.is_open()) {
-		error_response(connection, INTERNAL_ERROR);
-		return -1;	
-	}
 	connection.getResponse().setContentType(getMIMEType(connection.getRequest().getFileType()));
-	file.seekg(0, std::ios::end);
-	size = static_cast<size_t>(file.tellg());
-	connection.getResponse().setContentLength(size);
-	file.seekg(0, std::ios::beg);
-	buffer.resize(size);
-	// Probably will be blocking for huge file but meh whatever
-	if(!file.read(&buffer[0], size)) {
-		error_response(connection, INTERNAL_ERROR);
-		return -1;
+	while (true) {
+		// Blocking here
+		n = read(fd, buffer, sizeof(buffer));
+		if (n > 0) {
+			body.append(buffer, n);
+		}
+		if (n == 0) {
+			break;
+		}
+		if (n < 0) {
+			close(fd);
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
 	}
-	file.close();
-	connection.getResponse().setBody(buffer);
+	connection.getResponse().setContentLength(body.size());
+	connection.getResponse().setBody(body);
 	connection.getResponse().setCode(200);
 	connection.getResponse().setCodeMessage("OK");
-	connection.getResponse().setHeader("Content-Length", size_to_string(size));
+	connection.getResponse().setHeader("Content-Length", size_to_string(body.size()));
 	connection.getResponse().setHeader("Content-Type", connection.getResponse().getContentType());
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
@@ -75,14 +81,22 @@ int get_file(Connection& connection) {
 }
 
 // Append the request body to the file if enough permission
+// Stuffs to do
 int post_file(Connection& connection) {
 	std::string		path;
-	std::fstream	file;
+	int				fd;
+	size_t			total;
+	long			written;
+	std::string		body;
 
 	path = connection.getRequest().getPath();
+
+	// remove later
 	if (path[0] == '/')
 		path.erase(0, 1);
-	if (access(path.c_str(), W_OK) == -1) {
+	
+	fd = open(path.c_str(), O_WRONLY | O_APPEND, 0644);
+	if (fd < 0) {
 		switch (errno) {
 			case EACCES:
 				error_response(connection, FORBIDDEN);
@@ -93,14 +107,22 @@ int post_file(Connection& connection) {
 		}
 		return -1;
 	}
-	// extension validation?
-	file.open(path.c_str(), std::ios::out | std::ios::binary | std::ios::app);
-	if (!file.is_open()) {
-		error_response(connection, INTERNAL_ERROR);
-		return -1;	
+	// extension validation so eg: not append jpeg into html?
+	total = 0;
+	body = connection.getRequest().getBody();
+	while (total < body.size()) {
+		// Blocking here
+		written = write(fd, body.c_str() + total, body.size() - total);
+		if (written < 0) {
+			close(fd);
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
+		if (written == 0)
+			break;
+		total += written;
 	}
-	file << connection.getRequest().getBody();
-	file.close();
+	close(fd);
 	connection.getResponse().setCode(204);
 	connection.getResponse().setCodeMessage("No Content");
 	connection.getResponse().constructResponse();
