@@ -8,7 +8,8 @@
 
 enum connectionReturns {
 	ACCEPTERROR = -1,
-	CONNECTIONSUCCESS
+	CONNECTIONSUCCESS,
+	NOCONNCECTION
 };
 
 enum recvReturns {
@@ -19,7 +20,9 @@ enum recvReturns {
 
 enum fdTypes {
 	SERVER,
-	CLIENT
+	CLIENT,
+	CGI_IN,
+	CFI_OUT
 };
 
 typedef struct s_fdInfo {

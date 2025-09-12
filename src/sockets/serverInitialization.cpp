@@ -2,8 +2,12 @@
 #include "../../headers/Sockets.hpp"
 #include "../../headers/StdLibs.hpp"
 #include "../../headers/SocketClass.hpp"
+#include <cerrno>
+#include <cstring>
+#include <fcntl.h>
 #include <new>
 #include <poll.h>
+#include <stdexcept>
 #include <sys/poll.h>
 #include <utility>
 
@@ -54,10 +58,32 @@ void initPoll(ServerSocket *socket, t_fdInfo *fdInfo) {
 	std::vector<pollfd> *fds = &fdInfo->fds;
 
 	for (int i = 0; i < socket->getSocketCount(); ++i) {
+		int fd = socket->getSocketFd(i);
+
+		int flags = fcntl(fd, F_GETFL, 0);
+		if (flags == -1) {
+			std::ostringstream oss;
+			oss << fd;
+			throw std::runtime_error(std::string("initPoll: Failed to get socket flags for fd: ")
+									+ oss.str()
+									+ std::string(" : ")
+									+ strerror(errno));
+		}
+
+		if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+			std::ostringstream oss;
+			oss << fd;
+			throw std::runtime_error(std::string("initPoll: Failed to set non-blocking mode for fd ")
+									+ oss.str()
+									+ std::string(" : ")
+									+ strerror(errno));
+		}
+
 		pollfd newPollFD;
 		newPollFD.fd = socket->getSocketFd(i);
 		newPollFD.events = POLLIN;
 		fds->push_back(newPollFD);
+
 		fdInfo->fdTypes.insert(std::make_pair(socket->getSocketFd(i), SERVER));
 	}
 };

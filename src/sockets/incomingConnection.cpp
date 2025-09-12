@@ -29,7 +29,7 @@ static void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std:
 	fdInfo->fdTypes.insert(std::make_pair(newFD, fdType));
 
 	switch (fdType) {
-		case (CLIENT) :
+		case CLIENT :
 			sockets->incrementClientCount();
 			break;
 		default:
@@ -62,7 +62,11 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 	addrLen = sizeof newRemote;
 	remoteFD = accept(fd, (struct sockaddr *)&newRemote,&addrLen);
 	if (remoteFD == -1) {
-		return ACCEPTERROR;
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			return NOCONNCECTION;
+		} else {
+			return ACCEPTERROR;
+		}
 	} else {
 		addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
 		return remoteFD;
@@ -120,8 +124,10 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			int tmp = handleConnection(sockets, fdInfo, fd, connectMap);
 			switch (tmp)
 			{
+				case NOCONNCECTION:
+					return -1;
 				case ACCEPTERROR:
-					break ;
+					throw std::runtime_error("handlePOLLIN Accept error");
 				default:
 					std::cout << YELLOW << "Accept: New connection on socket: " << tmp << RESET << std::endl;
 			}
