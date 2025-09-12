@@ -28,7 +28,14 @@ static void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std:
 	connectMap->insert(std::make_pair(newFD, newConnection));
 	fdInfo->fdTypes.insert(std::make_pair(newFD, fdType));
 
-	sockets->incrementClientCount();
+	switch (fdType) {
+		case (CLIENT) :
+			sockets->incrementClientCount();
+			break;
+		default:
+			std::cout << "unknown fd type in addToPollfd" << std::endl;
+			break;
+	}
 }
 
 static void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
@@ -154,22 +161,23 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap) {
 		remainingBytes -= offset;
 	}
 
-	while (remainingBytes > 0) {
-		ssize_t status = send(fd, buf, remainingBytes, MSG_DONTWAIT);
-		if (status < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK){
-				connect.setOffset(offset); 
-				return 1;
-			} else if (errno == EFAULT || errno == EINVAL) {
-				throw std::runtime_error("Send error: " + std::string(strerror(errno)));
-			} else {
-				return 2;
-			}
+	ssize_t status = send(fd, buf, remainingBytes, MSG_DONTWAIT);
+	if (status < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK){
+			connect.setOffset(offset); 
+			return 1;
+		} else if (errno == EFAULT || errno == EINVAL) {
+			throw std::runtime_error("Send error: " + std::string(strerror(errno)));
+		} else {
+			return 2;
 		}
-		offset += status;
-		buf += status;
-		remainingBytes -= status;
 	}
+
+	if (remainingBytes > 0) {
+		offset += status;
+		connect.setOffset(offset);
+		return 1;
+	} 
 
 	connect.setOffset(-2);
 	if (connect.getClose())
