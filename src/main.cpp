@@ -79,14 +79,16 @@ void	eventLoop(Config *config, ServerSocket *socket)
 	g_fds = fdInfo.fds;
 	try {
 		while (1) {
-			int	pollCount = poll(&fdInfo.fds[0], socket->getTotalSocketCount(), -1);
+			int	pollCount = poll(&fdInfo.fds[0], socket->getTotalSocketCount(), 0);
 
 			if (pollCount == -1) {
 				std::cerr << "Error: Poll" << std::endl;
 				break;
 			}
+			std::cout << "pollcount: " << pollCount << std::endl;
 
-			incomingConnection(socket, &fdInfo, config, &connectMap);
+			if (pollCount > 0)
+				incomingConnection(socket, &fdInfo, config, &connectMap);
 		}
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
