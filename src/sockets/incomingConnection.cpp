@@ -107,40 +107,35 @@ static int handleClientData(int fd, std::map<int, Connection> *connectMap, Confi
 	return EXITPARSING;
 };
 
-static bool checkServ(ServerSocket *sockets, int fd) {
-	for (int j = 0; j < sockets->getSocketCount(); ++j) {
-			if (fd == sockets->getSocketFd(j)) {
-				return true;
-			}
-		}
-	return false;
-}
-
 static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::map<int, Connection> *connectMap, Config *conf) {
-	if (checkServ(sockets, fd)) {
-		int tmp = handleConnection(sockets, fdInfo, fd, connectMap);
-		switch (tmp)
-		{
-			case ACCEPTERROR:
-				break ;
-			default:
-				std::cout << YELLOW << "Accept: New connection on socket: " << tmp << RESET << std::endl;
-		}
-	} else {
-		switch(handleClientData(fd, connectMap, conf))
-		{
-			case EXITPARSING:
-				setPOLLOUT(fd, &fdInfo->fds);
-				return 1;
-			case HUNGUP:
-				std::cout << YELLOW << "Recv: socket " << fd << " hung up" << RESET << std::endl;
-				close(fd);
-				removeFromPollfd(fdInfo, fd, sockets, connectMap);
-				return -1;
-			case RECVERROR:
-				close(fd);
-				removeFromPollfd(fdInfo, fd, sockets, connectMap);
-				return -1;
+	switch (fdInfo->fdTypes.at(fd)) {
+		case (SERVER): {
+			int tmp = handleConnection(sockets, fdInfo, fd, connectMap);
+			switch (tmp)
+			{
+				case ACCEPTERROR:
+					break ;
+				default:
+					std::cout << YELLOW << "Accept: New connection on socket: " << tmp << RESET << std::endl;
+			}
+			break;
+		} case (CLIENT): {
+			switch(handleClientData(fd, connectMap, conf))
+			{
+				case EXITPARSING:
+					setPOLLOUT(fd, &fdInfo->fds);
+					return 1;
+				case HUNGUP:
+					std::cout << YELLOW << "Recv: socket " << fd << " hung up" << RESET << std::endl;
+					close(fd);
+					removeFromPollfd(fdInfo, fd, sockets, connectMap);
+					return -1;
+				case RECVERROR:
+					close(fd);
+					removeFromPollfd(fdInfo, fd, sockets, connectMap);
+					return -1;
+			}
+			break;
 		}
 	}
 	return 0;
@@ -223,7 +218,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					setPOLLIN(fd, &fdInfo->fds);
 					continue;
 				case 4:
-					std::cout << YELLOW << "POLLOUT: request returned an error on socket: " << fd << "... closing" << RESET << std::endl;
+					std::cout << YELLOW << "POLLOUT: close flag on socket: " << fd << "... closing" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					break ;

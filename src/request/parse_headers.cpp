@@ -60,7 +60,6 @@ int method_check(Connection& connection) {
 
 	method = connection.getRequest().getMethod();
 	allowed = connection.getServer().methods();
-	std::cout << "method allowed : " << allowed.at(0) << std::endl;
 	for (std::vector<std::string>::iterator it = allowed.begin(); it != allowed.end(); it++) {
 		if (*it == method)
 			return CONTINUE_READ;
