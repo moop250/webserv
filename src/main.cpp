@@ -1,6 +1,7 @@
 
 #include <cstdio>
 #include <exception>
+#include <map>
 #include <stdexcept>
 #include <sys/poll.h>
 #include <sys/socket.h> // For socket functions
@@ -58,21 +59,36 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	return NULL;
 }
 
+//	Remove variable for correction
+std::vector<pollfd>	g_fds;
 // add	serv.findLoc();
 
-void	eventLoop(Config *config, ServerSocket *socket, char **env)
+static void close_all(int sig)
 {
-	std::vector<pollfd> fds = initPoll(socket);
+	(void)sig;
+	for (std::vector<pollfd>::iterator i = g_fds.begin(); i != g_fds.end(); i++)
+		close(i->fd);
+}
+
+void	eventLoop(Config *config, ServerSocket *socket)
+{
+	t_fdInfo fdInfo;
+	initPoll(socket, &fdInfo);
+	std::map<int, Connection> connectMap;
+	signal(SIGQUIT, close_all);
+	g_fds = fdInfo.fds;
 	try {
 		while (1) {
-			int	pollCount = poll(&fds[0], socket->getTotalSocketCount(), -1);
+			int	pollCount = poll(&fdInfo.fds[0], socket->getTotalSocketCount(), 0);
 
 			if (pollCount == -1) {
 				std::cerr << "Error: Poll" << std::endl;
 				break;
 			}
+			std::cout << "pollcount: " << pollCount << std::endl;
 
-			incomingConnection(socket, &fds, config, env);
+			if (pollCount > 0)
+				incomingConnection(socket, &fdInfo, config, &connectMap);
 		}
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
@@ -93,7 +109,7 @@ int main(int ac, char** av)
 {
 	Debug	dfile("General.log");
 	Config	*config = NULL;
-	// ServerSocket *socket = NULL;
+	ServerSocket *socket = NULL;
 
 	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
@@ -106,19 +122,26 @@ int main(int ac, char** av)
 
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 	
-	// try {
-	// 	socket = initalizeServer(config);
-	// } catch (std::exception &e) {
-	// 	std::cerr << RED << e.what() << RESET << std::endl;
-	// 	delete config;
-	// 	return (-2);
-	// }
+	try {
+		socket = initalizeServer(config);
+	} catch (std::exception &e) {
+		std::cerr << RED << e.what() << RESET << std::endl;
+		delete config;
+		return (-2);
+	}
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	
-	// eventLoop(config, socket);
+	try {
+		eventLoop(config, socket);
+	} catch (std::exception &e) {
+		std::cerr << RED << e.what() << RESET << std::endl;
+		delete config;
+		delete socket;
+		return (-3);	
+	}
 
-	Connection		connection;
+/* 	Connection		connection;
 	connection.buffer = "DELETE /cgi/CGI.java?HelloFrom42 HTTP/1.1\r\n"
 						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
@@ -132,7 +155,7 @@ int main(int ac, char** av)
 		code = handle_request(connection);
 		// std::cout << code << std::endl;
 	}
-	std::cout << "RESPONSE: " << connection.getResponse() << std::endl;
+	std::cout << "RESPONSE: " << connection.getResponse() << std::endl; */
 
 	
 	ErrorDebug(dfile, "Event Loop Undefined");

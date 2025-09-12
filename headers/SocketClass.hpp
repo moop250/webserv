@@ -9,18 +9,6 @@
 
 # define BACKLOG 20
 
-enum connectionReturns {
-	ACCEPTERROR = -1,
-	CONNECTIONSUCCESS
-};
-
-enum recvReturns {
-	CLOSEFD = 1,
-	CLIENTDATASUCCESS = 0,
-	HUNGUP = -1,
-	RECVERROR = -2
-};
-
 class ServerSocket {
 
 	private:
