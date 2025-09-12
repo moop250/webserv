@@ -85,7 +85,6 @@ void	eventLoop(Config *config, ServerSocket *socket)
 				std::cerr << "Error: Poll" << std::endl;
 				break;
 			}
-			std::cout << "pollcount: " << pollCount << std::endl;
 
 			if (pollCount > 0)
 				incomingConnection(socket, &fdInfo, config, &connectMap);
