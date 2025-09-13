@@ -1,9 +1,11 @@
 todo:
 - Match location if apply.
 - Preappend root or cgi path to URL path
-- Check allowed methods
-- Check body size
 
+Note:
+To install in eval computer:
+-- install php-cgi:  sudo apt-get install php-cgi
+-- install java: sudo apt install default-jre
 
 # Request handler documentation:
 
