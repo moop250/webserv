@@ -59,28 +59,40 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	return NULL;
 }
 
-//	Remove variable for correction
-std::vector<pollfd>	g_fds;
-// add	serv.findLoc();
+
+std::vector<pollfd> g_fds;
+volatile sig_atomic_t g_running = 1; // 1 = en cours, 0 = stop
 
 static void close_all(int sig)
 {
-	(void)sig;
-	for (std::vector<pollfd>::iterator i = g_fds.begin(); i != g_fds.end(); i++)
-		close(i->fd);
+    (void)sig;
+    g_running = 0;
+
+    for (std::vector<pollfd>::iterator i = g_fds.begin(); i != g_fds.end(); i++) {
+        if (i->fd != -1) {
+            close(i->fd);
+            i->fd = -1;
+        }
+    }
+    std::cerr << "[INFO] SIGQUIT reçu, sockets fermés" << std::endl;
 }
 
 void	eventLoop(Config *config, ServerSocket *socket)
 {
 	t_fdInfo fdInfo;
+
 	initPoll(socket, &fdInfo);
+
 	std::map<int, Connection> connectMap;
+
 	signal(SIGQUIT, close_all);
 	g_fds = fdInfo.fds;
 	try {
 		while (1) {
 			int	pollCount = poll(&fdInfo.fds[0], socket->getTotalSocketCount(), 0);
 
+			 if (!g_running)
+                break;
 			if (pollCount == -1) {
 				std::cerr << "Error: Poll" << std::endl;
 				break;
