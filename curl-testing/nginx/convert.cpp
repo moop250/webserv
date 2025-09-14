@@ -5,7 +5,7 @@
 #include <sstream>
 #include <ostream>
 
-void	convert(std::ifstream &file)
+void	convert(std::ifstream &file, bool to_webserv)
 {
 	const int	nbTokens = 12;
 	std::string	line;
@@ -25,8 +25,17 @@ void	convert(std::ifstream &file)
 	while ((std::getline(file, line)))
 	{
 		for (int i = 0; i < nbTokens; i++)
-			if (line.find(tokens[i]))
-				line.replace(tokens[i], nginxTokens[i]);
+		{
+			if (to_webserv)
+			{
+				if (line.find(nginxTokens[i]))
+					line.replace(nginxTokens[i], myTokens[i]);
+			}
+			else
+			{
+				if (line.find(tokens[i]))
+					line.replace(myTokens[i], nginxTokens[i]);
+			}
 		to_write << line;
 		to_write << '\n';
 	}
@@ -39,9 +48,10 @@ int	main(int ac, char **av)
 {
 	std::cout << "Converting file..." << std::endl;
 
-	if (ac != 2)
+	if (ac != 3)
 	{
-		std::cout << "Bad arguments, give a file to convert\n";
+		std::cout << "Bad arguments...\n"
+			<< "try : ./convert [filename.config] [0 | 1]" << std::endl;
 		return (1);
 	}
 
