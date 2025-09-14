@@ -127,7 +127,7 @@ int main(int ac, char** av)
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
 	else
-		config = parseConfigFile("configFiles/goodConfigs/default.config", dfile);
+		config = parseConfigFile("ressources/configFiles/goodConfigs/default.config", dfile);
 	if (!config)
 		return (-1);
 
