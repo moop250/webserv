@@ -118,6 +118,7 @@ bool    Server::has(std::string token, e_TokenType type)
 {
     int    general = TOKEN_TYPE_COUNT;
 
+    std::cout << "Looking for token : " << token;
     switch (type)
     {
         case TOKEN_TYPE_COUNT:

@@ -18,7 +18,7 @@ RequestServer::RequestServer() {
 
 bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath)
 {
-    if (portId == std::string::npos || nameId != portId)
+    if (portId == std::string::npos || nameId == std::string::npos)
     {
         std::cerr << RED << "ServerName or associeted port not found\n" << RESET;
         return false;
@@ -50,7 +50,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     _isLocation(0)
 {
     size_t portId = config.find(port, LISTEN);
-    size_t nameId = config.find(name, SERVER_NAME);
+    size_t nameId = config.find(name, HOST);
     size_t  locId = config.find(locPath, LOCATION_PATH);
  
     if (!check(config, portId, nameId, locId, locPath))

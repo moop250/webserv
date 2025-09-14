@@ -33,6 +33,7 @@ class RequestServer
     public:
         RequestServer();
         RequestServer(Config config);
+       // RequestServer(Config config, const std::string &name, const std::string &port, const std::string &locPath);
         RequestServer(Config, std::string name, std::string port, std::string locPath);
         RequestServer(const RequestServer &);
         ~RequestServer();
