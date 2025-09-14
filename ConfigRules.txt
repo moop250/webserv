@@ -36,6 +36,7 @@ It works by the following rules :
 	- CGI "CGI" 				: '<token> file.py | file.php | ... <space> path'
 	- client BufSize "client_max_body_size"	: '<token> size'
 	- Methods allowed "allow"		: '<token> M1 M2 ... Mi'
+	- Redirections "return"			: '<token> code path'
 	- location bloc	"location"		: 'token path { ... }'
 
 5) The location bloc has to respect the same format as a server
