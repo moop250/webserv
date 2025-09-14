@@ -78,12 +78,13 @@ void ServerSocket::initializeNewSocket(std::string combo) {
     }
 
     // activer SO_REUSEADDR avant bind() (pr relancer ws oklm)
+	//	debut modif
     int opt = 1;
     if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
         close(socketfd);
         freeaddrinfo(res);
         throw std::runtime_error("setsockopt(SO_REUSEADDR) failed: " + std::string(strerror(errno)));
-    }
+    }	// fin de modif
 
     if (bind(socketfd, res->ai_addr, res->ai_addrlen) < 0) {
         close(socketfd);
