@@ -130,9 +130,8 @@ int main(int ac, char** av)
 		config = parseConfigFile("ressources/configFiles/goodConfigs/default.config", dfile);
 	if (!config)
 		return (-1);
-
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
-	
+
 	try {
 		socket = initalizeServer(config);
 	} catch (std::exception &e) {
@@ -168,8 +167,6 @@ int main(int ac, char** av)
 	}
 	std::cout << "RESPONSE: " << connection.getResponse() << std::endl; */
 
-	
-	ErrorDebug(dfile, "Event Loop Undefined");
 
 	delete config;
 	return 0;

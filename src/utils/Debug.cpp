@@ -22,13 +22,13 @@ Debug::Debug(std::string name)
     file.open("Debug.log");    
     if (!file.is_open())
     {
-        std::cerr << "Debug file's creation failed\n";
+        std::cerr << "Debug file's creation failed\n" << std::flush;
         return ;
     }
     header << "Creation time : " << t << '\n'
         << "//////////////////////////\n"
         << "//  WEBSERV DEBUG LOG   //\n"
-        << "//////////////////////////\n" << std::endl;
+        << "//////////////////////////\n" << '\n' << std::flush;
     file << header.str();
     header.clear();
 }
@@ -44,6 +44,6 @@ void    Debug::append(const char *msg)
 {
     if (!file.is_open())
         return ;
-    file << msg << '\n';
+    file << msg << '\n' << std::flush;
     return ;
 }
