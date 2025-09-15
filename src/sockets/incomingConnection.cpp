@@ -72,6 +72,7 @@ static void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, st
 	}
 	connectMap->erase(fd);
 	fdInfo->fdTypes.erase(fd);
+	fdInfo->fdStatus.erase(fd);
 
 	sockets->decrementClientCount();
 }
