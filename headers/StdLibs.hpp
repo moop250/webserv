@@ -15,4 +15,7 @@
 
 # include <cstdlib>
 
+template <typename integer>
+std::string	tostring(integer n);
+
 #endif

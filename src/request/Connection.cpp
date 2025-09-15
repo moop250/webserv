@@ -107,10 +107,7 @@ bool Connection::getClose() const {
 
 RequestServer	Connection::getDefaultServer() const {
 	std::cout << "Giving default configuration\n";
-	Config	*c = new Config();
-	RequestServer	rs(*c);
-	delete c;
-	return rs;
+	return RequestServer(1);
 }
 
 // ----------------- SETTERS ----------------------

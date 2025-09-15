@@ -10,8 +10,6 @@ t_ServerData    getDefaultServ(bool with_location)
     default_server_values.index = c.red() + "UNDEFINED" + c.reset();
     default_server_values.upload_storage = c.red() + "UNDEFINED" + c.reset();
     default_server_values.redirect = c.red() + "UNDEFINED" + c.reset();
-//    default_server_values.cgi_ext = c.red() + "UNDEFINED" + c.reset();
-//    default_server_values.cgi_path = c.red() + "UNDEFINED" + c.reset();
     default_server_values.client_max_body_size = 1;
     default_server_values.autoindex = false;
 

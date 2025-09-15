@@ -31,7 +31,7 @@ class RequestServer
     size_t                              _clientBodySize;    //both
     bool                                _autoindex; // both
     public:
-        RequestServer();
+        RequestServer(bool def=false);
         RequestServer(Config config);
        // RequestServer(Config config, const std::string &name, const std::string &port, const std::string &locPath);
         RequestServer(Config, std::string name, std::string port, std::string locPath);
@@ -60,6 +60,8 @@ class RequestServer
         size_t                              clientSize() const;
         bool                                autoindex() const;
         bool                                isValid() const;
+        RequestServer                       defaultServ() const;
+
 };
 
 std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs);

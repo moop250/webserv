@@ -130,6 +130,7 @@ void matching_server(Connection& connection, Config& config) {
 	} else {
 		std::cout << "NO SERVER MATCHED" << std::endl;
 		// To do: default server should be already set in Connection object
+		// done : connection.getDefaultServer()
 	}
 }
 

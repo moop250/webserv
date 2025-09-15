@@ -2,9 +2,40 @@
 
 ErrorPages::ErrorPages()
 {
-    _html_content.push_back("UNDEFINED");
-    _data.insert(std::make_pair(0, "UNDEFINED"));
+    const int   nbError = 12;
+    std::string root = "ressources/html/error/";
+    int         errors[] = {
+        301, 302, 400, 403, 404, 405, 411, 413,
+        415, 500, 501, 505
+    };
+
     _nbPages = 0;
+
+    for (int i = 0; i < nbError; i++)
+    {
+        _data.insert(std::make_pair(errors[i], tostring(errors[i]) + ".html"));
+        std::string input = root + tostring(errors[i]) + std::string(".html");
+        std::ifstream   error(input.c_str());
+        std::string     content = "";
+        std::string     buf;
+
+        std::cout << input << std::endl;
+        if (!error.is_open())
+        {    
+            std::cout << "Fck" << std::endl;
+            return ;
+        }
+        while (std::getline(error, buf))
+        {
+            content.append(buf);
+            content.append("\n");
+        }
+        if (error.is_open())
+            _html_content.push_back(content);
+        else
+            std::cout << "Content not found\n" << std::flush;
+        _nbPages++;
+    }       
 }
 
 ErrorPages::ErrorPages(std::map<int, std::string> m)
@@ -180,3 +211,41 @@ int ErrorPages::find(int error) const
 //    for (int i = 0;)
 //    return stream;
 //}
+template <typename integer>
+static void	helper(integer nb, char str[100], int *index)
+{
+	if (nb >= 10)
+		helper(nb / 10, str, index);
+	str[(*index)++] = (nb % 10) + '0';
+	str[*index] = '\0';
+}
+
+template <typename integer>
+std::string	tostring(integer n)
+{
+    char        c[100];
+	int		    index;
+    std::string s;
+
+    for (int i = 0; i < 100; i++)
+	{
+        c[i] = '\0';
+	}
+	index = 0;
+	if (n == -2147483648)
+	{
+		c[0] = '-';
+		c[1] = '2';
+		n += 2000000000;
+		n = -n;
+		index += 2;
+	}
+	else if (n < 0)
+	{
+		c[index++] = '-';
+		n = -n;
+	}
+    helper(n, c, &index);
+    s = c;
+	return (s);
+}

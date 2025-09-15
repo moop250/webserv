@@ -1,6 +1,6 @@
 #include "RequestServer.hpp"
 
-RequestServer::RequestServer() {
+RequestServer::RequestServer(bool def) {
     _isValid = false;
   //  _cgi.insert(std::make_pair("UNDEFINED", "UNDEFINED"));
   //  _methods.push_back("UNDEFINED");
@@ -14,6 +14,19 @@ RequestServer::RequestServer() {
     _redirect = "UNDEFINED";
     _clientBodySize = 0;
     _autoindex = false;
+    if (!def)
+        return ;
+    _isValid = true;
+    _host = "127.0.0.1";
+    _port = "8000";
+    _root = "./ressources/";
+    _index = "index.html";
+    _storage = "upload";
+    _redirect = "301 redirection.html";
+    _clientBodySize = 3000000;
+    _methods.push_back("GET");
+    _errorPages = ErrorPages();
+    _cgi.insert(std::make_pair("", ""));
 }
 
 bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath)
@@ -303,6 +316,10 @@ std::string                         RequestServer::redirect() const {
 }
 size_t                              RequestServer::clientSize() const { return _clientBodySize;}
 bool                                RequestServer::autoindex() const { return _autoindex;}
+
+RequestServer   RequestServer::defaultServ() const {
+    return RequestServer(1);
+}
 
 std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
 {
