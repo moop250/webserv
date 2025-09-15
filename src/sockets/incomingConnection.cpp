@@ -5,6 +5,8 @@
 #include <cerrno>
 #include <climits>
 #include <cstring>
+#include <fcntl.h>
+#include <map>
 #include <poll.h>
 #include <stdexcept>
 #include <string>
@@ -15,9 +17,30 @@
 #include <unistd.h>
 #include <utility>
 
-static void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<int, Connection> *connectMap, int fdType) {
+void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<int, Connection> *connectMap, int fdType) {
 	pollfd newPollFD;
+	std::map<int, int> *status = &fdInfo->fdStatus;
 	std::vector<pollfd> *fds = &fdInfo->fds;
+
+	status->insert(std::make_pair(newFD, FD_OK));
+	int flags = fcntl(newFD, F_GETFL, 0);
+	if (flags == -1) {
+		std::cerr << "addToPollfd: Failed to get socket flags for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
+		if (fdType == CGI) {
+			status->at(newFD) = CGIERROR;
+		} else {
+			status->at(newFD) = CLIENTERROR;
+		}
+	}
+
+	if (fcntl(newFD, F_SETFL, flags | O_NONBLOCK) == -1) {
+		std::cerr << "addToPollfd: Failed to set non-blocking mode for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
+		if (fdType == CGI) {
+			status->at(newFD) = CGIERROR;
+		} else {
+			status->at(newFD) = CLIENTERROR;
+		}
+	}
 	
 	newPollFD.fd = newFD;
 	newPollFD.events = POLLIN;
@@ -28,7 +51,14 @@ static void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std:
 	connectMap->insert(std::make_pair(newFD, newConnection));
 	fdInfo->fdTypes.insert(std::make_pair(newFD, fdType));
 
-	sockets->incrementClientCount();
+	switch (fdType) {
+		case CLIENT :
+			sockets->incrementClientCount();
+			break;
+		default:
+			std::cout << "unknown fd type in addToPollfd" << std::endl;
+			break;
+	}
 }
 
 static void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
@@ -45,22 +75,6 @@ static void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, st
 
 	sockets->decrementClientCount();
 }
-
-static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std::map<int, Connection> *connectMap) {
-	struct sockaddr_storage newRemote;
-	socklen_t               addrLen;
-	int remoteFD;
-	std::string remoteIP;
-
-	addrLen = sizeof newRemote;
-	remoteFD = accept(fd, (struct sockaddr *)&newRemote,&addrLen);
-	if (remoteFD == -1) {
-		return ACCEPTERROR;
-	} else {
-		addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
-		return remoteFD;
-	}
-};
 
 static void setPOLLIN(int fd, std::vector<pollfd> *fds) {
 	std::vector<pollfd>::iterator it = fds->begin();
@@ -81,6 +95,27 @@ static void setPOLLOUT(int fd, std::vector<pollfd> *fds) {
 		}
 	}
 }
+
+static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std::map<int, Connection> *connectMap) {
+	struct sockaddr_storage newRemote;
+	socklen_t               addrLen;
+	int remoteFD;
+	std::string remoteIP;
+
+	addrLen = sizeof newRemote;
+	remoteFD = accept(fd, (struct sockaddr *)&newRemote,&addrLen);
+	if (remoteFD == -1) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			return NOCONNCECTION;
+		} else {
+			return ACCEPTERROR;
+		}
+	}
+	addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
+	if (fdInfo->fdStatus.at(remoteFD) == CLIENTERROR)
+		setPOLLOUT(remoteFD, &fdInfo->fds);
+	return remoteFD;
+};
 
 static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf) {
 	int	code = CONTINUE_READ;
@@ -113,8 +148,10 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			int tmp = handleConnection(sockets, fdInfo, fd, connectMap);
 			switch (tmp)
 			{
+				case NOCONNCECTION:
+					return -1;
 				case ACCEPTERROR:
-					break ;
+					throw std::runtime_error("handlePOLLIN Accept error");
 				default:
 					std::cout << YELLOW << "Accept: New connection on socket: " << tmp << RESET << std::endl;
 			}
@@ -141,12 +178,16 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 	return 0;
 }
 
-static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap) {
+static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo *fdInfo) {
 	Connection &connect = connectMap->at(fd);
 	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
 	size_t remainingBytes = out.size(), offset = 0;
 	const char *buf = out.c_str();
+
+	if (fdInfo->fdStatus.at(fd) == CLIENTERROR) {
+		// make program return a 500 internal error
+	}
 
 	if (connect.getOffset() > 0) {
 		buf += connect.getOffset();
@@ -154,22 +195,23 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap) {
 		remainingBytes -= offset;
 	}
 
-	while (remainingBytes > 0) {
-		ssize_t status = send(fd, buf, remainingBytes, MSG_DONTWAIT);
-		if (status < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK){
-				connect.setOffset(offset); 
-				return 1;
-			} else if (errno == EFAULT || errno == EINVAL) {
-				throw std::runtime_error("Send error: " + std::string(strerror(errno)));
-			} else {
-				return 2;
-			}
+	ssize_t status = send(fd, buf, remainingBytes, MSG_DONTWAIT);
+	if (status < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK){
+			connect.setOffset(offset); 
+			return 1;
+		} else if (errno == EFAULT || errno == EINVAL) {
+			throw std::runtime_error("Send error: " + std::string(strerror(errno)));
+		} else {
+			return 2;
 		}
-		offset += status;
-		buf += status;
-		remainingBytes -= status;
 	}
+
+	if (remainingBytes > 0) {
+		offset += status;
+		connect.setOffset(offset);
+		return 1;
+	} 
 
 	connect.setOffset(-2);
 	if (connect.getClose())
@@ -200,7 +242,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				handle_request(connectMap->at(fd));
 			}
 
-			switch (handlePOLLOUT(fd, connectMap)) {
+			switch (handlePOLLOUT(fd, connectMap, fdInfo)) {
 				case 0:
 					connectMap->at(fd).clear();
 					setPOLLIN(fd, &fdInfo->fds);
@@ -227,4 +269,4 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 	}
 
 	return 0;
-};
+}

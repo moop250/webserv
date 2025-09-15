@@ -8,7 +8,8 @@
 
 enum connectionReturns {
 	ACCEPTERROR = -1,
-	CONNECTIONSUCCESS
+	CONNECTIONSUCCESS,
+	NOCONNCECTION
 };
 
 enum recvReturns {
@@ -19,13 +20,22 @@ enum recvReturns {
 
 enum fdTypes {
 	SERVER,
-	CLIENT
+	CLIENT,
+	CGI_IN,
+	CFI_OUT
+};
+
+enum fdStatus {
+	CLIENTERROR,
+	CGIERROR,
+	FD_OK
 };
 
 typedef struct s_fdInfo {
 
 	std::vector<pollfd> fds;
 	std::map<int, int> fdTypes;
+	std::map<int, int> fdStatus;
 
 } t_fdInfo;
 
