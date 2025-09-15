@@ -19,10 +19,11 @@ RequestServer::RequestServer(bool def) {
     _isValid = true;
     _host = "127.0.0.1";
     _port = "8000";
-    _root = "./ressources/";
+    _root = "ressources/";
     _index = "index.html";
     _storage = "upload";
     _redirect = "301 redirection.html";
+    _autoindex = true;
     _clientBodySize = 3000000;
     _methods.push_back("GET");
     _methods.push_back("POST");
@@ -43,7 +44,7 @@ bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t
     if ((locId == std::string::npos && !locPath.empty() && portId != locId)
         || locId >= config.getServerData(portId).locations.size())
     {
-        std::cerr << RED << "Location path in server nb : " << portId
+        std::cerr << RED << "Location path in ser127.0.0.1:8001ver nb : " << portId
             << " not found\n" << RESET;
         _isLocation = false;
     }
@@ -90,9 +91,12 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
         t_Location      l = s.locations.at(locId);
        for (int i = 0; i < LOCATION; i++)
             setToken(l, static_cast<e_TokenType>(i));
+        _clientBodySize = l.data.client_max_body_size;
     }
     for (int i = 0; i < LOCATION; i++)
         setToken(s, static_cast<e_TokenType>(i));
+    if (!_isLocation)
+        _clientBodySize = s.client_max_body_size;
 }
 
 RequestServer::RequestServer(const RequestServer &serv)
@@ -247,7 +251,7 @@ bool    RequestServer::undefined(e_TokenType type)
                 return true;
             return false;
         case CLIENT_MAX_BODY_SIZE:
-            if (_clientBodySize <= 1)
+            if (_clientBodySize <= 0)
                 return true;
             return false;
         case METHODS:

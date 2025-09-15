@@ -116,8 +116,8 @@ void matching_server(Connection& connection, Config& config) {
 	path = connection.getRequest().getPath();
 	port = connection.getRequest().getPort();
 
-	std::cout << "Looking for : \nServerName : " << name
-		<< "\nAt Path : " << path << "\nIn Port : " << port << std::endl; 
+	//std::cout << "Looking for : \nServerName : " << name
+	//	<< "\nAt Path : " << path << "\nIn Port : " << port << std::endl; 
 	RequestServer server(config, name, port, path);
 
 //	server = connection.getDefaultServer();//	--> ca passe mtn
