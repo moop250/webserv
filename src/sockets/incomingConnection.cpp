@@ -76,26 +76,6 @@ static void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, st
 	sockets->decrementClientCount();
 }
 
-static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std::map<int, Connection> *connectMap) {
-	struct sockaddr_storage newRemote;
-	socklen_t               addrLen;
-	int remoteFD;
-	std::string remoteIP;
-
-	addrLen = sizeof newRemote;
-	remoteFD = accept(fd, (struct sockaddr *)&newRemote,&addrLen);
-	if (remoteFD == -1) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK) {
-			return NOCONNCECTION;
-		} else {
-			return ACCEPTERROR;
-		}
-	} else {
-		addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
-		return remoteFD;
-	}
-};
-
 static void setPOLLIN(int fd, std::vector<pollfd> *fds) {
 	std::vector<pollfd>::iterator it = fds->begin();
 	for (; it != fds->end(); ++it) {
@@ -115,6 +95,27 @@ static void setPOLLOUT(int fd, std::vector<pollfd> *fds) {
 		}
 	}
 }
+
+static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std::map<int, Connection> *connectMap) {
+	struct sockaddr_storage newRemote;
+	socklen_t               addrLen;
+	int remoteFD;
+	std::string remoteIP;
+
+	addrLen = sizeof newRemote;
+	remoteFD = accept(fd, (struct sockaddr *)&newRemote,&addrLen);
+	if (remoteFD == -1) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			return NOCONNCECTION;
+		} else {
+			return ACCEPTERROR;
+		}
+	}
+	addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
+	if (fdInfo->fdStatus.at(remoteFD) == CLIENTERROR)
+		setPOLLOUT(remoteFD, &fdInfo->fds);
+	return remoteFD;
+};
 
 static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf) {
 	int	code = CONTINUE_READ;
@@ -177,12 +178,16 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 	return 0;
 }
 
-static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap) {
+static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo *fdInfo) {
 	Connection &connect = connectMap->at(fd);
 	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
 	size_t remainingBytes = out.size(), offset = 0;
 	const char *buf = out.c_str();
+
+	if (fdInfo->fdStatus.at(fd) == CLIENTERROR) {
+		// make program return a 500 internal error
+	}
 
 	if (connect.getOffset() > 0) {
 		buf += connect.getOffset();
@@ -237,7 +242,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				handle_request(connectMap->at(fd));
 			}
 
-			switch (handlePOLLOUT(fd, connectMap)) {
+			switch (handlePOLLOUT(fd, connectMap, fdInfo)) {
 				case 0:
 					connectMap->at(fd).clear();
 					setPOLLIN(fd, &fdInfo->fds);
@@ -264,4 +269,4 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 	}
 
 	return 0;
-};
+}
