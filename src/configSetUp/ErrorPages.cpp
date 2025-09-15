@@ -19,12 +19,6 @@ ErrorPages::ErrorPages()
         std::string     content = "";
         std::string     buf;
 
-        std::cout << input << std::endl;
-        if (!error.is_open())
-        {    
-            std::cout << "Fck" << std::endl;
-            return ;
-        }
         while (std::getline(error, buf))
         {
             content.append(buf);
@@ -195,7 +189,6 @@ int ErrorPages::find(RequestError error) const
             return member;
     return (-1);
 }
-
 
 int ErrorPages::find(int error) const
 {

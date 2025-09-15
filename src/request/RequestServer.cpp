@@ -25,8 +25,10 @@ RequestServer::RequestServer(bool def) {
     _redirect = "301 redirection.html";
     _clientBodySize = 3000000;
     _methods.push_back("GET");
+    _methods.push_back("POST");
+    _methods.push_back("DELETE");
     _errorPages = ErrorPages();
-    _cgi.insert(std::make_pair("", ""));
+    _cgi.insert(std::make_pair("say_hello.py", ".py"));
 }
 
 bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath)
