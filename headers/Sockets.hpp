@@ -25,10 +25,17 @@ enum fdTypes {
 	CFI_OUT
 };
 
+enum fdStatus {
+	CLIENTERROR,
+	CGIERROR,
+	FD_OK
+};
+
 typedef struct s_fdInfo {
 
 	std::vector<pollfd> fds;
 	std::map<int, int> fdTypes;
+	std::map<int, int> fdStatus;
 
 } t_fdInfo;
 

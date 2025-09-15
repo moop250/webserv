@@ -5,6 +5,8 @@
 #include <cerrno>
 #include <climits>
 #include <cstring>
+#include <fcntl.h>
+#include <map>
 #include <poll.h>
 #include <stdexcept>
 #include <string>
@@ -15,9 +17,30 @@
 #include <unistd.h>
 #include <utility>
 
-static void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<int, Connection> *connectMap, int fdType) {
+void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<int, Connection> *connectMap, int fdType) {
 	pollfd newPollFD;
+	std::map<int, int> *status = &fdInfo->fdStatus;
 	std::vector<pollfd> *fds = &fdInfo->fds;
+
+	status->insert(std::make_pair(newFD, FD_OK));
+	int flags = fcntl(newFD, F_GETFL, 0);
+	if (flags == -1) {
+		std::cerr << "addToPollfd: Failed to get socket flags for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
+		if (fdType == CGI) {
+			status->at(newFD) = CGIERROR;
+		} else {
+			status->at(newFD) = CLIENTERROR;
+		}
+	}
+
+	if (fcntl(newFD, F_SETFL, flags | O_NONBLOCK) == -1) {
+		std::cerr << "addToPollfd: Failed to set non-blocking mode for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
+		if (fdType == CGI) {
+			status->at(newFD) = CGIERROR;
+		} else {
+			status->at(newFD) = CLIENTERROR;
+		}
+	}
 	
 	newPollFD.fd = newFD;
 	newPollFD.events = POLLIN;
