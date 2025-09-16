@@ -172,23 +172,26 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					return -1;
+				}
+				break;
 			}
-			break;
 		}
+		return 0;
 	}
-	return 0;
-}
 
 static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo *fdInfo) {
 	Connection &connect = connectMap->at(fd);
+
+	if (fdInfo->fdStatus.at(fd) == CLIENTERROR && connect.getResponse().getCode() != 500) {
+		connect.clear();
+		connect.setClose(true);
+		error_response(connect, 500);
+	}
+	
 	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
 	size_t remainingBytes = out.size(), offset = 0;
 	const char *buf = out.c_str();
-
-	if (fdInfo->fdStatus.at(fd) == CLIENTERROR) {
-		// make program return a 500 internal error
-	}
 
 	if (connect.getOffset() > 0) {
 		buf += connect.getOffset();
@@ -197,6 +200,8 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 	}
 
 	ssize_t status = send(fd, buf, remainingBytes, MSG_DONTWAIT);
+	if (status == 0)
+		return 5;
 	if (status < 0) {
 		if (errno == EAGAIN || errno == EWOULDBLOCK){
 			connect.setOffset(offset); 
@@ -208,11 +213,16 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		}
 	}
 
+	remainingBytes -= status;
 	if (remainingBytes > 0) {
 		offset += status;
 		connect.setOffset(offset);
 		return 1;
 	} 
+
+	if (fdInfo->fdStatus.at(fd) == CLIENTERROR) {
+		return 2;
+	}
 
 	connect.setOffset(-2);
 	if (connect.getClose())
@@ -264,7 +274,12 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					std::cout << YELLOW << "POLLOUT: close flag on socket: " << fd << "... closing" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
-					break ;
+					continue;
+				case 5:
+					close(fd);
+					removeFromPollfd(fdInfo, fd, sockets, connectMap);
+					std::cout << YELLOW << "POLLOUT: socket " << fd << " hung up" << RESET << std::endl;
+					continue;
 			}
 		}
 	}
