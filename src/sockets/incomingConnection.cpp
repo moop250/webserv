@@ -172,12 +172,13 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					return -1;
-				}
-				break;
 			}
-		}
-		return 0;
+			break;
+		} default:
+			std::cout << RED << "Unknown POLLIN type" << RESET << std::endl;
 	}
+	return 0;
+}
 
 static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo *fdInfo) {
 	Connection &connect = connectMap->at(fd);
