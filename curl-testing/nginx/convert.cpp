@@ -1,46 +1,57 @@
 #include <iostream>
 #include <string>
-//#include <ifstream>
-//#include <ofstream>
+#include <fstream>
 #include <sstream>
 #include <ostream>
 
+void	replace(std::string &s, std::string to_find, std::string to_replace)
+{
+	size_t	init = s.find(to_find);
+
+	if (init == std::string::npos)
+		return ;
+	s.replace(init, to_find.length(), to_replace);
+	std::cout << "New line\n";
+}
+
 void	convert(std::ifstream &file, bool to_webserv)
 {
-	const int	nbTokens = 12;
-	std::string	line;
-	std::sstream	to_write;
-	std::string	mytokens[] = {
-		"<port>", "<host>", "<server_name>", "<html_index>",
+	const int			nbTokens = 12;
+	std::string			line;
+	std::stringstream	to_write;
+	std::string	myTokens[] = {
+		"<listen>", "<host>", "<server_name>", "<html_index>",
 		"<root>", "<client_max_body_size>", "<autoindex>",
-		"<error_page>", "<upload_storage>", "<CGI>", "<allow">,
+		"<error_page>", "<upload_storage>", "<CGI>", "<allow>",
 		"<return>"
 	};
 	std::string	nginxTokens[] = {
-		"port", "host", "server_name", "index", "root",
+		"listen", "host", "server_name", "index", "root",
 		"client_max_body_size", "autoindex", "error_page",
 		"upload", "cgi", "allow", "return"
 	};
 
-	while ((std::getline(file, line)))
+	while (std::getline(file, line))
 	{
 		for (int i = 0; i < nbTokens; i++)
 		{
 			if (to_webserv)
 			{
 				if (line.find(nginxTokens[i]))
-					line.replace(nginxTokens[i], myTokens[i]);
+					replace(line, nginxTokens[i], myTokens[i]);
 			}
 			else
 			{
-				if (line.find(tokens[i]))
-					line.replace(myTokens[i], nginxTokens[i]);
+				if (line.find(myTokens[i]))
+					replace(line, myTokens[i], nginxTokens[i]);
 			}
+		}
 		to_write << line;
 		to_write << '\n';
 	}
-	file.name().erase(".config");
-	std::ofstream	newFile(file.name() + "converted.config");
+
+	std::ofstream	newFile("converted.config");
+	newFile << to_write.str().c_str();
 	return ;
 }
 
@@ -62,7 +73,7 @@ int	main(int ac, char **av)
 		std::cout << "File does not exist\n";
 		return (1);
 	}
-
-	convert(file);
+	convert(file, atoi(av[2]));
+	
 	return (0);
 }
