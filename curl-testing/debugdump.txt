@@ -1,0 +1,30 @@
+== Info: Host polyception.ch:80 was resolved.
+== Info: IPv6: 2001:1600:0:aaaa::80:4
+== Info: IPv4: 185.125.27.5
+== Info:   Trying 185.125.27.5:80...
+== Info: Connected to polyception.ch (185.125.27.5) port 80
+=> Send header, 77 bytes (0x4d)
+0000: GET / HTTP/1.1
+0010: Host: polyception.ch
+0026: User-Agent: curl/8.5.0
+003e: Accept: */*
+004b: 
+<= Recv header, 32 bytes (0x20)
+0000: HTTP/1.1 301 Moved Permanently
+<= Recv header, 37 bytes (0x25)
+0000: date: Tue, 16 Sep 2025 10:37:41 GMT
+<= Recv header, 16 bytes (0x10)
+0000: server: Apache
+<= Recv header, 13 bytes (0xd)
+0000: upgrade: h2
+<= Recv header, 21 bytes (0x15)
+0000: connection: Upgrade
+<= Recv header, 35 bytes (0x23)
+0000: location: https://polyception.ch/
+<= Recv header, 28 bytes (0x1c)
+0000: transfer-encoding: chunked
+<= Recv header, 40 bytes (0x28)
+0000: content-type: text/html; charset=UTF-8
+<= Recv header, 2 bytes (0x2)
+0000: 
+== Info: Connection #0 to host polyception.ch left intact
