@@ -36,5 +36,5 @@ webserv
 # Debugging files
 vgcore.*
 *.log
-
+*logs
 .vscode
