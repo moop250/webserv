@@ -110,7 +110,7 @@ ws_pid=$!
 cd ..
 sleep 1
 
-curl $search
+curl $search >> $WEBSERV_LOG
 
 # --- GET tests ---
 echo "GET requests sur webserv..."
@@ -132,8 +132,9 @@ if diff -q "$WEBSERV_LOG" "$NGINX_LOG" >/dev/null; then
     echo "Les réponses sont identiques."
 else
     echo "Differences détectees :"
-    diff -u "$WEBSERV_LOG" "$NGINX_LOG" | less
+    diff "$WEBSERV_LOG" "$NGINX_LOG" > ./logs/diff.log
 fi
 
 echo "Test finished"
+
 
