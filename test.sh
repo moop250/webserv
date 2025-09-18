@@ -14,10 +14,17 @@ if (( $# == 0 )); then
     exit 1
 fi
 
-CONFIG_PATH=$PWD/$1
-CONFIG_BASENAME=$(basename "$CONFIG_PATH" .config)
+CONFIG_PATH="$PWD/""$1"
 
-echo $CONFIG_BASENAME
+NAME=${1#configFiles/}
+
+NAME=${NAME%.config}
+
+echo "CONFIG_PATH = $CONFIG_PATH"
+echo "NAME        = $NAME"
+
+echo Name : $NAME
+
 if [ ! -f "$CONFIG_PATH" ]; then
     echo "Erreur: fichier $CONFIG_PATH introuvable."
     exit 1
@@ -44,10 +51,9 @@ WEBSERV_LOG="$LOG_DIR/webservLogRequest.txt"
 
 ./convert "$CONFIG_PATH" 0 # 0 webserv --> nginx and 1 for nginx --> webserv
 cd configFiles ; mv *nginx* .. ; cd ..
-NGINX_CONFIG="${CONFIG_BASENAME}_nginx.config"
-if [ ! -f "$NGINX_CONFIG" ]; then
-    echo "Erreur : la conversion a échoué."
-    exit 1
+if [ ! -f ""$NAME"_nginx.config" ] ; then
+	echo La conversion a couille
+	exit
 fi
 
 ####################################################
@@ -73,7 +79,7 @@ read -e line
 
 if [ ! -f line "n" ] ; then
 	echo "Execution nginx..."
-	nginx -c "$(realpath "$NGINX_CONFIG")" -p "$(pwd)" &
+	# exec nginx
 	nginx_pid=$!
 	sleep 1 
 
