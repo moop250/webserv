@@ -55,8 +55,8 @@ std::string	convert(std::ifstream &file, bool to_webserv)
 
 int	main(int ac, char **av)
 {
-	std::string	name = av[1];
-	std::string	webserv_convert = av[2];
+	std::string	name = "";
+	std::string	webserv_convert = "";
 
 	std::cout << "Converting file..." << std::endl;
 
@@ -67,6 +67,8 @@ int	main(int ac, char **av)
 		std::cout << "0 to nginx, 1 to webserv\n";
 		return (1);
 	}
+	name = av[1];
+	webserv_convert = av[2];
 
 	std::ifstream	file(av[1]);
 	
