@@ -54,11 +54,14 @@ fi
 #  Extraction server_name et port
 ####################################################
 
-server_name=$(grep -m1 "host" "$CONFIG_PATH" | awk '{print $2}' | tr -d ';')
+host_name=$(grep -m1 "<host>" "$CONFIG_PATH" | awk '{print $2}' | tr -d ';')
 port=$(grep -m1 "listen" "$CONFIG_PATH" | awk '{print $2}' | tr -d ';')
-search="${server_name}:${port}"
+search="${host_name}:${port}"
 
+echo Host: $host_name
+echo Port: $port
 echo "Target: $search"
+sleep 1
 echo
 
 ####################################################
@@ -100,6 +103,8 @@ make
 ws_pid=$!
 cd ..
 sleep 1
+
+curl $search
 
 # --- GET tests ---
 echo "GET requests sur webserv..."
