@@ -131,9 +131,9 @@ echo "Comparaison des logs..."
 if diff -q "$WEBSERV_LOG" "$NGINX_LOG" >/dev/null; then
     echo "Les réponses sont identiques."
 else
-    echo "Différences détectées :"
+    echo "Differences détectees :"
     diff -u "$WEBSERV_LOG" "$NGINX_LOG" | less
 fi
 
-echo "Test terminé."
+echo "Test finished"
 

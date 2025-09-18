@@ -11,7 +11,6 @@ void	replace(std::string &s, std::string to_find, std::string to_replace)
 	if (init == std::string::npos)
 		return ;
 	s.replace(init, to_find.length(), to_replace);
-	std::cout << "New line\n";
 }
 
 std::string	convert(std::ifstream &file, bool to_webserv)
