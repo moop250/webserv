@@ -48,6 +48,7 @@ void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<in
 	fds->push_back(newPollFD);
 	
 	Connection	newConnection;
+	newConnection.setState(READING_METHOD);
 	connectMap->insert(std::make_pair(newFD, newConnection));
 	fdInfo->fdTypes.insert(std::make_pair(newFD, fdType));
 
@@ -119,33 +120,30 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 };
 
 static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf) {
-	int	code = CONTINUE_READ;
 	Connection *connect = &connectMap->at(fd);
-	connect->setState(READING_METHOD);
-	while (code == CONTINUE_READ) {
 		std::string buf(8192, '\0');
 	
 		int nbytes = recv(fd, &buf[0], buf.size(), 0);
-
-		if (nbytes <= 0) {
-			if (nbytes == 0) {
-				return HUNGUP;
-			} else {
+		if (nbytes < 0) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+				return CONTINUE_READ;
+			else
 				return RECVERROR;
-			}
-		}
+		} else if (nbytes == 0)
+			return HUNGUP;
+
 		buf.resize(nbytes);
 
 		connect->buffer.append(buf);
-		code = parse_request(*connect, *conf);
-	}
+		if (parse_request(*connect, *conf) == CONTINUE_READ)
+			return CONTINUE_READ;
 
 	return EXITPARSING;
 };
 
 static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::map<int, Connection> *connectMap, Config *conf) {
 	switch (fdInfo->fdTypes.at(fd)) {
-		case (SERVER): {
+		case SERVER: {
 			int tmp = handleConnection(sockets, fdInfo, fd, connectMap);
 			switch (tmp)
 			{
@@ -156,8 +154,8 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 				default:
 					std::cout << YELLOW << "Accept: New connection on socket: " << tmp << RESET << std::endl;
 			}
-			break;
-		} case (CLIENT): {
+			break ;
+		} case CLIENT: {
 			switch(handleClientData(fd, connectMap, conf))
 			{
 				case EXITPARSING:
@@ -172,8 +170,10 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					return -1;
+				case CONTINUE_READ:
+					return 1;
 			}
-			break;
+			break ;
 		} default:
 			std::cout << RED << "Unknown POLLIN type" << RESET << std::endl;
 	}
