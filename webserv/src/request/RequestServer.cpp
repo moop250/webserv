@@ -30,13 +30,14 @@ RequestServer::RequestServer(bool def) {
     _methods.push_back("DELETE");
     _errorPages = ErrorPages();
     _cgi.insert(std::make_pair("say_hello.py", ".py"));
+    std::cout << GREEN << "WHYYYYYYYYY\n" << std::flush;
 }
 
 bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath)
 {
     if (portId == std::string::npos || nameId == std::string::npos)
     {
-        std::cerr << RED << "ServerName or associeted port not found\n" << RESET;
+        std::cerr << ROSE << "ServerName or associeted port not found\n" << RESET;
         return false;
     }
     if (locPath.empty())
@@ -44,7 +45,7 @@ bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t
     if ((locId == std::string::npos && !locPath.empty() && portId != locId)
         || locId >= config.getServerData(portId).locations.size())
     {
-        std::cerr << RED << "Location path in ser127.0.0.1:8001ver nb : " << portId
+        std::cerr << RED << "\nLocation path in server nb : " << portId
             << " not found\n" << RESET;
         _isLocation = false;
     }
@@ -73,6 +74,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     {
         _isValid = false;
         *this = RequestServer();
+        std::cout << YELLOW << "\nRequest didn't match config file data\n" << RESET << std::flush;
         return ;
     }
 
@@ -114,44 +116,42 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
     {
         case HOST:
             _host = serv.host;
-            break;
+            break ;
         case LISTEN:
             _port = serv.port;
-            break;
+            break ;
         case SERVER_NAME:
             _serverName = serv.server_name;
-            break;
+            break ;
         case ROOT_PATH:
             _root = serv.root;
             break ;
         case HTLM_INDEX:
             _index = serv.index;
-            break;
+            break ;
         case AUTOINDEX:
             _autoindex = serv.autoindex;
-            break;
+            break ;
         case ERROR_PAGE:
             _errorPages = ErrorPages(serv.error_pages);
             break ;
-       //     _errorPages = serv.errorPages();
-            break;
         case UPLOAD_STORAGE:
             _storage = serv.upload_storage;
-            break;
+            break ;
         case CGI_DATA:
             _cgi = serv.cgi;
-            break;
+            break ;
         case CLIENT_MAX_BODY_SIZE:
             _clientBodySize = serv.client_max_body_size;
-            break;
+            break ;
         case METHODS:
             _methods = serv.methods;
-            break;
+            break ;
         case REDIRECT:
             _redirect = serv.redirect;
             break ;
         default:
-            break;
+            break ;
     }
 }
 
