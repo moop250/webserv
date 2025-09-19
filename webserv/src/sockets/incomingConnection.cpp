@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <utility>
+#include <vector>
 
 void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<int, Connection> *connectMap, int fdType) {
 	pollfd newPollFD;
@@ -62,7 +63,7 @@ void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<in
 	}
 }
 
-static void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
+void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
 	std::vector<pollfd> *fds = &fdInfo->fds;
 	std::vector<pollfd>::iterator it = fds->begin();
 	for (; it != fds->end(); ++it) {
@@ -74,6 +75,9 @@ static void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, st
 	connectMap->erase(fd);
 	fdInfo->fdTypes.erase(fd);
 	fdInfo->fdStatus.erase(fd);
+	if (fdInfo->timeout.count(fd) > 0) {
+		fdInfo->timeout.erase(fd);
+	}
 
 	sockets->decrementClientCount();
 }
@@ -94,6 +98,18 @@ static void setPOLLOUT(int fd, std::vector<pollfd> *fds) {
 		if (it->fd == fd) {
 			it->events = POLLOUT;
 			break;
+		}
+	}
+}
+
+void handleTimeout(s_fdInfo *fdInfo) {
+	time_t current_time = time(NULL);
+	
+	for (std::map<int, time_t>::iterator it = fdInfo->timeout.begin(); it != fdInfo->timeout.end(); ++it) {
+		std::cout << "im here" << std::endl;
+		if (difftime(current_time, it->second) >= 300) {
+			fdInfo->fdStatus[it->first] = TIMEOUT;
+			setPOLLOUT(it->first, &fdInfo->fds);
 		}
 	}
 }
@@ -156,6 +172,9 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			}
 			break ;
 		} case CLIENT: {
+			if (fdInfo->timeout.count(fd) > 0) {
+				fdInfo->timeout.erase(fd);
+			}
 			switch(handleClientData(fd, connectMap, conf))
 			{
 				case EXITPARSING:
@@ -187,8 +206,10 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		connect.clear();
 		connect.setClose(true);
 		error_response(connect, 500);
+	} else if (fdInfo->fdStatus.at(fd) == TIMEOUT) {
+		return 6;
 	}
-	
+
 	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
 	size_t remainingBytes = out.size(), offset = 0;
@@ -230,6 +251,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		return 4;
 	else if (connect.getRequest().getKeepAlive() == "keep-alive")
 		return 3;
+	std::cout << RED << "Keep alive: " << connect.getRequest().getKeepAlive() << RESET << std::endl;
 	return 0;
 }
 
@@ -267,7 +289,8 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					break ;
 				case 3:
-				// if keepalive start timeout timer, 
+					fdInfo->timeout[fd] = time(NULL);
+					std::cout << "Keep-alive timer started" << std::endl;
 					connectMap->at(fd).clear();
 					setPOLLIN(fd, &fdInfo->fds);
 					continue;
@@ -280,6 +303,11 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					std::cout << YELLOW << "POLLOUT: socket " << fd << " hung up" << RESET << std::endl;
+					continue;
+				case 6:
+					close(fd);
+					removeFromPollfd(fdInfo, fd, sockets, connectMap);
+					std::cout << YELLOW << "POLLOUT: socket " << fd << " timed out... closing" << RESET << std::endl;
 					continue;
 			}
 		}
