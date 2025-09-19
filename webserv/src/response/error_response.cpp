@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/10 15:52:43 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/11 17:29:43 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,34 @@
 #include "request_handler.hpp"
 #include "Response.hpp"
 #include "Connection.hpp"
+
+std::string error_message(std::string code) {
+	if (code == "301")
+		return "Moved Permanently";
+	if (code == "302")
+		return "Found";
+	if (code == "400")
+		return "Bad Request";
+	if (code == "403")
+		return "Forbidden";
+	if (code == "404")
+		return "Not Found";
+	if (code == "405")
+		return "Method Not Allowed";
+	if (code == "411")
+		return "Length Required";
+	if (code == "413")
+		return "Content Too Large";
+	if (code == "415")
+		return "Unsupported Media Type";
+	if (code == "500")
+		return "Internal Error";
+	if (code == "501")
+		return "Not Implemented";
+	if (code == "505")
+		return "Http Version Mismatch";
+	return "";
+}
 
 std::string error_message(int code) {
 	switch (code) {

@@ -176,19 +176,9 @@ int CGI_handler(Connection& connection) {
 		default:
 			parent_reap_output(connection, in, out, output);
 			// std::cout << "CGI output: \n" << output << std::endl;
+			// timeout here
 			waitpid(pid, &status, 0);
 			parse_cgi_output(connection, output);
 	}
 	return 0;
 }
-
-// somehow pass fd to fdpoll to keep track of blocking. Need to work this flow out
-// parse result to check for headers
-// set headers and response body
-
-// Pass fd to poll?
-// Put CGI_FDin and CGI_FDout in Connection object.
-// update poll fd table with those 2 fd.
-// Pass poll fd table around?
-// Put poll fd table in global?
-// Hugo runs CGI? Create a new state, check after running handle_request, if set then run CGI handler with poll fd

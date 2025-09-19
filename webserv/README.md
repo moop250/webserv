@@ -64,10 +64,15 @@ N) If one of the precedent rules aren't respected, the programm won't launch
 todo:
 - Match location if apply.
 - Preappend root or cgi path to URL path
-- Check allowed methods
-- Check body size
 
+<<<<<<< HEAD:webserv/README.md
 ////////////////////////////////////////////////////////////////////////////////
+=======
+Note:
+To install in eval computer:
+-- install php-cgi:  sudo apt-get install php-cgi
+-- install java: sudo apt install default-jre
+>>>>>>> ba08a57 (rebase):README.md
 
 
 /////////////////////////////////////////////////////////////////////////////////
