@@ -175,7 +175,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			}
 			break;
 		} default:
-			std::cout << RED << "Unknown POLLIN type" << RESET << std::endl;
+			std::cout << RED << "[ERROR] : " << WHITE << "Unknown POLLIN type" << RESET << std::endl;
 	}
 	return 0;
 }
@@ -272,14 +272,14 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					setPOLLIN(fd, &fdInfo->fds);
 					continue;
 				case 4:
-					std::cout << YELLOW << "POLLOUT: close flag on socket: " << fd << "... closing" << RESET << std::endl;
+					std::cout << YELLOW << "[WARNING] : " << WHITE << "POLLOUT: close flag on socket: " << fd << "... closing" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					continue;
 				case 5:
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
-					std::cout << YELLOW << "POLLOUT: socket " << fd << " hung up" << RESET << std::endl;
+					std::cout << YELLOW << "[WARNING] : " << WHITE << "POLLOUT: socket " << fd << " hung up" << RESET << std::endl;
 					continue;
 			}
 		}

@@ -30,7 +30,6 @@ RequestServer::RequestServer(bool def) {
     _methods.push_back("DELETE");
     _errorPages = ErrorPages();
     _cgi.insert(std::make_pair("say_hello.py", ".py"));
-    std::cout << GREEN << "WHYYYYYYYYY\n" << std::flush;
 }
 
 bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath)
@@ -45,7 +44,7 @@ bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t
     if ((locId == std::string::npos && !locPath.empty() && portId != locId)
         || locId >= config.getServerData(portId).locations.size())
     {
-        std::cerr << RED << "\nLocation path in server nb : " << portId
+        std::cerr << YELLOW << "\n[WARNING] :" << WHITE << " Location path in server nb : " << portId
             << " not found\n" << RESET;
         _isLocation = false;
     }
@@ -57,6 +56,7 @@ bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t
 RequestServer::RequestServer(Config config)
 {
     t_ServerData    s = config.getServerData(0);
+
     for (int i = 0; i < LOCATION; i++)
         setToken(s, static_cast<e_TokenType>(i));
     _isValid = 1;
@@ -74,7 +74,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     {
         _isValid = false;
         *this = RequestServer();
-        std::cout << YELLOW << "\nRequest didn't match config file data\n" << RESET << std::flush;
+        std::cout << YELLOW << "\n[WARNING] : " << WHITE << "Request didn't match config file data\n" << RESET << std::flush;
         return ;
     }
 
