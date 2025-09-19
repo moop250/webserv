@@ -5,6 +5,9 @@ echo "//   Test de comparaison nginx / webserv //"
 echo "///////////////////////////////////////////"
 echo
 
+rm -f logs/* || { echo no log files to remove; }
+
+
 ####################################################
 #  Vérifications et définition du fichier config
 ####################################################
@@ -137,4 +140,6 @@ fi
 
 echo "Test finished"
 
+rm -f *nginx*.config || { echo ;}
+rm -f *webserv*.config || { echo ;}
 
