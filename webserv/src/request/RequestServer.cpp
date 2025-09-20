@@ -16,9 +16,10 @@ RequestServer::RequestServer(bool def) {
     _autoindex = false;
     if (!def)
         return ;
+    std::cout << CYAN << "Default server configuration\n" << RESET << std::flush;
     _isValid = true;
     _host = "127.0.0.1";
-    _port = "8000";
+    _port = "8001";
     _root = "ressources/";
     _index = "index.html";
     _storage = "upload";
@@ -70,6 +71,7 @@ RequestServer::RequestServer(Config config, std::string name, std::string port, 
     size_t nameId = config.find(name, HOST);
     size_t  locId = config.find(locPath, LOCATION_PATH);
  
+
     if (!check(config, portId, nameId, locId, locPath))
     {
         _isValid = false;

@@ -116,10 +116,11 @@ void matching_server(Connection& connection, Config& config) {
 	path = connection.getRequest().getPath();
 	port = connection.getRequest().getPort();
 
+	std::cout << "create RequestServer...\n";
 	RequestServer server(config, name, port, path);
-
+	std::cout << "RequestServer created\n";
 //	server = connection.getDefaultServer();//	--> ca passe mtn
-//	std::cout << server;
+	std::cout << server;
 	if (server.isValid() == true) {
 		std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
 		connection.setServer(server);
