@@ -33,7 +33,18 @@ echo $file_found
 if (( $file_found > 0 )) ; then
 	echo file found ! You already have nginx "(noice)"
 else
+	echo let\'s start nginx
 	$su_exec systemctl start nginx
+	if (( $? != 0 )) ; then 
+		echo it seems nginx isn\'t installed
+		echo Do you want to install it ? y/n
+		read -e line
+		echo $line > tmp
+		if [ -f "y" ] ; then
+			$su_exec apt install nginx
+		fi
+		rm tmp
+	fi
 fi
 
 ################################################
@@ -150,3 +161,7 @@ echo Restarting nginx ...
 $su_exec systemctl restart nginx
 
 echo Configuration completed !
+
+if [ -f "tmp" ] ; then
+	rm tmp
+fi
