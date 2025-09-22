@@ -39,7 +39,8 @@ int get_file(Connection& connection) {
 	// remove later
 	if (path[0] == '/')
 		path.erase(0, 1);
-	
+// 	path.insert(0, connection.getServer().root());
+// 	std::cout << GREEN << "Path : " << path << RESET << std::endl;
 	fd = open(path.c_str(), O_RDONLY);
 	if (fd < 0) {
 		switch (errno) {
@@ -48,7 +49,7 @@ int get_file(Connection& connection) {
 				break ;
 			default:
 				error_response(connection, INTERNAL_ERROR);
-				break;
+				break ;
 		}
 		return -1;
 	}
