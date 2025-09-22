@@ -76,14 +76,13 @@ echo
 ####################################################
 #  NGINX EXECUTION
 ####################################################
+
 echo try nginx ? y/n
 
 read -e line
 
 if [ ! -f line "n" ] ; then
 	echo "Execution nginx..."
-	# exec nginx
-	nginx_pid=$!
 	sleep 1 
 
 	# --- GET tests ---
@@ -91,9 +90,7 @@ if [ ! -f line "n" ] ; then
 	
 	# --- POST tests ---
 	echo "POST requests sur nginx..."
-	
-	#	faut checker dans proc si le processs (ps) tourne ou pas sinon crash sh
-	kill $nginx_pid
+
     	echo "NGINX terminé."
 	echo
 else

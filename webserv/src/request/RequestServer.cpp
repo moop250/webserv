@@ -18,6 +18,7 @@ RequestServer::RequestServer(bool def) {
         return ;
     std::cout << CYAN << "Default server configuration\n" << RESET << std::flush;
     _isValid = true;
+    _serverName = "Aaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     _host = "127.0.0.1";
     _port = "8001";
     _root = "ressources/";

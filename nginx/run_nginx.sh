@@ -52,7 +52,7 @@ fi
 ################################################
 
 script_config_file() {
-	local nc="NGINC.CONF"
+	local nc="MY_NGINX.CONF"
 	echo "server {" > $nc
 	echo script your file '(a basic one)' !
 	echo
@@ -106,8 +106,8 @@ set_up_default_file() {
 
       # Autres directives de sécurité et d'optimisation
       include /etc/nginx/conf.d/*.conf;
-  }" > nc
-  cat nc
+  }" > "MY_NGINX.CONF"
+  cat MY_NGINX.CONF
 }
 sleep 1
 
