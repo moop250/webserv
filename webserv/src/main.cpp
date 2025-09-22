@@ -100,6 +100,8 @@ void	eventLoop(Config *config, ServerSocket *socket)
 
 			if (pollCount > 0)
 				incomingConnection(socket, &fdInfo, config, &connectMap);
+			if (pollCount == 0)
+				handleTimeout(&fdInfo);
 		}
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
