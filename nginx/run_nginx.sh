@@ -115,7 +115,7 @@ sleep 1
 #	checker si argument d'entree OK
 ################################################
 
-check_and_script() {
+ask_and_script() {
 	if (( $# > 2 )) ; then
 		local is=$(echo $BASH_ARGV | grep .config)
 		if (( is == 0 )) ; then
@@ -129,7 +129,6 @@ check_and_script() {
 		echo 3\) Do you want to exit the program ? ...
 		echo 4\) idk other options ?
 		read -e response
-		echo $response > tmp
 		case "$response" in
 			"1") script_config_file ;;
 			"2") set_up_default_file ;;
@@ -139,7 +138,27 @@ check_and_script() {
 	fi
 }
 
-check_and_script
+assign_configuration() {
+	file="MY_NGINX.CONF"
+	$su_exec cp $file /etc/nginx/sites-available
+	
+	echo How do you want to name you config file ?
+	read -e line
+	sleep 0.5
+	echo ...
+	$su_exec mv /etc/nginx/sites-available/$file /etc/nginx/sites-available/$line
+	$su_exec ln -s /etc/nginx/sites-available/$line /etc/nginx/sites-enable/
+	echo file saved in nginx directory !
+}
+
+check_and_lauch() {
+	echo Configuration OK !
+	echo ...
+	$su_exec nginx -t -c /etc/nginx/nginx.conf
+	$su_exec nginx -s reload
+}
+
+ask_and_script
 
 echo Verification de la syntaxe du fichier de configuration ...
 
@@ -152,9 +171,12 @@ do
 		break
 	else
 		echo Let\'s retry !
-		check_and_script
+		ask_and_script
 	fi
 done
+
+assign_configuration
+check_and_launch
 
 echo Restarting nginx ...
 
@@ -165,3 +187,6 @@ echo Configuration completed !
 if [ -f "tmp" ] ; then
 	rm tmp
 fi
+
+echo Do you want to check your Website with curl ?
+...
