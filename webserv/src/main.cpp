@@ -122,7 +122,7 @@ int main(int ac, char** av)
 {
 	Debug	dfile("General.log");
 	Config	*config = NULL;
-	ServerSocket *socket = NULL;
+	// ServerSocket *socket = NULL;
 
 	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
@@ -153,21 +153,39 @@ int main(int ac, char** av)
 		return (-3);	
 	}
 
-/* 	Connection		connection;
-	connection.buffer = "DELETE /cgi/CGI.java?HelloFrom42 HTTP/1.1\r\n"
+<<<<<<< HEAD:webserv/src/main.cpp
+	// Connection		connection;
+	// connection.buffer = "POST /ressources/cgi/CGI.java?HelloFrom42 HTTP/1.1\r\n"
+	// 					"Host: localhost1:8001\r\n"
+	// 					"Connection: Keep-Alive\r\n"
+	// 					"Keep-Alive: timeout=5, max=200\r\n"
+	// 					"Content-Length: 28\r\n"
+	// 					"\r\n"
+	// 					"Hello World From 42 Lausanne";
+	// int code = parse_request(connection, *config);
+	// std::cout << code << std::endl;
+	// std::cout << "Keep alive: " << connection.getRequest().getKeepAlive() << std::endl;
+	// if (code != -1) {
+	// 	code = handle_request(connection);
+	// 	std::cout << code << std::endl;
+	// }
+=======
+	Connection		connection;
+	connection.buffer = "POST /cgi/CGI.java?HelloFrom42 HTTP/1.1\r\n"
 						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
-						"Content-Length: 12\r\n"
+						"Content-Length: 28\r\n"
 						"\r\n"
-						"Hello World!";
+						"Hello World From 42 Lausanne";
 	int code = parse_request(connection, *config);
 	// std::cout << code << std::endl;
 	if (code != -1) {
 		code = handle_request(connection);
 		// std::cout << code << std::endl;
 	}
-	std::cout << "RESPONSE: " << connection.getResponse() << std::endl; */
+>>>>>>> refs/remotes/origin/RequestParsing:src/main.cpp
+	// std::cout << "RESPONSE: " << connection.getResponse() << std::endl;
 
 
 	delete config;

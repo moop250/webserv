@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/10 15:49:09 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/23 11:48:47 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ class Connection {
 		long			offset;
 		bool			reconnect;
 		bool			close;
+		std::string		port;
+		std::string		ip;
 
 	public:
 		std::string		buffer;
@@ -60,6 +62,8 @@ class Connection {
 		long			getOffset() const;
 		bool			getReconnect() const;
 		bool			getClose() const;
+		std::string		getPort() const;
+		std::string		getIP() const;
 
 		Connection&		setState(const State state);
 		Connection&		setServer(const RequestServer& server);
@@ -67,6 +71,8 @@ class Connection {
 		Connection&		setOffset(const long size);
 		Connection&		setReconnect(const bool reconnect);
 		Connection&		setClose(const bool close);
+		Connection&		setPort(const std::string port);
+		Connection&		setIP(const std::string ip);
 
 		Connection&		minusOffset(long size);
 		Connection&		plusOffset(long size);
