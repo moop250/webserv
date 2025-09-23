@@ -12,7 +12,7 @@
 typedef struct s_connectionAddrInfo {
 
 	std::string	address;
-	int			port;
+	std::string port;
 
 } t_connectionAddrInfo;
 
@@ -39,11 +39,8 @@ class ServerSocket {
 		void					decrementClientCount();
 		t_connectionAddrInfo	getServerAddrInfo(int fd);
 		t_connectionAddrInfo	getClientAddrInfo(int fd);
-		void					setServerAddrInfo(int fd, std::string address, int port);
-		void					setClientAddrInfo(int fd, std::string address, int port);
+		void					setServerAddrInfo(int fd, std::string address, std::string port);
 		void					removeServerAddrInfo(int fd);
-		void					removeClientAddrInfo(int fd);
-
 
 };
 

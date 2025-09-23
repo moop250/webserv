@@ -75,7 +75,6 @@ void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<
 	connectMap->erase(fd);
 	fdInfo->fdTypes.erase(fd);
 	fdInfo->fdStatus.erase(fd);
-	sockets->removeClientAddrInfo(fd);
 	if (fdInfo->timeout.count(fd) > 0) {
 		fdInfo->timeout.erase(fd);
 	}
@@ -130,8 +129,10 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 		}
 	}
 	addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
+
 	t_connectionAddrInfo tmp = sockets->getServerAddrInfo(fd);
-	sockets->setClientAddrInfo(remoteFD, tmp.address, tmp.port);
+	connectMap->at(remoteFD).setIP(tmp.address);
+	connectMap->at(remoteFD).setPort(tmp.port);
 	if (fdInfo->fdStatus.at(remoteFD) == CLIENTERROR)
 		setPOLLOUT(remoteFD, &fdInfo->fds);
 	return remoteFD;

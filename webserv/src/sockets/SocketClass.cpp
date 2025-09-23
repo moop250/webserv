@@ -100,10 +100,9 @@ void ServerSocket::initializeNewSocket(std::string combo) {
         throw std::runtime_error("Socket listen error: " + std::string(strerror(errno)));
     }
 
-	int atoiPort = atoi(port.c_str());
-	this->setServerAddrInfo(socketfd, host, atoiPort);
+	this->setServerAddrInfo(socketfd, host, port);
     this->serverSocketFd_.push_back(socketfd);
-    this->serverPort_.push_back(atoiPort);
+    this->serverPort_.push_back(atoi(port.c_str()));
 }
 
 int	ServerSocket::getSocketFd(int pos) {
@@ -138,7 +137,7 @@ t_connectionAddrInfo ServerSocket::getClientAddrInfo(int fd) {
 	return this->clientAddrInfo_.at(fd);
 }
 
-void ServerSocket::setServerAddrInfo(int fd, std::string address, int port) {
+void ServerSocket::setServerAddrInfo(int fd, std::string address, std::string port) {
 	t_connectionAddrInfo tmp;
 	tmp.address = address;
 	tmp.port = port;
@@ -146,18 +145,6 @@ void ServerSocket::setServerAddrInfo(int fd, std::string address, int port) {
 	this->serverAddrInfo_.insert(std::make_pair(fd, tmp));
 }
 
-void ServerSocket::setClientAddrInfo(int fd, std::string address, int port) {
-	t_connectionAddrInfo tmp;
-	tmp.address = address;
-	tmp.port = port;
-
-	this->clientAddrInfo_.insert(std::make_pair(fd, tmp));
-}
-
 void ServerSocket::removeServerAddrInfo(int fd) {
 	this->serverAddrInfo_.erase(fd);
-}
-
-void ServerSocket::removeClientAddrInfo(int fd) {
-	this->clientAddrInfo_.erase(fd);
 }
