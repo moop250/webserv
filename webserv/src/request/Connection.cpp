@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/11 11:54:09 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/23 11:48:45 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,9 @@ Connection& Connection::operator =(const Connection& assign) {
 		this->offset = assign.offset;
 		this->buffer = assign.buffer;
 		this->reconnect = assign.reconnect;
+		this->close = assign.close;
+		this->port = assign.port;
+		this->ip = assign.ip;
 	}
 	return *this;
 }
@@ -70,6 +73,7 @@ Connection& Connection::clear() {
 	this->reconnect = true;
 	this->close = false;
 	// Server not reset!
+	// Port and IP not reset!
 	return *this;
 }
 
@@ -100,6 +104,12 @@ bool Connection::getReconnect() const {
 }
 bool Connection::getClose() const {
 	return this->close;
+}
+std::string Connection::getPort() const {
+	return this->port;
+}
+std::string Connection::getIP() const {
+	return this->ip;
 }
 
 #include <dirent.h>
@@ -134,5 +144,13 @@ Connection& Connection::setReconnect(const bool reconnect) {
 }
 Connection& Connection::setClose(const bool close) {
 	this->close = close;
+	return *this;
+}
+Connection& Connection::setPort(const std::string port) {
+	this->port = port;
+	return *this;
+}
+Connection& Connection::setIP(const std::string ip) {
+	this->ip = ip;
 	return *this;
 }

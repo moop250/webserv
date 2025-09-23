@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/11 11:58:41 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/23 11:56:04 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,19 +108,22 @@ int parse_keepAlive(Connection& connection) {
 
 // stuffs to do
 void matching_server(Connection& connection, Config& config) {
-	std::string	name;
+	std::string	server_name;
 	std::string	path;
 	std::string	port;
+	std::string	ip;
 
-	name = connection.getRequest().getHost();
+	server_name = connection.getRequest().getHost();
 	path = connection.getRequest().getPath();
-	port = connection.getRequest().getPort();
+	port = connection.getPort();
+	ip = connection.getIP();
 
-	std::cout << "create RequestServer...\n";
-	RequestServer server(config, name, port, path);
-	std::cout << "RequestServer created\n";
+	RequestServer server(config, server_name, port, path);
+	(void)ip;
+	// -> RequestServer server(config, port, ip, server_name, path);
+
 //	server = connection.getDefaultServer();//	--> ca passe mtn
-	std::cout << server;
+	// std::cout << server;
 	if (server.isValid() == true) {
 		std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
 		connection.setServer(server);
@@ -256,13 +259,16 @@ int headers_content_check(Connection& connection, Config& config) {
 	if (host.empty())
 		return BAD_REQUEST;
 	parse_host(connection, host);
-	if (connection.getReconnect() == false)
-		matching_server(connection, config);
-	redirect = connection.getServer().redirect();
-	if (!redirect.empty())
-		return parse_redirect(connection, redirect);
-	if (method_check(connection) == METHOD_NOT_ALLOWED)
-		return METHOD_NOT_ALLOWED;
+
+	(void)config;
+	// if (connection.getReconnect() == false)
+	// 	matching_server(connection, config);
+	// redirect = connection.getServer().redirect();
+	// if (!redirect.empty())
+	// 	return parse_redirect(connection, redirect);
+	// if (method_check(connection) == METHOD_NOT_ALLOWED)
+	// 	return METHOD_NOT_ALLOWED;
+	
 	keepAlive = connection.getRequest().getHeader("connection");
 	std::string::size_type comma;
 	comma = keepAlive.find(",");
