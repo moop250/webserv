@@ -122,7 +122,7 @@ int main(int ac, char** av)
 {
 	Debug	dfile("General.log");
 	Config	*config = NULL;
-	ServerSocket *socket = NULL;
+	// ServerSocket *socket = NULL;
 
 	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
@@ -134,40 +134,40 @@ int main(int ac, char** av)
 		return (-1);
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
-	try {
-		socket = initalizeServer(config);
-	} catch (std::exception &e) {
-		std::cerr << RED << e.what() << RESET << std::endl;
-		delete config;
-		return (-2);
-	}
+	// try {
+	// 	socket = initalizeServer(config);
+	// } catch (std::exception &e) {
+	// 	std::cerr << RED << e.what() << RESET << std::endl;
+	// 	delete config;
+	// 	return (-2);
+	// }
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	
-	try {
-		eventLoop(config, socket);
-	} catch (std::exception &e) {
-		std::cerr << RED << e.what() << RESET << std::endl;
-		delete config;
-		delete socket;
-		return (-3);	
-	}
-
-	// Connection		connection;
-	// connection.buffer = "POST /cgi/CGI.java?HelloFrom42 HTTP/1.1\r\n"
-	// 					"Host: localhost1:8001\r\n"
-	// 					"Connection: Keep-Alive\r\n"
-	// 					"Keep-Alive: timeout=5, max=200\r\n"
-	// 					"Content-Length: 28\r\n"
-	// 					"\r\n"
-	// 					"Hello World From 42 Lausanne";
-	// int code = parse_request(connection, *config);
-	// // std::cout << code << std::endl;
-	// if (code != -1) {
-	// 	code = handle_request(connection);
-	// 	// std::cout << code << std::endl;
+	// try {
+	// 	eventLoop(config, socket);
+	// } catch (std::exception &e) {
+	// 	std::cerr << RED << e.what() << RESET << std::endl;
+	// 	delete config;
+	// 	delete socket;
+	// 	return (-3);
 	// }
-	// std::cout << "RESPONSE: " << connection.getResponse() << std::endl;
+
+	Connection		connection;
+	connection.buffer = "POST /ressources/cgi/cpp/RPN.cpp HTTP/1.1\r\n"
+						"Host: localhost1:8001\r\n"
+						"Connection: Keep-Alive\r\n"
+						"Keep-Alive: timeout=5, max=200\r\n"
+						"Content-Length: 9\r\n"
+						"\r\n"
+						"1 1 + 6 *";
+	int code = parse_request(connection, *config);
+	// std::cout << code << std::endl;
+	if (code != -1) {
+		code = handle_request(connection);
+		// std::cout << code << std::endl;
+	}
+	std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
 
 
 	delete config;
