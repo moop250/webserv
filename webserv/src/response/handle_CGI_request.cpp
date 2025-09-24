@@ -55,16 +55,16 @@ void print_env(char **env) {
 void child_launch_CGI(Connection& connection, std::string& cgi_path, int in[2], int out[2], char **env) {
 	std::vector<char*>	av;
 
-	// to remake
+	// to remake with real cgi path
 	if (connection.getRequest().getFileType() == ".java") {
 		cgi_path = "ressources/cgi/java";
 		av.push_back(const_cast<char*>("/bin/java"));
 		av.push_back(const_cast<char*>("-cp"));
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 		av.push_back(const_cast<char*>("CGI"));
-	} (connection.getRequest().getFileType() == ".cpp") {
+	} else if (connection.getRequest().getFileType() == ".cpp") {
 		cgi_path = "ressources/cgi/cpp";
-		av.push_back(const_cast<char*>("ressources/cgi/cpp/RPN"))
+		av.push_back(const_cast<char*>("ressources/cgi/cpp/RPN"));
 	} else {
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 	}

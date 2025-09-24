@@ -158,9 +158,9 @@ int main(int ac, char** av)
 						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
-						"Content-Length: 28\r\n"
+						"Content-Length: 9\r\n"
 						"\r\n"
-						"Hello World From 42 Lausanne";
+						"1 1 + 6 *";
 	int code = parse_request(connection, *config);
 	// std::cout << code << std::endl;
 	if (code != -1) {

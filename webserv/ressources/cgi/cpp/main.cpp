@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 17:44:39 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/24 12:28:56 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/24 14:50:33 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,53 @@ void send_error() {
 	std::cout << "Input Error";
 }
 
-int main(int ac, char **av, char **env) {
-	RPN			rpn;
+void get_input(std::string& input) {
+	std::string tmp;
 
-	if (ac == 1) {
+	tmp.append(std::getenv("QUERY_STRING"));
+	std::string::size_type equal_pos;
+	equal_pos = tmp.find("=");
+	if (equal_pos != std::string::npos) {
+		tmp = tmp.substr(equal_pos + 1);
+	}
+	for (size_t i = 0; i < tmp.size(); i++) {
+		if (tmp[i] == '%' && i + 2 < tmp.size()) {
+			char h1 = tmp[i + 1];
+			char h2 = tmp[i + 2];
+			if ((h1 == '2' && h2 == '0')) input.push_back(' ');
+			else if ((h1 == '2' && h2 == '8')) input.push_back('(');
+			else if ((h1 == '2' && h2 == '9')) input.push_back(')');
+			else if ((h1 == '2' && h2 == 'A') || (h1 == '2' && h2 == 'a')) input.push_back('*');
+			else if ((h1 == '2' && h2 == 'B') || (h1 == '2' && h2 == 'b')) input.push_back('+');
+			else if ((h1 == '2' && h2 == 'F') || (h1 == '2' && h2 == 'f')) input.push_back('/');
+			else {
+				input.push_back('%');
+				continue;
+			}
+			i += 2;
+			continue;
+		}
+		if (tmp[i] == '+') {
+			tmp[i] = ' ';
+		}
+		input.push_back(tmp[i]);
+	}
+}
+
+int main(void) {
+	RPN			rpn;
+	std::string	input;
+
+	std::string method(std::getenv("REQUEST_METHOD"));
+	if (method == "GET" || method == "Get" || method == "get") {
+		get_input(input);
+	} else if (method == "POST" || method == "Post" || method == "post") {
+		std::getline(std::cin, input);
+	} else {
 		send_error();
 		return -1;
 	}
-	
-	(void)env;
-	std::string input(av[1]);
-	
+	std::cout << "method: " << method << " | input: " << input << std::endl;
 	if (rpn.doTheMagic(input) == -1) {
 		send_error();
 		return -1;
