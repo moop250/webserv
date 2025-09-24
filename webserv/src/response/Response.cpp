@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/09 15:45:25 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/24 11:09:50 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ std::string Response::constructResponse() {
 	std::string code;
 	std::ostringstream temp;
 	
-	if (this->httpVersion == "" || this->code == 0 || this->codeMessage == "")
+	if (this->httpVersion == "" || this->code == -1 || this->codeMessage == "")
 		return "";
 	headers = this->headersToString();
 	temp << this->code;

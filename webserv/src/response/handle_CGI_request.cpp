@@ -57,11 +57,14 @@ void child_launch_CGI(Connection& connection, std::string& cgi_path, int in[2], 
 
 	// to remake
 	if (connection.getRequest().getFileType() == ".java") {
-		cgi_path = "./cgi";
+		cgi_path = "ressources/cgi/java";
 		av.push_back(const_cast<char*>("/bin/java"));
 		av.push_back(const_cast<char*>("-cp"));
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 		av.push_back(const_cast<char*>("CGI"));
+	} (connection.getRequest().getFileType() == ".cpp") {
+		cgi_path = "ressources/cgi/cpp";
+		av.push_back(const_cast<char*>("ressources/cgi/cpp/RPN"))
 	} else {
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 	}
@@ -124,11 +127,72 @@ int parent_reap_output(Connection& connection, int in[2], int out[2], std::strin
 	return 0;
 }
 
-// stuffs to do
 int parse_cgi_output(Connection& connection, std::string& output) {
+	std::string::size_type	end_pos;
+	std::string::size_type	colon_pos;
+	std::string				header;
+	std::string				key;
+	std::string				value;
+	std::string::size_type	space_pos;
+	int						code;
 
-	(void)connection;
-	(void)output;
+	while (true) {
+		end_pos = output.find("\r\n");
+		if (end_pos == std::string::npos) {
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
+		if (end_pos == 0) {
+			output.erase(0, 2);
+			break;
+		}
+		header = output.substr(0, end_pos);
+		colon_pos = header.find(":");
+		if (colon_pos == std::string::npos) {
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
+		key = output.substr(0, colon_pos);
+		size_t start = colon_pos + 1;
+		while (start < header.size() && (header[start] == ' ' || header[start] == '\t'))
+			start++;
+		value = header.substr(start);
+		if (key == "Content-Type") {
+			connection.getResponse().setHeader("Content-Type", value);
+			connection.getResponse().setContentType(value);
+		}
+		if (key == "Content-Length") {
+			connection.getResponse().setHeader("Content-Length", value);
+			connection.getResponse().setContentLength(std::atoi(value.c_str()));
+		}
+		if (key == "Status") {
+			space_pos = value.find(" ");
+			if (space_pos == std::string::npos) {
+				code = std::atoi(value.c_str());
+			} else {
+				code = std::atoi(value.substr(0, space_pos).c_str());
+			}
+			connection.getResponse().setCode(code);
+			connection.getResponse().setCodeMessage(error_message(code));
+		}
+		output.erase(0, end_pos + 2);
+	}
+	if (output.empty()) {
+		error_response(connection, INTERNAL_ERROR);
+		return -1;
+	}
+	connection.getResponse().setBody(output);
+	if (connection.getResponse().getCode() == -1) {
+		code = 200;
+		connection.getResponse().setCode(code);
+		connection.getResponse().setCodeMessage(error_message(code));
+	}
+	if (connection.getResponse().getContentLength() == 0)
+		connection.getResponse().setHeader("Content-Length", size_to_string(output.size()));
+	if (connection.getResponse().getContentType().empty())
+		connection.getResponse().setHeader("Content-Type", "text/plain");
+	connection.getResponse().constructResponse();
+	connection.setState(SENDING_RESPONSE);
 	return 0;
 }
 
@@ -178,7 +242,7 @@ int CGI_handler(Connection& connection) {
 			// std::cout << "CGI output: \n" << output << std::endl;
 			// timeout here
 			waitpid(pid, &status, 0);
-			parse_cgi_output(connection, output);
+			return parse_cgi_output(connection, output);
 	}
 	return 0;
 }
