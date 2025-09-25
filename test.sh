@@ -115,6 +115,8 @@ curl $search >> $WEBSERV_LOG
 # --- GET tests ---
 echo "GET requests sur webserv..."
 
+curl -X GET $search
+
 # --- POST tests ---
 echo "POST requests sur webserv..."
 
