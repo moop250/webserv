@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/08 21:53:30 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/24 10:49:38 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,5 +42,7 @@ std::string	size_to_string(size_t size);
 std::string	trim(const std::string &str);
 std::string	toLower(const std::string& str);
 std::string	generate_name(const std::string& extension);
+std::string error_message(int code);
+std::string error_message(std::string& code);
 
 #endif

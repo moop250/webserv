@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/10 15:52:43 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/24 10:52:39 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,52 @@
 #include "Response.hpp"
 #include "Connection.hpp"
 
+std::string error_message(std::string& code) {
+	if (code == "200")
+		return "OK";
+	if (code == "201")
+		return "Created";
+	if (code == "202")
+		return "Accepted";
+	if (code == "204")
+		return "No Content";
+	if (code == "301")
+		return "Moved Permanently";
+	if (code == "302")
+		return "Found";
+	if (code == "400")
+		return "Bad Request";
+	if (code == "403")
+		return "Forbidden";
+	if (code == "404")
+		return "Not Found";
+	if (code == "405")
+		return "Method Not Allowed";
+	if (code == "411")
+		return "Length Required";
+	if (code == "413")
+		return "Content Too Large";
+	if (code == "415")
+		return "Unsupported Media Type";
+	if (code == "500")
+		return "Internal Server Error";
+	if (code == "501")
+		return "Not Implemented";
+	if (code == "505")
+		return "Http Version Mismatch";
+	return "";
+}
+
 std::string error_message(int code) {
 	switch (code) {
+		case 200:
+			return "OK";
+		case 201:
+			return "Created";
+		case 202:
+			return "Accepted";
+		case 204:
+			return "No Content";
 		case 301:
 			return "Moved Permanently";
 		case 302:
@@ -36,7 +80,7 @@ std::string error_message(int code) {
 		case 415:
 			return "Unsupported Media Type";
 		case 500:
-			return "Internal Error";
+			return "Internal Server Error";
 		case 501:
 			return "Not Implemented";
 		case 505:
@@ -52,7 +96,7 @@ void error_response(Connection& connection, int code) {
 	codeMessage = error_message(code);
 	if (codeMessage.empty()) {
 		code = 500;
-		codeMessage = "Internal Error";
+		codeMessage = "Internal Server Error";
 		body = "<!DOCTYPE html>\n"
 				"\n"
 				"<html lang=\"fr\">\n"

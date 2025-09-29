@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 20:14:22 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 22:24:54 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/09/24 11:56:27 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 std::set<std::string> listCGI() {
 	std::set<std::string> supported;
 	// check with config file to change implementation !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	supported.insert(".cgi");
+	supported.insert(".cpp");
 	supported.insert(".java");
 	supported.insert(".js");
 	supported.insert(".php");

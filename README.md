@@ -64,16 +64,12 @@ N) If one of the precedent rules aren't respected, the programm won't launch
 todo:
 - Match location if apply.
 - Preappend root or cgi path to URL path
-<<<<<<< HEAD:webserv/README.md
-
-////////////////////////////////////////////////////////////////////////////////
-=======
->>>>>>> refs/remotes/origin/RequestParsing:README.md
 
 Note:
 To install in eval computer:
 -- install php-cgi:  sudo apt-get install php-cgi
 -- install java: sudo apt install default-jre
+
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -115,12 +111,6 @@ Getter:
 - `getOffset()` -> Return the bytes already sent by send() call. Only use when sending response. Default is -2.
 - `getReconnect()` -> Return the reconnect state. It is false during the first connection to search for server. Subsequence connections are true so server won't be searched again.
 - `getClose()` -> Return a boolean, if true then the connection will need to be closed.
-- `getPort()` -> Return a std::string port.
-- `getIP()` -> Return a std::string IP.
-
-Setter:
-- `setPort(const std::string port)` -> set port.
-- `setIP(const std::string ip)` -> set ip.
 
 Method:
 - `minusOffset(long size)` -> Subtract size from the current offset.

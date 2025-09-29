@@ -1,25 +1,32 @@
 import java.util.*;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
-// Doesnt parse the QUERY_STRING nor input correctly
-// To be change to html form request
 public class CGI {
 	public static void main(String[] args) throws IOException {
 		try {
 			String method = System.getenv("REQUEST_METHOD");
 			String input = "";
 			if (method.equals("GET")) {
-				input = System.getenv("QUERY_STRING");
+				String query = System.getenv("QUERY_STRING");
+				try {
+					input = URLDecoder.decode(query, StandardCharsets.UTF_8.name());
+					input = input.substring(input.indexOf("=") + 1);
+				} catch (Exception e) {
+					System.out.print("Content-Length: 9\r\n");
+					System.out.print("Content-Type: text/plain\r\n\r\n");
+					System.out.println("CGI Error");
+				}
 			}
-				// parse query here
 			if (method.equals("POST")) {
 				int contentLength = Integer.valueOf(System.getenv("CONTENT_LENGTH"));
 				int count = 0;
+				System.out.println(contentLength);
 				while (count < contentLength) {
 					input += (char)System.in.read();
 					count++;
 				}
-				// parse post body here
 			}
 			String result = input.toUpperCase().replace('2', '4');
 
@@ -33,6 +40,7 @@ public class CGI {
 			System.out.println("<p>After: " + result + "</p>");
 			System.out.println("</body></html>");
 		} catch(NullPointerException e) {
+			System.out.print("Content-Length: 9\r\n");
 			System.out.print("Content-Type: text/plain\r\n\r\n");
 			System.out.println("CGI Error");
 		}

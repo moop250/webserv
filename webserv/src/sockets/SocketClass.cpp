@@ -6,6 +6,7 @@
 #include <netdb.h>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 #include <sys/socket.h>
 #include "unistd.h"
@@ -64,7 +65,7 @@ void ServerSocket::initializeNewSocket(std::string combo) {
     std::string port = combo.substr(del + 1, combo.length());
 
     memset(&info, 0, sizeof(info));
-    info.ai_family = AF_INET;
+	info.ai_family = AF_INET;
     info.ai_socktype = SOCK_STREAM;
 
     if (getaddrinfo(host.c_str(), port.c_str(), &info, &res) < 0) {
@@ -99,6 +100,7 @@ void ServerSocket::initializeNewSocket(std::string combo) {
         throw std::runtime_error("Socket listen error: " + std::string(strerror(errno)));
     }
 
+	this->setServerAddrInfo(socketfd, host, port);
     this->serverSocketFd_.push_back(socketfd);
     this->serverPort_.push_back(atoi(port.c_str()));
 }
@@ -125,4 +127,24 @@ void	ServerSocket::incrementClientCount() {
 
 void	ServerSocket::decrementClientCount() {
 	--this->clientCount_;
+}
+
+t_connectionAddrInfo ServerSocket::getServerAddrInfo(int fd) {
+	return this->serverAddrInfo_.at(fd);
+}
+
+t_connectionAddrInfo ServerSocket::getClientAddrInfo(int fd) {
+	return this->clientAddrInfo_.at(fd);
+}
+
+void ServerSocket::setServerAddrInfo(int fd, std::string address, std::string port) {
+	t_connectionAddrInfo tmp;
+	tmp.address = address;
+	tmp.port = port;
+
+	this->serverAddrInfo_.insert(std::make_pair(fd, tmp));
+}
+
+void ServerSocket::removeServerAddrInfo(int fd) {
+	this->serverAddrInfo_.erase(fd);
 }
