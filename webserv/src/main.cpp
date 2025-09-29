@@ -153,6 +153,22 @@ int main(int ac, char** av)
 	// 	return (-3);
 	// }
 
+	std::string	server_name;
+	std::string	path;
+	std::string	port;
+	std::string	ip;
+
+	server_name = "";
+	path = "";
+	port = "";
+	ip = "";
+
+	RequestServer server(*config, server_name, port, path);
+	(void)ip;
+	// -> RequestServer server(config, port, ip, server_name, path);
+
+	std::cout << server;
+
 	Connection		connection;
 	connection.buffer = "POST /ressources/cgi/cpp/RPN.cpp HTTP/1.1\r\n"
 						"Host: localhost1:8001\r\n"
