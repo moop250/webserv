@@ -18,15 +18,15 @@ struct Color
 	static Color	Reset();
 	std::string		getANSICode() const;
 	public:
-		std::string	blue();
-		std::string	red();
-		std::string	green();
-		std::string	black();
-		std::string	yellow();
-		std::string	purple();
-		std::string	cyan();
-		std::string	white();
-		std::string	reset();
+		static std::string	blue();
+		static std::string	red();
+		static std::string	green();
+		static std::string	black();
+		static std::string	yellow();
+		static std::string	purple();
+		static std::string	cyan();
+		static std::string	white();
+		static std::string	reset();
 };
 
 std::ostream& operator<<(std::ostream& os, const Color& color);

@@ -30,6 +30,8 @@ static void eraseComments(std::string &buf)
     while ((from = buf.find("#", from)) != std::string::npos)
     {
         to = buf.find('\n', from);
+        if (buf.find('<', from) < to)
+            to = buf.find('<', from) - 1;
         if (to == std::string::npos)
             buf.erase(from);
         else

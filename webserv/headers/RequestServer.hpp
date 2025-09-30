@@ -34,7 +34,7 @@ class RequestServer
         RequestServer(bool def=false);
         RequestServer(Config config);
        // RequestServer(Config config, const std::string &name, const std::string &port, const std::string &locPath);
-        RequestServer(Config, std::string name, std::string port, std::string locPath);
+        RequestServer(Config, std::string port, std::string ip, std::string name, std::string path);
         RequestServer(const RequestServer &);
         ~RequestServer();
 
@@ -42,7 +42,6 @@ class RequestServer
 
         void            setToken(t_ServerData serv, e_TokenType type);
         void            setToken(t_Location loc, e_TokenType type);
-        bool            check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath);
 //        void            setToken(std::string str, e_TokenType type);
         bool            undefined(e_TokenType);
         bool            has(e_TokenType);
