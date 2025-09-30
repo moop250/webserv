@@ -3,7 +3,8 @@
 
 
 ##  Starting with an example,
-	ideally prototype a server as :
+
+ideally prototype a server as :
 
 "
 	server {
@@ -15,16 +16,16 @@
 
 It works by the following rules :
 
-1) Define his range by '{}' as :
+##  1) Define his range by '{}' as :
 	server { ... }
 
-2) Each attribute must be splitted by ';' as :
+##  2) Each attribute must be splitted by ';' as :
 	server { ... ; ... }
 
-3) There can be multiple servers as :
+##  3) There can be multiple servers as :
 	server { ... } server { ... }
 
-4) The server accepted attributes have to be formated as :
+##  4) The server accepted attributes have to be formated as :
 	- hosts	: "host"			: '<token> host'
 	- listeners "listen"			: '<token> port'
 	- server name "server_name"		: '<token> name'
@@ -39,26 +40,26 @@ It works by the following rules :
 	- Redirections "return"			: '<token> code path'
 	- location bloc	"location"		: 'token path { ... }'
 
-5) The location bloc has to respect the same format as a server
+##  5) The location bloc has to respect the same format as a server
 
-6) There can be multiple location ports in a same server
+##  6) There can be multiple location ports in a same server
 
-7) The location accepted attributes are the same as server except :
+##  7) The location accepted attributes are the same as server except :
 	- hosts
 	- listen
 	- location
 	- server name
 
-8) If no argument is given to webserv a default configuration take place.
+##  8) If no argument is given to webserv a default configuration take place.
 
-9) Same for the error pages and the methos allowed. If undefined
+##  9) Same for the error pages and the methos allowed. If undefined
 	methods allowed will be GET DELETE POS. If undefined error page
 	a 404 not found will be throw (i think...)
  
 ...)
 	...
 
-N) If one of the precedent rules aren't respected, the programm won't launch
+##  N) If one of the precedent rules aren't respected, the programm won't launch
 todo:
 - Match location if apply.
 - Preappend root or cgi path to URL path
