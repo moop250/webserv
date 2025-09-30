@@ -30,6 +30,8 @@ class RequestServer
     std::string                         _redirect;
     size_t                              _clientBodySize;    //both
     bool                                _autoindex; // both
+
+    std::string                         _location;
     public:
         RequestServer(bool def=false);
         RequestServer(Config config);
@@ -60,6 +62,8 @@ class RequestServer
         bool                                autoindex() const;
         bool                                isValid() const;
         RequestServer                       defaultServ() const;
+
+        std::string                         getLocation() const;
 
 };
 

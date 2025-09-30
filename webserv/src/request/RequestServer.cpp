@@ -14,6 +14,7 @@ RequestServer::RequestServer(bool def) {
     _redirect = "UNDEFINED";
     _clientBodySize = 0;
     _autoindex = false;
+    _location = "";
     if (!def)
         return ;
     std::cout << CYAN << "Default server configuration\n" << RESET << std::flush;
@@ -42,6 +43,7 @@ RequestServer::RequestServer(Config config)
         setToken(s, static_cast<e_TokenType>(i));
     _isValid = 1;
     _isLocation = 0;
+    _location = "";
 }
 
 static size_t   findServer(Config config, std::string ip, std::string port)
@@ -86,7 +88,7 @@ static size_t   findLocation(std::string path, t_ServerData server)
 }
 
 RequestServer::RequestServer(Config config, std::string port, std::string ip, std::string name, std::string path) :
-    _isLocation(0)
+    _isLocation(0), _location("")
 {
     size_t  servId;
     size_t  locId;
@@ -101,6 +103,7 @@ RequestServer::RequestServer(Config config, std::string port, std::string ip, st
         t_Location  location = server.locations.at(locId);
         for (int i = 0; i < LOCATION; i++)
             setToken(location, static_cast<e_TokenType>(i));
+        _location = path;
     }
 
     for (int i = 0; i < LOCATION; i++)
@@ -336,6 +339,10 @@ bool                                RequestServer::autoindex() const { return _a
 
 RequestServer   RequestServer::defaultServ() const {
     return RequestServer(1);
+}
+
+std::string                         RequestServer::getLocation() const {
+    return _location;
 }
 
 std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
