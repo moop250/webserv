@@ -29,7 +29,7 @@ static x    min(const x &a, const x &b)
     return a < b ? a : b;
 }
 
-static int levenshtein(const std::string& s1, const std::string& s2) {
+int levenshtein(const std::string& s1, const std::string& s2) {
     int m = s1.size();
     int n = s2.size();
     std::vector<std::vector<int> > dp(m + 1, std::vector<int>(n + 1));

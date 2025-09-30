@@ -159,7 +159,7 @@ int main(int ac, char** av)
 	std::string	ip;
 
 	server_name = "localhost1";
-	path = "/cgi/CGI.java";
+	path = "/cgi/CGI.javasljv";
 	port = "8001";
 	ip = "127.0.0.1";
 

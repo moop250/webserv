@@ -52,6 +52,7 @@ static size_t   findServer(Config config, std::string ip, std::string port)
         if ((serv.host == ip || serv.host == "0.0.0.0") && serv.port == port)
             return i;
     }
+    std::cout << YELLOW << "server host:port not found\n" << RESET;
     return std::string::npos;
 }
 
@@ -63,19 +64,24 @@ static size_t   findServer(Config config, std::string name)
         if (serv.server_name == name)
             return i;
     }
+    std::cout <<  YELLOW <<"server name not found\n" << RESET;
     return std::string::npos;
 }
 
 static size_t   findLocation(std::string path, t_ServerData server)
 {
     size_t  id = 0;
+    std::string root = server.root;
 
+    if (root.find("UNDEFINED") != std::string::npos)
+        root = "";
     for (std::vector<t_Location>::iterator i = server.locations.begin(); i < server.locations.end(); i++)
     {
-        if (i->path == path)
+        if (levenshtein(i->path, root + path) < 2)
             return id;
         id++;
     }
+    std::cout <<  YELLOW << "\nPath doesn't match any location\n" << RESET;
     return std::string::npos;
 }
 
@@ -100,6 +106,7 @@ RequestServer::RequestServer(Config config, std::string port, std::string ip, st
     for (int i = 0; i < LOCATION; i++)
         setToken(server, static_cast<e_TokenType>(i));
 
+    std::cout << "Index : " << server.index << std::endl;
     //  find ip:port
     //  find server_name
     //  find path
@@ -114,8 +121,10 @@ RequestServer::~RequestServer() { }
 
 void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
 {
-    if (!undefined(type))
-        return;
+    if (this->has(type))
+    {
+        return ;
+    }
     switch (type)
     {
         case HOST:
@@ -185,7 +194,6 @@ void    RequestServer::setToken(t_Location loc, e_TokenType type)
             break;
         case ERROR_PAGE:
             _errorPages = ErrorPages(loc.data.error_pages);
-        //    _errorPages = loc.errorPages(); // check if push_back instead
             break ;
         case UPLOAD_STORAGE:
             _storage = loc.data.upload_storage;
@@ -255,9 +263,9 @@ bool    RequestServer::undefined(e_TokenType type)
                 return true;
             return false;
         case CLIENT_MAX_BODY_SIZE:
-            if (_clientBodySize <= 0)
+            if (_clientBodySize <= 10)
                 return true;
-            return false;
+            return true;
         case METHODS:
             if (_methods.empty())
                 return true;

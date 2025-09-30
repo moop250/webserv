@@ -27,16 +27,16 @@ It works by the following rules :
 	server { ... } server { ... }
 
 4) The server accepted attributes have to be formated as :
-	- hosts	: "host"			: '<token> host'
-	- listeners "listen"			: '<token> port'
+	- hosts	: "host"			    : '<token> host'
+	- ports "listen"			    : '<token> port'
 	- server name "server_name"		: '<token> name'
-	- root path "root"			: '<token> path'
+	- root path "root"			    : '<token> path'
 	- index	"html_index"			: '<token> file'
 	- autoindex "autoindex"			: '<token> ON | OFF' 
 	- error pages "error_page"		: '<token> nb path'
 	- storage "upload_storage"		: '<token> path'
-	- CGI "CGI" 				: '<token> file.py | file.php | ... <space> path'
-	- client BufSize "client_max_body_size"	: '<token> size'
+	- CGI "CGI" 			    	: '<token> file.py | file.php | ... <space> path'
+	- "client_max_body_size"	    : '<token> size'
 	- Methods allowed "allow"		: '<token> M1 M2 ... Mi'
 	- Redirections "return"			: '<token> code path'
 	- location bloc	"location"		: 'token path { ... }'
@@ -55,7 +55,7 @@ It works by the following rules :
 
 9) Same for the error pages and the methos allowed. If undefined
 	methods allowed will be GET DELETE POS. If undefined error page
-	a 404 not found will be throw (i think...)
+	a ours default pages will be thrown
  
 ...)
 	...
