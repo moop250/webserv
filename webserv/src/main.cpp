@@ -158,12 +158,12 @@ int main(int ac, char** av)
 	std::string	port;
 	std::string	ip;
 
-	server_name = "";
-	path = "";
-	port = "";
-	ip = "";
+	server_name = "localhost1";
+	path = "/cgi/CGI.java";
+	port = "8001";
+	ip = "127.0.0.1";
 
-	RequestServer server(*config, server_name, port, path);
+	RequestServer server(*config, port, ip, server_name, path);
 	(void)ip;
 	// -> RequestServer server(config, port, ip, server_name, path);
 

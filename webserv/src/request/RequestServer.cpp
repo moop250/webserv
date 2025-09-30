@@ -34,27 +34,6 @@ RequestServer::RequestServer(bool def) {
     _cgi.insert(std::make_pair("say_hello.py", ".py"));
 }
 
-bool    RequestServer::check(Config config, size_t portId, size_t nameId, size_t locId, std::string locPath)
-{
-    if (portId == std::string::npos || nameId == std::string::npos)
-    {
-        std::cerr << ROSE << "ServerName or associeted port not found\n" << RESET;
-        return false;
-    }
-    if (locPath.empty())
-        return true;
-    if ((locId == std::string::npos && !locPath.empty() && portId != locId)
-        || locId >= config.getServerData(portId).locations.size())
-    {
-        std::cerr << YELLOW << "\n[WARNING] :" << WHITE << " Location path in server nb : " << portId
-            << " not found\n" << RESET;
-        _isLocation = false;
-    }
-    else
-        _isLocation = true;
-    return true;
-}
-
 RequestServer::RequestServer(Config config)
 {
     t_ServerData    s = config.getServerData(0);
@@ -65,43 +44,65 @@ RequestServer::RequestServer(Config config)
     _isLocation = 0;
 }
 
-RequestServer::RequestServer(Config config, std::string name, std::string port, std::string locPath) :
+static size_t   findServer(Config config, std::string ip, std::string port)
+{
+    for (int i = 0; i < config.getNbServers() ; i++)
+    {
+        const t_ServerData serv = config.getServerData(i);
+        if ((serv.host == ip || serv.host == "0.0.0.0") && serv.port == port)
+            return i;
+    }
+    return std::string::npos;
+}
+
+static size_t   findServer(Config config, std::string name)
+{
+    for (int i = 0; i < config.getNbServers(); i++)
+    {
+        const t_ServerData serv = config.getServerData(i);
+        if (serv.server_name == name)
+            return i;
+    }
+    return std::string::npos;
+}
+
+static size_t   findLocation(std::string path, t_ServerData server)
+{
+    size_t  id = 0;
+
+    for (std::vector<t_Location>::iterator i = server.locations.begin(); i < server.locations.end(); i++)
+    {
+        if (i->path == path)
+            return id;
+        id++;
+    }
+    return std::string::npos;
+}
+
+RequestServer::RequestServer(Config config, std::string port, std::string ip, std::string name, std::string path) :
     _isLocation(0)
 {
-    size_t portId = config.find(port, LISTEN);
-    size_t nameId = config.find(name, HOST);
-    size_t  locId = config.find(locPath, LOCATION_PATH);
- 
+    size_t  servId;
+    size_t  locId;
 
-    if (!check(config, portId, nameId, locId, locPath))
-    {
-        _isValid = false;
-        *this = RequestServer();
-        std::cout << YELLOW << "\n[WARNING] : " << WHITE << "Request didn't match config file data\n" << RESET << std::flush;
-        return ;
-    }
-
-    t_ServerData    s = config.getServerData(portId);
+    if ((servId = findServer(config, ip, port)) == std::string::npos)
+        if ((servId = findServer(config, name)))
+            return ;
     
-    locId = 0;
-    for (std::vector<t_Location>::iterator i = s.locations.begin(); i != s.locations.end(); i++)
+    t_ServerData    server = config.getServerData(servId);
+    if ((locId = findLocation(path, server)) != std::string::npos)
     {
-        if (i->path == locPath)
-            break ;
-        locId++;
+        t_Location  location = server.locations.at(locId);
+        for (int i = 0; i < LOCATION; i++)
+            setToken(location, static_cast<e_TokenType>(i));
     }
-    _isValid = true;
-    if (!locPath.empty() && _isLocation)
-    {
-        t_Location      l = s.locations.at(locId);
-       for (int i = 0; i < LOCATION; i++)
-            setToken(l, static_cast<e_TokenType>(i));
-        _clientBodySize = l.data.client_max_body_size;
-    }
+
     for (int i = 0; i < LOCATION; i++)
-        setToken(s, static_cast<e_TokenType>(i));
-    if (!_isLocation)
-        _clientBodySize = s.client_max_body_size;
+        setToken(server, static_cast<e_TokenType>(i));
+
+    //  find ip:port
+    //  find server_name
+    //  find path
 }
 
 RequestServer::RequestServer(const RequestServer &serv)
