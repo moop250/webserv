@@ -70,7 +70,7 @@ To install in eval computer:
 -- install java: sudo apt install default-jre
 
 
-/////////////////////////////////////////////////////////////////////////////////
+# Convert NGINX to WEBSERV files.conf
 
 Now, our server config file relates a lot to these of nginx. But we changed a bit
 the names of the tokens for a chill parsing. So if you want to use one config file
@@ -81,14 +81,8 @@ This program works as the following : ./convert [fileName.config] [0 | 1]
 0--> converts as : nginx.config --> webserv.config
 1--> converts as : webserv.config --> nginx.config
 
-//////////////////////////////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////
-//  # Request handler documentation:    //
-//////////////////////////////////////////
+# Request handler documentation:
 
 ## Connection class methods:
 Getter:
