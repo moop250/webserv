@@ -106,7 +106,6 @@ RequestServer::RequestServer(Config config, std::string port, std::string ip, st
     for (int i = 0; i < LOCATION; i++)
         setToken(server, static_cast<e_TokenType>(i));
 
-    std::cout << "Index : " << server.index << std::endl;
     //  find ip:port
     //  find server_name
     //  find path

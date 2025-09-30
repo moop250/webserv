@@ -159,15 +159,14 @@ int main(int ac, char** av)
 	std::string	ip;
 
 	server_name = "localhost1";
-	path = "/cgi/CGI.javasljv";
+	path = "/cgi/CGI.java";
 	port = "8001";
 	ip = "127.0.0.1";
 
 	RequestServer server(*config, port, ip, server_name, path);
-	(void)ip;
 	// -> RequestServer server(config, port, ip, server_name, path);
 
-	std::cout << server;
+	//std::cout << server;
 
 	Connection		connection;
 	connection.buffer = "POST /ressources/cgi/cpp/RPN.cpp HTTP/1.1\r\n"
