@@ -122,7 +122,7 @@ int main(int ac, char** av)
 {
 	Debug	dfile("General.log");
 	Config	*config = NULL;
-	// ServerSocket *socket = NULL;
+	ServerSocket *socket = NULL;
 
 	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
@@ -134,25 +134,26 @@ int main(int ac, char** av)
 		return (-1);
 	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
-	// try {
-	// 	socket = initalizeServer(config);
-	// } catch (std::exception &e) {
-	// 	std::cerr << RED << e.what() << RESET << std::endl;
-	// 	delete config;
-	// 	return (-2);
-	// }
+	try {
+		socket = initalizeServer(config);
+	} catch (std::exception &e) {
+		std::cerr << RED << e.what() << RESET << std::endl;
+		delete config;
+		return (-2);
+	}
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	
-	// try {
-	// 	eventLoop(config, socket);
-	// } catch (std::exception &e) {
-	// 	std::cerr << RED << e.what() << RESET << std::endl;
-	// 	delete config;
-	// 	delete socket;
-	// 	return (-3);
-	// }
+	try {
+		eventLoop(config, socket);
+	} catch (std::exception &e) {
+		std::cerr << RED << e.what() << RESET << std::endl;
+		delete config;
+		delete socket;
+		return (-3);
+	}
 
+	/*
 	std::string	server_name;
 	std::string	path;
 	std::string	port;
@@ -183,7 +184,7 @@ int main(int ac, char** av)
 		// std::cout << code << std::endl;
 	}
 	std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
-
+*/
 
 	delete config;
 	return 0;
