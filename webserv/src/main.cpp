@@ -159,7 +159,7 @@ int main(int ac, char** av)
 	std::string	ip;
 
 	server_name = "localhost1";
-	path = "/ressources/cgi/cpp/RPN.cpp";
+	path = "ressources/cgi/cpp/RPN.cpp";
 	port = "8001";
 	ip = "127.0.0.1";
 

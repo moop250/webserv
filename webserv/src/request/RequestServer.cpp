@@ -70,16 +70,24 @@ static size_t   findServer(Config config, std::string name)
     return std::string::npos;
 }
 
+/* TRIER QUELQUES CAS (CERTAINS ME SEMBLENT SUSPECTS)*/
 static size_t   findLocation(std::string path, t_ServerData server)
 {
+    int     iteration = 0;
     size_t  id = 0;
     std::string root = server.root;
 
+//    std::cout << "PATH TO FIND IN LOCATION : " << path << std::endl;
     if (root.find("UNDEFINED") != std::string::npos)
         root = "";
     for (std::vector<t_Location>::iterator i = server.locations.begin(); i < server.locations.end(); i++)
     {
-        if (levenshtein(i->path, root + path) < 2)
+        // std::cout << "COMPARING WITH PATH IN SERVER : " << iteration++ << " : " << i->path << std::endl;
+        if (path.find(i->path) != std::string::npos
+            || levenshtein(i->path, root + path) < 2
+            || path == i->path
+            || levenshtein(i->path, path) < 2
+        )
             return id;
         id++;
     }
