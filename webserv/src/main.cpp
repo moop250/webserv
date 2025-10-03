@@ -159,7 +159,7 @@ int main(int ac, char** av)
 	std::string	ip;
 
 	server_name = "localhost1";
-	path = "/ressources/cgi/cpp/RPN.cpp";
+	path = "";
 	port = "8001";
 	ip = "127.0.0.1";
 
@@ -177,10 +177,10 @@ int main(int ac, char** av)
 						"\r\n"
 						"1 1 + 6 *";
 	int code = parse_request(connection, *config);
-	// std::cout << code << std::endl;
+	std::cout << code << std::endl;
 	if (code != -1) {
 		code = handle_request(connection);
-		// std::cout << code << std::endl;
+		std::cout << code << std::endl;
 	}
 	std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
 

@@ -36,6 +36,8 @@ static void eraseComments(std::string &buf)
             buf.erase(from);
         else
             buf.erase(from, to - from);
+
+        //  secure da shit
     }
 }
 
