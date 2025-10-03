@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/03 15:47:16 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/03 16:07:18 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,10 +86,7 @@ void path_merge(Connection& connection) {
 		return;
 	if (root[root.size() - 1] == '/')
 		root.erase(root.size() - 1, 1);
-	location = connection.getServer().getLocation();
-
-	std::cout << "LOCATION: " <<  location << std::endl;
-	
+	location = connection.getServer().getLocation();	
 	if (location.empty()) {
 		path.insert(0, root);
 		connection.getRequest().setPath(path);
@@ -104,8 +101,11 @@ void path_merge(Connection& connection) {
 
 int handle_request(Connection& connection) {
 	int	requestType;
+	std::string	location;
 
-	if (connection.getServer().getLocation() == "/cgi/")
+	std::cout << "valid: " << std::boolalpha << connection.getServer().isValid() << std::endl;
+	location = connection.getServer().getLocation();
+	std::cout << "LOCATION1: " <<  location << std::endl;
 	path_merge(connection);
 	if (parse_request_type(connection) == -1)
 		return -1;

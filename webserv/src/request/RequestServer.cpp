@@ -306,6 +306,7 @@ RequestServer   &RequestServer::operator=(const RequestServer &srv)
         _redirect = srv._redirect;
         _clientBodySize = srv._clientBodySize;
         _autoindex = srv._autoindex;
+        _location = srv._location;
     }
     return *this;
 }
