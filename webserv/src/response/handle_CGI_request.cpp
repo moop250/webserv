@@ -17,10 +17,9 @@
 #include "request_handler.hpp"
 #include "support_file.hpp"
 
-void set_env(Connection& connection, std::vector<std::string>& env, std::string cgi_path) {
+void set_env(Connection& connection, std::vector<std::string>& env) {
 	env.push_back("REQUEST_METHOD=" + connection.getRequest().getMethod());
 	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
-	env.push_back("SCRIPT_NAME=" + cgi_path);
 	env.push_back("SERVER_NAME=" + connection.getRequest().getHost());
 	env.push_back("SERVER_PORT=" + connection.getRequest().getPort());
 	env.push_back("HTTPS=off");
@@ -51,25 +50,25 @@ void print_env(char **env) {
 	}
 }
 
-// stuffs to do
-void child_launch_CGI(Connection& connection, std::string& cgi_path, int in[2], int out[2], char **env) {
+void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env) {
 	std::vector<char*>	av;
+	std::string			path;
+	std::string			cgi_path;
 
-	// to remake with real cgi path
+	path = connection.getRequest().getPath();
 	if (connection.getRequest().getFileType() == ".java") {
-		cgi_path = "ressources/cgi/java";
+		cgi_path = path;
 		av.push_back(const_cast<char*>("/bin/java"));
 		av.push_back(const_cast<char*>("-cp"));
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 		av.push_back(const_cast<char*>("CGI"));
 	} else if (connection.getRequest().getFileType() == ".cpp") {
-		cgi_path = "ressources/cgi/cpp";
-		av.push_back(const_cast<char*>("ressources/cgi/cpp/RPN"));
-	} else {
+		cgi_path = path + "RPN";
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
+	} else {
+		exit(-1);
 	}
 	av.push_back(NULL);
-
 	dup2(in[0], STDIN_FILENO);
 	close(in[0]);
 	close(in[1]);
@@ -198,7 +197,6 @@ int parse_cgi_output(Connection& connection, std::string& output) {
 
 // stuffs to do
 int CGI_handler(Connection& connection) {
-	std::string					cgi_path;
 	std::vector<std::string>	env_string;
 	std::vector<char*>			env_pointer;
 	char						**env;
@@ -212,11 +210,7 @@ int CGI_handler(Connection& connection) {
 		error_response(connection, METHOD_NOT_ALLOWED);
 		return -1;
 	}
-
-	// fix cgi_path for actual path, currently sending the file type (eg: .java)
-	cgi_path = connection.getRequest().getFileType();
-
-	set_env(connection, env_string, cgi_path);
+	set_env(connection, env_string);
 	env = build_env(env_string, env_pointer);
 	if (pipe(in) < 0) { 
 		error_response(connection, INTERNAL_ERROR);
@@ -235,11 +229,10 @@ int CGI_handler(Connection& connection) {
 			error_response(connection, INTERNAL_ERROR);
 			return -1;
 		case 0:
-			child_launch_CGI(connection, cgi_path, in, out, env);
+			child_launch_CGI(connection, in, out, env);
 			break ;
 		default:
 			parent_reap_output(connection, in, out, output);
-			// std::cout << "CGI output: \n" << output << std::endl;
 			// timeout here
 			waitpid(pid, &status, 0);
 			return parse_cgi_output(connection, output);

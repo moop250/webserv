@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/03 16:13:03 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/03 19:07:16 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ int parse_keepAlive(Connection& connection) {
 	return CONTINUE_READ;
 }
 
-// stuffs to do
 void matching_server(Connection& connection, Config& config) {
 	std::string	server_name;
 	std::string	path;
@@ -124,11 +123,6 @@ void matching_server(Connection& connection, Config& config) {
 	} else {
 		std::cout << "\nNO SERVER MATCHED, USING DEFAULT\n";
 	}
-	std::string	location;
-
-	std::cout << "valid: " << std::boolalpha << connection.getServer().isValid() << std::endl;
-	location = server.getLocation();
-	std::cout << "LOCATION: " <<  location << std::endl;
 }
 
 int parse_body_chunked(Connection& connection) {

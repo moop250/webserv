@@ -22,7 +22,6 @@ public class CGI {
 			if (method.equals("POST")) {
 				int contentLength = Integer.valueOf(System.getenv("CONTENT_LENGTH"));
 				int count = 0;
-				System.out.println(contentLength);
 				while (count < contentLength) {
 					input += (char)System.in.read();
 					count++;
