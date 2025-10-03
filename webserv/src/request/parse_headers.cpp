@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/23 11:56:04 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/03 19:07:16 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ int parse_keepAlive(Connection& connection) {
 	return CONTINUE_READ;
 }
 
-// stuffs to do
 void matching_server(Connection& connection, Config& config) {
 	std::string	server_name;
 	std::string	path;
@@ -117,22 +116,12 @@ void matching_server(Connection& connection, Config& config) {
 	path = connection.getRequest().getPath();
 	port = connection.getPort();
 	ip = connection.getIP();
-
 	RequestServer server(config, port, ip, server_name, path);
-	(void)ip;
-	// -> RequestServer server(config, port, ip, server_name, path);
-
-//	server = connection.getDefaultServer();//	--> ca passe mtn
-	// std::cout << server;
 	if (server.isValid() == true) {
-		std::cout << "\nA SERVER IS MATCHED\n" << std::endl;
+		std::cout << "\nA SERVER IS MATCHED\n";
 		connection.setServer(server);
-		// std::cout << connection.getServer() << std::endl;
-		// std::cout << "body: " << connection.getServer().errorPages().content(404) << std::endl;
 	} else {
-		std::cout << "NO SERVER MATCHED" << std::endl;
-		// To do: default server should be already set in Connection object
-		// done : connection.getDefaultServer()
+		std::cout << "\nNO SERVER MATCHED, USING DEFAULT\n";
 	}
 }
 
@@ -238,17 +227,6 @@ int parse_redirect(Connection& connection, std::string& redirect) {
 	return INTERNAL_ERROR;
 }
 
-// // get the location, replace the location with root if root is not empty
-// void path_merge(Connection& connection) {
-// 	std::string	path;
-// 	std::string	root;
-
-// 	path = connection.getRequest().getPath();
-// 	root = connection.getServer().root();
-// 	// if (root[root.size() - 1] == '/')
-// 	// 	root.erase(root.size() - 1, 1);
-// }
-
 int headers_content_check(Connection& connection, Config& config) {
 	std::string	host;
 	std::string keepAlive;
@@ -259,16 +237,13 @@ int headers_content_check(Connection& connection, Config& config) {
 	if (host.empty())
 		return BAD_REQUEST;
 	parse_host(connection, host);
-
-	(void)config;
-	// if (connection.getReconnect() == false)
-	// 	matching_server(connection, config);
-	// redirect = connection.getServer().redirect();
-	// if (!redirect.empty())
-	// 	return parse_redirect(connection, redirect);
-	// if (method_check(connection) == METHOD_NOT_ALLOWED)
-	// 	return METHOD_NOT_ALLOWED;
-	
+	if (connection.getReconnect() == false)
+		matching_server(connection, config);
+	redirect = connection.getServer().redirect();
+	if (!redirect.empty())
+		return parse_redirect(connection, redirect);
+	if (method_check(connection) == METHOD_NOT_ALLOWED)
+		return METHOD_NOT_ALLOWED;
 	keepAlive = connection.getRequest().getHeader("connection");
 	std::string::size_type comma;
 	comma = keepAlive.find(",");
@@ -289,7 +264,6 @@ int headers_content_check(Connection& connection, Config& config) {
 		contentType = "application/octet-stream";
 	}
 	connection.getRequest().setContentType(contentType);
-	// path_merge(connection);
 	return content_length_check(connection);
 }
 

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/11 14:49:45 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/03 19:08:11 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ std::string size_to_string(size_t size) {
 }
 
 // return the file
-// stuffs to do
 int get_file(Connection& connection) {
 	std::string	path;
 	std::string	body;
@@ -36,11 +35,6 @@ int get_file(Connection& connection) {
 
 	path = connection.getRequest().getPath();
 
-	// remove later
-	if (path[0] == '/')
-		path.erase(0, 1);
-// 	path.insert(0, connection.getServer().root());
-// 	std::cout << GREEN << "Path : " << path << RESET << std::endl;
 	fd = open(path.c_str(), O_RDONLY);
 	if (fd < 0) {
 		switch (errno) {

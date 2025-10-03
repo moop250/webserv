@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/11 15:01:20 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/03 19:07:45 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,6 @@ int case_index(Connection& connection, std::string& index) {
 	char		buffer[4096];
 	long		n;
 	std::string	body;
-
-	// // for tdd only
-	// std::string	test;
-	// test = "../";
-	// test += index;
-	// index = test;
 	
 	fd = open(index.c_str(), O_RDONLY);
 	if (fd < 0) {
