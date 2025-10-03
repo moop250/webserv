@@ -153,23 +153,11 @@ int main(int ac, char** av)
 		// return (-3);
 	// }
 
-	std::string	server_name;
-	std::string	path;
-	std::string	port;
-	std::string	ip;
-
-	server_name = "localhost1";
-	path = "ressources/cgi/cpp/RPN.cpp";
-	port = "8001";
-	ip = "127.0.0.1";
-
-	RequestServer server(*config, port, ip, server_name, path);
-	// -> RequestServer server(config, port, ip, server_name, path);
-
-	std::cout << server;
 
 	Connection		connection;
-	connection.buffer = "POST /ressources/cgi/cpp/RPN.cpp HTTP/1.1\r\n"
+	connection.setPort("8001");
+	connection.setIP("127.0.0.1");
+	connection.buffer = "POST /cgi/RPN.cpp HTTP/1.1\r\n"
 						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
@@ -182,7 +170,7 @@ int main(int ac, char** av)
 		code = handle_request(connection);
 		// std::cout << code << std::endl;
 	}
-	std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
+	// std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
 
 	delete config;
 	return 0;
