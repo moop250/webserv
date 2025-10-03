@@ -73,7 +73,7 @@ static size_t   findServer(Config config, std::string name)
 /* TRIER QUELQUES CAS (CERTAINS ME SEMBLENT SUSPECTS)*/
 static size_t   findLocation(std::string path, t_ServerData server)
 {
-    int     iteration = 0;
+    // int     iteration = 0;
     size_t  id = 0;
     std::string root = server.root;
 
@@ -111,7 +111,7 @@ RequestServer::RequestServer(Config config, std::string port, std::string ip, st
         t_Location  location = server.locations.at(locId);
         for (int i = 0; i < LOCATION; i++)
             setToken(location, static_cast<e_TokenType>(i));
-        _location = path;
+        _location = location.path;
     }
 
     for (int i = 0; i < LOCATION; i++)
