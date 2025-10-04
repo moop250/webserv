@@ -131,7 +131,7 @@ RequestServer::~RequestServer() { }
 
 void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
 {
-    if (this->has(type))
+    if (this->has(type) && type != CGI_DATA)
     {
         return ;
     }
@@ -162,7 +162,8 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
             _storage = serv.upload_storage;
             break ;
         case CGI_DATA:
-            _cgi = serv.cgi;
+            for (std::map<std::string, std::string>::iterator i = serv.cgi.begin(); i != serv.cgi.end(); i++)
+                _cgi.insert(std::make_pair(i->first, i->second));
             break ;
         case CLIENT_MAX_BODY_SIZE:
             _clientBodySize = serv.client_max_body_size;
