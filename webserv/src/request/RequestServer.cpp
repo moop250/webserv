@@ -156,6 +156,7 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
             _autoindex = serv.autoindex;
             break ;
         case ERROR_PAGE:
+            //      todo --> sub to default
             _errorPages = ErrorPages(serv.error_pages);
             break ;
         case UPLOAD_STORAGE:

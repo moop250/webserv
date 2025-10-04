@@ -206,6 +206,10 @@ int main(int ac, char** av)
 		// return (-3);
 	// }
 // 
+	std::cout << "////////////////////////////////"
+			<< "\n\n";
+	std::cout << BLUE << "TESTING REQUEST SERVER\n" << RESET << std::flush;
+
 	std::string	server_name;
 	std::string	path;
 	std::string	port;
