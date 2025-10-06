@@ -168,7 +168,7 @@ int main(int ac, char** av)
 	// 					"1 1 + 6 *";
 
 	// // java
-	// connection.buffer = "POST /cgi/CGI.java HTTP/1.1\r\n"
+	// connection.buffer = "GET /cgi/CGI.java?q=Lausanne+42 HTTP/1.1\r\n"
 	// 					"Host: localhost1:8001\r\n"
 	// 					"Connection: Keep-Alive\r\n"
 	// 					"Keep-Alive: timeout=5, max=200\r\n"
@@ -176,15 +176,23 @@ int main(int ac, char** av)
 	// 					"\r\n"
 	// 					"Lausanne 42";
 
-	//	python		
-	connection.buffer = "POST /cgi/main.py HTTP/1.1\r\n"
+	// //	python		
+	// connection.buffer = "POST /cgi/main.py HTTP/1.1\r\n"
+	// 					"Host: localhost1:8001\r\n"
+	// 					"Connection: Keep-Alive\r\n"
+	// 					"Keep-Alive: timeout=5, max=200\r\n"
+	// 					"Content-Length: 11\r\n"
+	// 					"\r\n"
+	// 					"Lausanne 42";
+
+	//	c		
+	connection.buffer = "POST /cgi/main.c?q=cos%285%29 HTTP/1.1\r\n"
 						"Host: localhost1:8001\r\n"
 						"Connection: Keep-Alive\r\n"
 						"Keep-Alive: timeout=5, max=200\r\n"
-						"Content-Length: 11\r\n"
+						"Content-Length: 6\r\n"
 						"\r\n"
-						"Lausanne 42";
-
+						"cos(5)";
 
 	// // GET file
 	// connection.buffer = "GET /configFiles/goodConfigs/simple.config HTTP/1.1\r\n"
@@ -205,8 +213,6 @@ int main(int ac, char** av)
 		delete config;
 		return (-2);
 	}
-
-	std::cout << "File type : " << connection.getRequest().getFileType() << std::endl;
 
 	std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
 
