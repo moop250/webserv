@@ -20,5 +20,4 @@ print("\r\n")
 
 print("<html><body>")
 print("<h1>CGI Python OK </h1>")
-print("<p>QUERY_STRING = {}</p>".format(os.environ.get("QUERY_STRING", "")))
 print("</body></html>")
