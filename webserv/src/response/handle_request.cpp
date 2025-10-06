@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/06 18:36:50 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/06 22:17:26 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,12 +97,6 @@ int path_merge_cgi(Connection& connection) {
 	}
 	extension = path.substr(extension_pos);
 	cgi = connection.getServer().cgi();
-	
-	// loop checking cgi list
-	for (std::map<std::string, std::string>::iterator it = cgi.begin(); it != cgi.end(); it++) {
-		std::cout << it->first << " | " << it->second << std::endl;
-	}
-
 	if (cgi.count(extension) == 1) {
 		cgi_path = cgi[extension];
 	}
