@@ -167,14 +167,14 @@ int main(int ac, char** av)
 	// 					"\r\n"
 	// 					"1 1 + 6 *";
 
-	// java
-//	connection.buffer = "POST /cgi/CGI.java HTTP/1.1\r\n"
-//						"Host: localhost1:8001\r\n"
-//						"Connection: Keep-Alive\r\n"
-//						"Keep-Alive: timeout=5, max=200\r\n"
-//						"Content-Length: 11\r\n"
-//						"\r\n"
-//						"Lausanne 42";
+	// // java
+	// connection.buffer = "POST /cgi/CGI.java HTTP/1.1\r\n"
+	// 					"Host: localhost1:8001\r\n"
+	// 					"Connection: Keep-Alive\r\n"
+	// 					"Keep-Alive: timeout=5, max=200\r\n"
+	// 					"Content-Length: 11\r\n"
+	// 					"\r\n"
+	// 					"Lausanne 42";
 
 	//	python		
 	connection.buffer = "POST /cgi/main.py HTTP/1.1\r\n"
