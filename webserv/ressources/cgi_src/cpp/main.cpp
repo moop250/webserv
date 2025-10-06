@@ -6,17 +6,17 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 17:44:39 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/24 14:50:33 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/06 12:29:02 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RPN.hpp"
 
-void send_error() {
+void send_error(std::string message) {
 	std::cout << "Content-Type: text/plain\r\n";
 	std::cout << "Status: 200 OK\r\n";
-	std::cout << "Content-Length: 11\r\n\r\n";
-	std::cout << "Input Error";
+	std::cout << "Content-Length: " << message.size() << "\r\n\r\n";
+	std::cout << message;
 }
 
 void get_input(std::string& input) {
@@ -62,12 +62,11 @@ int main(void) {
 	} else if (method == "POST" || method == "Post" || method == "post") {
 		std::getline(std::cin, input);
 	} else {
-		send_error();
+		send_error("Error: Bad request method");
 		return -1;
 	}
-	std::cout << "method: " << method << " | input: " << input << std::endl;
 	if (rpn.doTheMagic(input) == -1) {
-		send_error();
+		send_error("Error: Bad input");
 		return -1;
 	}
 	return 0;

@@ -167,21 +167,22 @@ int main(int ac, char** av)
 	// 					"\r\n"
 	// 					"1 1 + 6 *";
 
-	// // java
-	// connection.buffer = "POST /cgi/CGI.java HTTP/1.1\r\n"
-	// 					"Host: localhost1:8001\r\n"
-	// 					"Connection: Keep-Alive\r\n"
-	// 					"Keep-Alive: timeout=5, max=200\r\n"
-	// 					"Content-Length: 11\r\n"
-	// 					"\r\n"
-	// 					"Lausanne 42";
+	// java
+	connection.buffer = "POST /cgi/CGI.java HTTP/1.1\r\n"
+						"Host: localhost1:8001\r\n"
+						"Connection: Keep-Alive\r\n"
+						"Keep-Alive: timeout=5, max=200\r\n"
+						"Content-Length: 11\r\n"
+						"\r\n"
+						"Lausanne 42";
 
-	// GET file
-	connection.buffer = "GET /configFiles/goodConfigs/simple.config HTTP/1.1\r\n"
-					"Host: localhost1:8001\r\n"
-					"Connection: Keep-Alive\r\n"
-					"Keep-Alive: timeout=5, max=200\r\n"
-					"\r\n";
+	// // GET file
+	// connection.buffer = "GET /configFiles/goodConfigs/simple.config HTTP/1.1\r\n"
+	// 				"Host: localhost1:8001\r\n"
+	// 				"Connection: Keep-Alive\r\n"
+	// 				"Keep-Alive: timeout=5, max=200\r\n"
+	// 				"\r\n";
+
 	int code = parse_request(connection, *config);
 	// std::cout << code << std::endl;
 	if (code != -1) {
@@ -194,6 +195,7 @@ int main(int ac, char** av)
 		delete config;
 		return (-2);
 	}
+	std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	
@@ -206,40 +208,6 @@ int main(int ac, char** av)
 		// return (-3);
 	// }
 // 
-	std::cout << "////////////////////////////////"
-			<< "\n\n";
-	std::cout << BLUE << "TESTING REQUEST SERVER\n" << RESET << std::flush;
-
-	std::string	server_name;
-	std::string	path;
-	std::string	port;
-	std::string	ip;
-
-	server_name = "localhost1";
-	path = "ressources/cgi/cpp/RPN.cpp";
-	port = "8001";
-	ip = "127.0.0.1";
-
-	RequestServer server(*config, port, ip, server_name, path);
-	// //-> RequestServer server(config, port, ip, server_name, path);
-
-	std::cout << server;
-
-	Connection		connection;
-	connection.buffer = "POST /ressources/cgi/cpp/RPN.cpp HTTP/1.1\r\n"
-						"Host: localhost1:8001\r\n"
-						"Connection: Keep-Alive\r\n"
-						"Keep-Alive: timeout=5, max=200\r\n"
-						"Content-Length: 9\r\n"
-						"\r\n"
-						"1 1 + 6 *";
-	int code = parse_request(connection, *config);
-	std::cout << code << std::endl;
-	if (code != -1) {
-		code = handle_request(connection);
-		std::cout << code << std::endl;
-	}
-	std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
 
 	delete config;
 	return 0;
