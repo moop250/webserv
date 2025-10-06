@@ -54,21 +54,26 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 	std::vector<char*>	av;
 	std::string			path;
 	std::string			cgi_path;
+	std::string			fileType;
 
 //	std::cout << "CGI launch\n";
 	path = connection.getRequest().getPath();
-	if (connection.getRequest().getFileType() == ".java") {
+	fileType = connection.getRequest().getFileType();
+	if (fileType == ".java") {
 		cgi_path = path;
 		av.push_back(const_cast<char*>("/bin/java"));
 		av.push_back(const_cast<char*>("-cp"));
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 		av.push_back(const_cast<char*>("CGI"));
-	} else if (connection.getRequest().getFileType() == ".cpp") {
+	} else if (fileType == ".cpp") {
 		cgi_path = path + "RPN";
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
-	} else if (connection.getRequest().getFileType() == ".py") {
+	} else if (fileType == ".py") {
 		cgi_path = path + "main.py";
 		av.push_back(const_cast<char*>("/usr/bin/python3"));
+		av.push_back(const_cast<char*>(cgi_path.c_str()));
+	} else if (fileType == ".c") {
+		cgi_path = path + "calculator";
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 	} else {
 		exit(-1);
