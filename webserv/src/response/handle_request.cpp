@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/03 19:13:25 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/06 18:34:50 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ void path_merge_non_cgi(Connection& connection) {
 }
 
 int path_merge_cgi(Connection& connection) {
+	std::string::size_type				extension_pos;
 	std::string							path;
 	std::string							extension;
 	std::string							root;
@@ -89,7 +90,12 @@ int path_merge_cgi(Connection& connection) {
 	std::map<std::string, std::string>	cgi;
 
 	path = connection.getRequest().getPath();
-	extension = path.substr(path.rfind('.'));
+	extension_pos = path.rfind('.');
+	if (extension_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return -1;
+	}
+	extension = path.substr(extension_pos);
 	cgi = connection.getServer().cgi();
 	
 	// loop checking cgi list
