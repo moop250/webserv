@@ -146,7 +146,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 stream << RED << "\t\t\tUNDEFINED" << RESET;
             else
                 for (std::map<std::string, std::string>::iterator k = i->data.cgi.begin(); k != i->data.cgi.end(); k++)
-                    stream << "\t\t\textension : " << k->first << " <==> path : " << k->second;  
+                    stream << "\t\t\textension : " << k->first << " <==> path : " << k->second << '\n'; 
             stream << '\n';  
             stream << "\t\tError pages : \n";
             if (i->data.error_pages.empty())
