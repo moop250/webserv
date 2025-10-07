@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/21 11:18:20 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/07 19:07:21 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,9 +82,6 @@ int parse_URL(Connection& connection) {
 		query_pos = url.find("?");
 		if (query_pos != std::string::npos) {
 			std::string query = extract_Query(url, query_pos);
-			if (query == "") {
-				return BAD_REQUEST;
-			}
 			connection.getRequest().setQuery(query);
 			url.erase(query_pos, url_pos);
 		}

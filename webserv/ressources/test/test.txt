@@ -1,0 +1,4 @@
+Hello, new text will be append here
+content=This is a test from html
+content=another test
+remove content?

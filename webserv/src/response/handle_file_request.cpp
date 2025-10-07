@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/03 19:08:11 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/07 20:01:18 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,11 +85,6 @@ int post_file(Connection& connection) {
 	std::string		body;
 
 	path = connection.getRequest().getPath();
-
-	// remove later
-	if (path[0] == '/')
-		path.erase(0, 1);
-	
 	fd = open(path.c_str(), O_WRONLY | O_APPEND, 0644);
 	if (fd < 0) {
 		switch (errno) {
@@ -105,6 +100,8 @@ int post_file(Connection& connection) {
 	// extension validation so eg: not append jpeg into html?
 	total = 0;
 	body = connection.getRequest().getBody();
+	if (body.substr(0, 8) == "content=")
+		body.erase(0, 8);
 	while (total < body.size()) {
 		// Blocking here
 		written = write(fd, body.c_str() + total, body.size() - total);

@@ -92,7 +92,7 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 
 // stuffs to do
 // update pollfd here
-// put a timeout here
+// timeout should be managed by poll()
 int parent_reap_output(Connection& connection, int in[2], int out[2], std::string& output) {
 	std::string	body;
 	char		buffer[4096];
@@ -207,6 +207,7 @@ int parse_cgi_output(Connection& connection, std::string& output) {
 }
 
 // stuffs to do
+// timeout should be managed by poll()
 int CGI_handler(Connection& connection) {
 	std::vector<std::string>	env_string;
 	std::vector<char*>			env_pointer;
@@ -244,7 +245,6 @@ int CGI_handler(Connection& connection) {
 			break ;
 		default:
 			parent_reap_output(connection, in, out, output);
-			// timeout here
 			waitpid(pid, &status, 0);
 			return parse_cgi_output(connection, output);
 	}
