@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/03 19:07:45 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/07 20:22:45 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,16 +24,9 @@ int case_index(Connection& connection, std::string& index) {
 	long		n;
 	std::string	body;
 	
+	index = connection.getRequest().getPath() + index;
 	fd = open(index.c_str(), O_RDONLY);
 	if (fd < 0) {
-		switch (errno) {
-			case EACCES:
-				error_response(connection, FORBIDDEN);
-				break ;
-			default:
-				error_response(connection, INTERNAL_ERROR);
-				break;
-		}
 		return -1;
 	}
 	while (true) {
@@ -47,7 +40,6 @@ int case_index(Connection& connection, std::string& index) {
 		}
 		if (n < 0) {
 			close(fd);
-			error_response(connection, INTERNAL_ERROR);
 			return -1;
 		}
 	}
@@ -58,7 +50,7 @@ int case_index(Connection& connection, std::string& index) {
 	connection.getResponse().setHeader("Content-Type", "text/html");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	std::cout << connection.getResponse() << std::endl;
+	// std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
 
@@ -74,12 +66,10 @@ int case_autoindex(Connection& connection) {
 		path.erase(0, 1);
 	dir = opendir(path.c_str());
 	if (dir == NULL) {
-		if (errno == EACCES)
-			error_response(connection, FORBIDDEN);
-		else
-			error_response(connection, INTERNAL_ERROR);
 		return -1;
 	}
+	if (path[path.size() - 1] != '/')
+		path += "/";
 	while (true) {
 		ent = readdir(dir);
 		if (ent == NULL)
@@ -88,14 +78,13 @@ int case_autoindex(Connection& connection) {
 		if (file_name == "." || file_name == "..")
 			continue;
 		list = list + "      <li><a href="
-					+ path
-					+ "/"
 					+ file_name
 					+ ">"
 					+ file_name
 					+ "</a></li>\n";
 	}
-	list.erase(list.size() - 1);
+	if (!list.empty())
+		list.erase(list.size() - 1);
 	closedir(dir);
 	buffer = "<!DOCTYPE html>\n"
 			"\n"
@@ -120,10 +109,9 @@ int case_autoindex(Connection& connection) {
 	return 0;
 }
 
-// Untested for autoindex case because config is wonky
 // index specified -> return index.html of that location/server
 // auto-index on -> return the list of files in that directory in html
-// both auto-index off and no index specified -> 403 Fobidden
+// both auto-index off and no index specified or error -> 403 Fobidden
 int get_directory(Connection& connection) {
 	std::string		index;
 	bool			autoindex;
@@ -135,20 +123,16 @@ int get_directory(Connection& connection) {
 		return -1;
 	}
 	if (!index.empty()) {
-		
-		// To test only
-		// fix later to replace with absolute path
-		// index = ".." + index;
 		if (index[0] == '/')
 			index.erase(0, 1);
-
 		if (case_index(connection, index) == 0)
 			return 0;
 	}
 	if (autoindex == true) {
-		return case_autoindex(connection);
+		if (case_autoindex(connection) == 0)
+			return 0;
 	}
-	error_response(connection, NOT_FOUND);
+	error_response(connection, FORBIDDEN);
 	return -1;
 }
 
@@ -168,11 +152,13 @@ std::string generate_name(const std::string& extension) {
 // Create a file with request body as content.
 // File's name is chosen by server.
 // stuffs to do
+// to remake because doesnt work
 // Blocking
 int post_directory(Connection& connection) {
 	std::string		file_name;
 	std::string		path;
 	std::string		extension;
+	std::string		root;
 	int				fd;
 	size_t			total;
 	long			written;
@@ -180,8 +166,13 @@ int post_directory(Connection& connection) {
 
 	if (connection.getServer().storage().empty())
 		path = connection.getRequest().getPath();
-	else
+	else {
+		root = connection.getServer().root();
+		if (root[root.size() - 1] == '/')
+			root.erase(root.size() - 1);
 		path = connection.getServer().storage();
+		path = root + path;
+	}
 	if (path[0] == '/')
 		path.erase(0, 1);
 	extension = getExtension(connection.getRequest().getContentType());
