@@ -122,11 +122,7 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 	addrLen = sizeof newRemote;
 	remoteFD = accept(fd, (struct sockaddr *)&newRemote,&addrLen);
 	if (remoteFD == -1) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK) {
-			return NOCONNCECTION;
-		} else {
-			return ACCEPTERROR;
-		}
+		return ACCEPTERROR;
 	}
 	addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
 
@@ -141,13 +137,10 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf) {
 	Connection *connect = &connectMap->at(fd);
 		std::string buf(8192, '\0');
-	
+
 		int nbytes = recv(fd, &buf[0], buf.size(), 0);
 		if (nbytes < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return CONTINUE_READ;
-			else
-				return RECVERROR;
+			return RECVERROR;
 		} else if (nbytes == 0)
 			return HUNGUP;
 
@@ -215,7 +208,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 
 	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
-	size_t remainingBytes = out.size(), offset = 0;
+	ssize_t remainingBytes = out.size(), offset = 0;
 	const char *buf = out.c_str();
 
 	if (connect.getOffset() > 0) {
@@ -224,23 +217,15 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		remainingBytes -= offset;
 	}
 
-	ssize_t status = send(fd, buf, remainingBytes, MSG_DONTWAIT);
+	ssize_t status = send(fd, buf, remainingBytes, 0);
+	if (status < 0)
+		return 2;
 	if (status == 0)
 		return 5;
-	if (status < 0) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK){
-			connect.setOffset(offset); 
-			return 1;
-		} else if (errno == EFAULT || errno == EINVAL) {
-			throw std::runtime_error("Send error: " + std::string(strerror(errno)));
-		} else {
-			return 2;
-		}
-	}
 
 	remainingBytes -= status;
+	offset += status;
 	if (remainingBytes > 0) {
-		offset += status;
 		connect.setOffset(offset);
 		return 1;
 	} 
