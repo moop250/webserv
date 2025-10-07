@@ -35,6 +35,7 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
             str2 = getStr(tokenLine, _Tokens[type]);
             eraseLine(tokenLine, str2);
             loc.data.cgi.insert(std::make_pair(str, str2));
+            std::cout << "A new cgi in location  !! " << std::endl;
             break ;
         case CLIENT_MAX_BODY_SIZE:
             loc.data.client_max_body_size = atoll(tokenLine.c_str());
@@ -67,18 +68,22 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content, std::str
     loc.path = path;
     for (int i = 0; i < TOKEN_TYPE_COUNT; i++)
     {
-        range[1] = content.find("}");
-        if (range[0] == std::string::npos || range[0] > range[1])
-            break ;
-        if (!(pos = findToken(content, range, static_cast<e_TokenType>(i))))
+        while (1)
         {
-            if (i == LOCATION)
-                assignDefaultToken(loc.data, content, pos, i);
-        }
-        else
-        {
-            if (pos != SIZE_MAX)
-                assignToken(loc, content, pos, i);
+            range[1] = content.find("}");
+            if (range[0] == std::string::npos || range[0] > range[1])
+                break ;
+            if (!(pos = findToken(content, range, static_cast<e_TokenType>(i))))
+            {
+                if (i == LOCATION)
+                    assignDefaultToken(loc.data, content, pos, i);
+                break ;
+            }
+            else
+            {
+                if (pos != SIZE_MAX)
+                    assignToken(loc, content, pos, i);
+            }
         }
     }
     eraseLine(content, tokenLine);
@@ -86,4 +91,3 @@ void    Config::parseLocation(t_ServerData &serv, std::string &content, std::str
     eraseLine(content, "}");
     serv.locations.push_back(loc);
 }
-

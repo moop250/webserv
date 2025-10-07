@@ -70,16 +70,24 @@ static size_t   findServer(Config config, std::string name)
     return std::string::npos;
 }
 
+/* TRIER QUELQUES CAS (CERTAINS ME SEMBLENT SUSPECTS)*/
 static size_t   findLocation(std::string path, t_ServerData server)
 {
+    // int     iteration = 0;
     size_t  id = 0;
     std::string root = server.root;
 
+//    std::cout << "PATH TO FIND IN LOCATION : " << path << std::endl;
     if (root.find("UNDEFINED") != std::string::npos)
         root = "";
     for (std::vector<t_Location>::iterator i = server.locations.begin(); i < server.locations.end(); i++)
     {
-        if (levenshtein(i->path, root + path) < 2)
+        // std::cout << "COMPARING WITH PATH IN SERVER : " << iteration++ << " : " << i->path << std::endl;
+        if (path.find(i->path) != std::string::npos
+            || levenshtein(i->path, root + path) < 2
+            || path == i->path
+            || levenshtein(i->path, path) < 2
+        )
             return id;
         id++;
     }
@@ -103,7 +111,7 @@ RequestServer::RequestServer(Config config, std::string port, std::string ip, st
         t_Location  location = server.locations.at(locId);
         for (int i = 0; i < LOCATION; i++)
             setToken(location, static_cast<e_TokenType>(i));
-        _location = path;
+        _location = location.path;
     }
 
     for (int i = 0; i < LOCATION; i++)
@@ -123,7 +131,7 @@ RequestServer::~RequestServer() { }
 
 void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
 {
-    if (this->has(type))
+    if (this->has(type) && type != CGI_DATA)
     {
         return ;
     }
@@ -148,13 +156,15 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
             _autoindex = serv.autoindex;
             break ;
         case ERROR_PAGE:
+            //      todo --> sub to default
             _errorPages = ErrorPages(serv.error_pages);
             break ;
         case UPLOAD_STORAGE:
             _storage = serv.upload_storage;
             break ;
         case CGI_DATA:
-            _cgi = serv.cgi;
+            for (std::map<std::string, std::string>::iterator i = serv.cgi.begin(); i != serv.cgi.end(); i++)
+                _cgi.insert(std::make_pair(i->first, i->second));
             break ;
         case CLIENT_MAX_BODY_SIZE:
             _clientBodySize = serv.client_max_body_size;
@@ -298,6 +308,7 @@ RequestServer   &RequestServer::operator=(const RequestServer &srv)
         _redirect = srv._redirect;
         _clientBodySize = srv._clientBodySize;
         _autoindex = srv._autoindex;
+        _location = srv._location;
     }
     return *this;
 }

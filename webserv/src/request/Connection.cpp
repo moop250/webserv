@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/23 11:48:45 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/03 19:07:07 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 // -------- CONSTRUCTORS/DESTRUCTORS --------------
 
-// stuffs to do
-// set default server
 Connection::Connection() {
 	this->state = READING_METHOD;
 	this->chunked_size = -1;

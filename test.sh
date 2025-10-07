@@ -44,7 +44,7 @@ fi
 ####################################################
 
 LOG_DIR="./logs"
-mkdir -p "$LOG_DIR"
+mkdir "$LOG_DIR"
 NGINX_LOG="$LOG_DIR/nginxLogRequest.txt"
 WEBSERV_LOG="$LOG_DIR/webservLogRequest.txt"
 

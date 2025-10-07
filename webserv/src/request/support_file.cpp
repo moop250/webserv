@@ -6,22 +6,11 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 20:14:22 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/24 11:56:27 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/03 17:40:18 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "support_file.hpp"
-
-std::set<std::string> listCGI() {
-	std::set<std::string> supported;
-	// check with config file to change implementation !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	supported.insert(".cpp");
-	supported.insert(".java");
-	supported.insert(".js");
-	supported.insert(".php");
-	supported.insert(".py");
-	return supported;
-}
 
 std::map<std::string, std::string> listExtension() {
 	std::map<std::string, std::string> format;
@@ -47,16 +36,8 @@ std::map<std::string, std::string> listDataType() {
 	return format;
 }
 
-std::set<std::string> supportCgiExtension = listCGI();
 std::map<std::string, std::string> supportExtension = listExtension();
 std::map<std::string, std::string> supportDataType = listDataType();
-
-
-bool isCGI(std::string& extension) {
-	if (supportCgiExtension.count(extension) == 1)
-		return true;
-	return false;
-}
 
 std::string getMIMEType(const std::string extension) {
 	std::map<std::string, std::string>::const_iterator it = supportExtension.find(extension);
