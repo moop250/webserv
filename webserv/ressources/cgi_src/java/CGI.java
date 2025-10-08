@@ -29,15 +29,20 @@ public class CGI {
 			}
 			String result = input.toUpperCase().replace('2', '4');
 
-			System.out.print("Content-Type: text/html\r\n");
-			System.out.print("Content-Length: " + (128 + input.length() + result.length()) + "\r\n\r\n");
+			StringBuilder html = new StringBuilder();
+			html.append("<!DOCTYPE html>");
+			html.append("<html><head><title>Result</title></head><body>");
+			html.append("<h1>Result</h1>");
+			html.append("<p>Before: ").append(input).append("</p>");
+			html.append("<p>After: ").append(result).append("</p>");
+			html.append("</body></html>");
 
-			System.out.println("<!DOCTYPE html>");
-			System.out.println("<html><head><title>Result</title></head><body>");
-			System.out.println("<h1>Result</h1>");
-			System.out.println("<p>Before: " + input + "</p>");
-			System.out.println("<p>After: " + result + "</p>");
-			System.out.println("</body></html>");
+			byte[] htmlBytes = html.toString().getBytes(StandardCharsets.UTF_8);
+
+			System.out.print("Content-Type: text/html\r\n");
+			System.out.print("Content-Length: " + htmlBytes.length + "\r\n\r\n");
+			System.out.write(htmlBytes);
+			System.out.flush();
 		} catch(NullPointerException e) {
 			System.out.print("Content-Length: 9\r\n");
 			System.out.print("Content-Type: text/plain\r\n\r\n");
