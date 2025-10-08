@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/03 19:07:16 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/08 12:09:29 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -238,8 +238,8 @@ int headers_content_check(Connection& connection, Config& config) {
 	if (host.empty())
 		return BAD_REQUEST;
 	parse_host(connection, host);
-	if (connection.getReconnect() == false)
-		matching_server(connection, config);
+	// if (connection.getReconnect() == false)
+	matching_server(connection, config);
 	redirect = connection.getServer().redirect();
 	if (!redirect.empty())
 		return parse_redirect(connection, redirect);

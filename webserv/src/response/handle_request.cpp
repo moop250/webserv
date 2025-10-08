@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/07 16:04:16 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/08 12:31:25 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,6 +124,11 @@ int handle_request(Connection& connection) {
 
 	location = connection.getServer().getLocation();
 	if (location == "/cgi" || location == "/cgi/") {
+		std::cout << "method: " << connection.getRequest().getMethod() << std::endl;
+		if (connection.getRequest().getMethod() == "DELETE") {
+			error_response(connection, METHOD_NOT_ALLOWED);
+			return -1;
+		}
 		if (path_merge_cgi(connection) == -1) {
 			return -1;
 		}

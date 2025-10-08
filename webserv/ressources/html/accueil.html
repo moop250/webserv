@@ -236,9 +236,22 @@
             <h3>DELETE</h3>
             <p>Use DELETE method to get an error</p>
           </div>
-          <form method="DELETE" action="/upload/">
-            <button type="submit">Show me a 403 error</button>
-          </form>
+          <button onclick="sendDirDelete()">Show me a 403 error</button>
+          <script>
+          function sendDirDelete() {
+            fetch('/upload/', { method: 'DELETE' })
+              .then(res => {
+                if (res.status === 403) {
+                  alert('Server returned 403 Forbidden');
+                } else {
+                  alert('Response: ' + res.status);
+                }
+              })
+              .catch(err => {
+                alert('Error: ' + err.message);
+              });
+          }
+          </script>
         </div>
 
       </div>
@@ -269,7 +282,22 @@
             <h3>DELETE</h3>
             <p>Use DELETE method to get an error</p>
           </div>
-          <button>In progress</button>
+          <button onclick="sendCgiDelete()">Show me a 405 error</button>
+          <script>
+          function sendCgiDelete() {
+            fetch('/cgi/', { method: 'DELETE' })
+              .then(res => {
+                if (res.status === 405) {
+                  alert('Server returned 405 Method Not Allowed');
+                } else {
+                  alert('Response: ' + res.status);
+                }
+              })
+              .catch(err => {
+                alert('Error: ' + err.message);
+              });
+          }
+          </script>
         </div>
 
       </div>
