@@ -153,7 +153,7 @@ std::ostream    &operator<<(std::ostream &stream, Config &conf)
                 stream << RED << "\t\t\tUNDEFINED" << RESET;
             else
                 for (std::map<int, std::string>::iterator k = i->data.error_pages.begin(); k != i->data.error_pages.end(); k++)
-                    stream << "\t\t" << k->first << " <==> " << k->second << '\n';
+                    stream << "\t\t\t" << k->first << " <==> " << k->second << '\n';
             stream << "\n\n";
         }
         stream << "\n\n";

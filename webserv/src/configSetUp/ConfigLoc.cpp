@@ -7,8 +7,6 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
     std::string str2 = "UNDEFINED";
     int         nb = -1;
 
-    if (type == ERROR_PAGE)
-        std::cout << GREEN << "NEW ERROR PAGE IN LOCATION\n" << RESET << std::flush;
     tokenLine = getTokenLine(content, _Tokens[type], pos);
     eraseLine(content, tokenLine);
     sanitizeLine(tokenLine);
@@ -24,7 +22,9 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
             loc.data.autoindex = (tokenLine == "ON" || tokenLine == "on");
             break ;
         case ERROR_PAGE:
-            nb = getNb(tokenLine, _Tokens[type]);
+            str = getStr(tokenLine, _Tokens[type]);
+            eraseLine(tokenLine, str);
+            nb = atoi(str.c_str());
             str = getStr(tokenLine, _Tokens[type]);
             loc.data.error_pages.insert(std::make_pair(nb, str));
             break ;
@@ -37,7 +37,6 @@ void    Config::assignToken(t_Location &loc, std::string &content, size_t pos, i
             str2 = getStr(tokenLine, _Tokens[type]);
             eraseLine(tokenLine, str2);
             loc.data.cgi.insert(std::make_pair(str, str2));
-            std::cout << "A new cgi in location  !! " << std::endl;
             break ;
         case CLIENT_MAX_BODY_SIZE:
             loc.data.client_max_body_size = atoll(tokenLine.c_str());
