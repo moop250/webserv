@@ -59,6 +59,7 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 //	std::cout << "CGI launch\n";
 	path = connection.getRequest().getPath();
 	fileType = connection.getRequest().getFileType();
+	std::cout << "path is : " << path << std::endl;
 	if (fileType == ".java") {
 		cgi_path = path;
 		av.push_back(const_cast<char*>("/bin/java"));
@@ -69,7 +70,11 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 		cgi_path = path + "RPN";
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 	} else if (fileType == ".py") {
-		cgi_path = path + "main.py";
+		if (path.find(".py") == std::string::npos) {
+			cgi_path = path + "main.py";
+		} else {
+			cgi_path = path;
+		}
 		av.push_back(const_cast<char*>("/usr/bin/python3"));
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 	} else if (fileType == ".c") {
