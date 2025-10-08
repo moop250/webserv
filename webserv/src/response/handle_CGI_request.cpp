@@ -218,10 +218,6 @@ int CGI_handler(Connection& connection) {
 	std::string					output;
 	int							status;
 	
-	if (connection.getRequest().getMethod() == "DELETE") {
-		error_response(connection, METHOD_NOT_ALLOWED);
-		return -1;
-	}
 	set_env(connection, env_string);
 	env = build_env(env_string, env_pointer);
 	if (pipe(in) < 0) { 
