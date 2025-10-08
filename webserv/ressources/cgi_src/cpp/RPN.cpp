@@ -145,15 +145,20 @@ long str_to_int(std::string& input) {
 }
 
 void print_result(std::string& input, std::string& result) {
+	std::stringstream html;
+	html << "<!DOCTYPE html>\n"
+		<< "<html><head><title>Result</title></head><body>\n"
+		<< "<h1>Result</h1>\n"
+		<< "<p>Before: " << input << "</p>\n"
+		<< "<p>After: " << result << "</p>\n"
+		<< "</body></html>";
+
+	std::string html_str = html.str();
 	std::cout << "Content-Type: text/html\r\n";
 	std::cout << "Status: 200 OK\r\n";
-	std::cout << "Content-Length: " << (124 + input.size() + result.size()) << "\r\n\r\n";
-	std::cout << "<!DOCTYPE html>\n";
-	std::cout << "<html><head><title>Result</title></head><body>\n";
-	std::cout << "<h1>Result</h1>\n";
-	std::cout << "<p>Before: " << input << "</p>\n";
-	std::cout << "<p>After: " << result << "</p>\n";
-	std::cout << "</body></html>";
+	std::cout << "Content-Length: " << html_str.size() << "\r\n\r\n";
+	std::cout << html_str;
+	std::cout.flush();
 }
 
 std::string int_to_str(int number) {
