@@ -189,6 +189,10 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					return 1;
 			}
 			break ;
+		} case CGI_IN: {
+			// handle sending data to the CGI
+
+			return 1;
 		} default:
 			std::cout << RED << "[ERROR] : " << WHITE << "Unknown POLLIN type" << RESET << std::endl;
 	}
@@ -259,6 +263,12 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			}
 		}
 		if (fdInfo->fds.at(i).revents & POLLOUT) {
+			if (fdInfo->fdTypes.at(fd) == CGI_OUT) {
+				// parse incoming CGI data probably in chunks
+
+				continue;
+			}
+
 			// make sure connection isnt awaiting a cgi connection
 			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				handle_request(connectMap->at(fd));
