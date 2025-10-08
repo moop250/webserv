@@ -18,6 +18,7 @@ class ErrorPages
         ErrorPages& operator=(const ErrorPages& pages);
         ~ErrorPages();
 
+        void        setNb(int newValue);
         void        add(int error, std::string path);
         void        add(RequestError error, std::string path);
 

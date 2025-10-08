@@ -77,6 +77,12 @@ ErrorPages::~ErrorPages() {
     return ;
 }
 
+void        ErrorPages::setNb(int newValue)
+{
+    this->_nbPages = newValue;
+}
+
+
 void    ErrorPages::add(int error, std::string path)
 {
     std::cout << "Path is : " << path << std::endl;
@@ -98,7 +104,10 @@ void    ErrorPages::add(int error, std::string path)
         content.append("\n");
     }
 
+    // std::cout << "CONTENT : " << content;
     this->_html_content.push_back(content);
+    this->setNb(_nbPages + 1);
+
     return ; (void)error;
 }
 
