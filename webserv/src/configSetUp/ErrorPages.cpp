@@ -138,6 +138,8 @@ void    ErrorPages::replace(int error, std::string path)
             content.append("\n");
         }
     }
+    
+    std::cout <<  "\n\n YAYYYY\n\n" << content;
     this->_html_content[pos] = content;
     return ;
 }
