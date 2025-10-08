@@ -1,4 +1,5 @@
 #include "ErrorPages.hpp"
+#include "Error.hpp"
 
 ErrorPages::ErrorPages()
 {
@@ -75,6 +76,40 @@ ErrorPages& ErrorPages::operator=(const ErrorPages& pages) {
 ErrorPages::~ErrorPages() {
     return ;
 }
+
+void    ErrorPages::add(int error, std::string path)
+{
+    std::ifstream   stream(path);
+    std::string     content = "";
+    std::string     line;
+
+    if (!stream.is_open())
+        Error("Unvalid path", __func__, "ErrorPages::add(int, std::string)", __LINE__); return ;
+
+    this->_data.insert(std::make_pair(error, path));    
+
+    while (std::getline(stream, line))
+        content.append(line); content.append("\n");
+
+    this->_html_content.push_back(content);
+    return ; (void)error;
+}
+
+void    ErrorPages::add(RequestError error, std::string path)
+{
+    this->add(macrosLinkRequest(error), path);
+}
+
+void    ErrorPages::replace(int error, std::string path)
+{
+    return ;
+}
+
+void    ErrorPages::replace(RequestError error, std::string path)
+{
+    return ;
+}
+
 
 int ErrorPages::getNbPages() const { return _nbPages; }
 

@@ -141,17 +141,26 @@ int main(int ac, char** av)
 		delete config;
 		return (-2);
 	}
+	std::string path, ip, name, port;
+	path = "";
+	ip = "127.0.0.1";
+	name = "localhost1";
+	port = "8001";
 
-	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
-	
-	try {
-		eventLoop(config, socket);
-	} catch (std::exception &e) {
-		std::cerr << RED << e.what() << RESET << std::endl;
-		delete config;
-		delete socket;
-		return (-3);
-	}
+	RequestServer	rs(*config, port, ip, name, path);
+	std::cout << rs << std::endl;
+	std::cout << rs.errorPages().content(REQUEST_ERROR_NOT_FOUND) << std::endl;
+
+	// dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
+	// 
+	// try {
+		// eventLoop(config, socket);
+	// } catch (std::exception &e) {
+		// std::cerr << RED << e.what() << RESET << std::endl;
+		// delete config;
+		// delete socket;
+		// return (-3);
+	// }
 
 
 	//Connection		connection;
@@ -215,18 +224,6 @@ int main(int ac, char** av)
 //	}
 
 //	std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
-
-	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
-	
-	try {
-		eventLoop(config, socket);
-	} catch (std::exception &e) {
-		std::cerr << RED << e.what() << RESET << std::endl;
-		delete config;
-		delete socket;
-		return (-3);
-	}
-
 
 	delete config;
 	return 0;

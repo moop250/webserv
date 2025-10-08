@@ -6,13 +6,23 @@
 
 class ErrorPages
 {
-    int _nbPages;
+    private:
+        int _nbPages;
+        std::vector<std::string>    _html_content;
+        std::map<int, std::string>  _data;
+        int     macrosLinkRequest(RequestError error) const;
     public:
         ErrorPages();
         ErrorPages(std::map<int, std::string>);
         ErrorPages(const ErrorPages& copy);
         ErrorPages& operator=(const ErrorPages& pages);
         ~ErrorPages();
+
+        void        add(int error, std::string path);
+        void        add(RequestError error, std::string path);
+
+        void        replace(int error, std::string path);
+        void        replace(RequestError error, std::string path);
 
         int         getNbPages() const;
         int         error(int index = 0) const;
@@ -26,12 +36,7 @@ class ErrorPages
         bool        has(RequestError error);
 
         int         find(int error) const;
-        int         find(RequestError error) const;
-    private:
-        std::vector<std::string>    _html_content;
-        std::map<int, std::string>  _data;
-        int     macrosLinkRequest(RequestError error) const;
-        
+        int         find(RequestError error) const;        
 };
 
 #endif
