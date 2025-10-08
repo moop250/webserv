@@ -211,26 +211,35 @@ std::string ErrorPages::content(RequestError error) const
 
 int     ErrorPages::macrosLinkRequest(RequestError error) const
 {
-    switch (error)
-    {
-    case REQUEST_ERROR_BAD_REQUEST:
-        return BAD_REQUEST;
-    case REQUEST_ERROR_NOT_FOUND:
-        return NOT_FOUND;
-    case REQUEST_ERROR_NOT_ALLOWED:
-        return METHOD_NOT_ALLOWED;
-    case REQUEST_ERROR_LENGTH:
-        return LENGTH_REQUIRED;
-    case REQUEST_ERROR_TOO_LARGE:
-        return CONTENT_TOO_LARGE;
-    case REQUEST_ERROR_NOT_IMPLEMENTED:
-        return NOT_IMPLEMENTED;
-    case REQUEST_ERROR_HTTP_MISSMATCH:
-        return HTTP_VERSION_MISMATCH;
-    case REQUEST_ERROR_INTERNAL_ERROR:
-        return INTERNAL_ERROR;
-    default:
-        break;
+    switch (error) {
+        case REQUEST_ERROR_MOVED_PERMANENTLY:
+            return 301;
+        case REQUEST_ERROR_FOUND:
+            return 302;
+        case REQUEST_ERROR_BAD_REQUEST:
+            return 400;
+        case REQUEST_ERROR_FORBIDDEN:
+            return 403;
+        case REQUEST_ERROR_NOT_FOUND:
+            return 404;
+        case REQUEST_ERROR_METHOD_NOT_ALLOWED:
+            return 405;
+        case REQUEST_ERROR_LENGTH_REQUIRED:
+            return 411;
+        case REQUEST_ERROR_CONTENT_TOO_LARGE:
+            return 413;
+        case REQUEST_ERROR_UNSUPPORTED_MEDIA_TYPE:
+            return 415;
+        case REQUEST_ERROR_INTERNAL_ERROR:
+            return 500;
+        case REQUEST_ERROR_NOT_IMPLEMENTED:
+            return 501;
+        case REQUEST_ERROR_HTTP_VERSION_MISMATCH:
+            return 505;
+        case REQUEST_ERROR_OTHER:
+            break;
+        default:
+            break ;
     }
     return (0);
 }

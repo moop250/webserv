@@ -170,7 +170,7 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
                 {
                     if (!_errorPages.has(i->first))
                     {
-                        _errorPages.add(i->first, i->second);
+                        _errorPages.replace(i->first, i->second);
                         std::cout << "HAS!" << std::endl;
                     }
                     std::cout << "Iter First : " << i->first << "\n";
