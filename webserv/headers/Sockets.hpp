@@ -22,7 +22,7 @@ enum fdTypes {
 	SERVER,
 	CLIENT,
 	CGI_IN,
-	CFI_OUT
+	CGI_OUT
 };
 
 enum fdStatus {
