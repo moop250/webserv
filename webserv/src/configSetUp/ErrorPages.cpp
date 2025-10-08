@@ -79,7 +79,8 @@ ErrorPages::~ErrorPages() {
 
 void    ErrorPages::add(int error, std::string path)
 {
-    std::ifstream   stream(path.c_str());
+    std::cout << "Path is : " << path << std::endl;
+    std::ifstream   stream(std::string("ressources/" + path).c_str());
     std::string     content = "";
     std::string     line;
 
@@ -110,13 +111,15 @@ void    ErrorPages::replace(int error, std::string path)
 {
     int pos = this->find(error);
 
+    std::cout << GREEN << "REPLACE !" << RESET << std::endl;
     if (pos == -1)
         return this->add(error, path);
 
     this->_data[error] = path;
     std::string content = "";
     std::string line;
-    std::ifstream   stream(path.c_str());
+    std::cout << "path is : " << path << std::endl;
+    std::ifstream   stream(std::string("ressources/" + path).c_str());
 
     if (stream.is_open())
     {

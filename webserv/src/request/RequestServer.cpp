@@ -131,7 +131,7 @@ RequestServer::~RequestServer() { }
 
 void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
 {
-    if (this->has(type) && type != CGI_DATA)
+    if (this->has(type) && type != CGI_DATA && type != ERROR_PAGE)
     {
         return ;
     }
@@ -157,13 +157,26 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
             break ;
         case ERROR_PAGE:
             //      todo --> sub to default
-
-            for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
+            std::cout << "\n\nFUCK\n\n";
+            if (_errorPages.getNbPages() == 0)
             {
-                if (_errorPages.has(i->first))
-                    _errorPages.replace(i->first, i->second);
+                std::cout << "Assigning server error pages\n" << std::endl;
+                _errorPages = ErrorPages(serv.error_pages);
             }
-
+            else
+            {
+                std::cout << "Assigning loc error_pages";
+                for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
+                {
+                    if (!_errorPages.has(i->first))
+                    {
+                        _errorPages.add(i->first, i->second);
+                        std::cout << "HAS!" << std::endl;
+                    }
+                    std::cout << "Iter First : " << i->first << "\n";
+                }
+            }
+            std::cout << "\n\n\n" <<  std::endl;
             break ;
         case UPLOAD_STORAGE:
             _storage = serv.upload_storage;

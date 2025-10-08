@@ -142,7 +142,7 @@ int main(int ac, char** av)
 		return (-2);
 	}
 	std::string path, ip, name, port;
-	path = "";
+	path = "/cgi/";
 	ip = "127.0.0.1";
 	name = "localhost1";
 	port = "8001";
