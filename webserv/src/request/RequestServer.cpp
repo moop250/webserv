@@ -157,11 +157,13 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
             break ;
         case ERROR_PAGE:
             //      todo --> sub to default
+
             for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
             {
-                if (_errorPages.has(i->first, i->second))
-                    _errorPages.set(i->first, i->second)
-            _errorPages = ErrorPages(serv.error_pages);
+                if (_errorPages.has(i->first))
+                    _errorPages.replace(i->first, i->second);
+            }
+
             break ;
         case UPLOAD_STORAGE:
             _storage = serv.upload_storage;

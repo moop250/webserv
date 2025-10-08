@@ -79,17 +79,23 @@ ErrorPages::~ErrorPages() {
 
 void    ErrorPages::add(int error, std::string path)
 {
-    std::ifstream   stream(path);
+    std::ifstream   stream(path.c_str());
     std::string     content = "";
     std::string     line;
 
     if (!stream.is_open())
-        Error("Unvalid path", __func__, "ErrorPages::add(int, std::string)", __LINE__); return ;
+    {
+        Error("Unvalid path", __func__, "ErrorPages::add(int, std::string)", __LINE__);
+        return ;
+    }
 
     this->_data.insert(std::make_pair(error, path));    
 
     while (std::getline(stream, line))
-        content.append(line); content.append("\n");
+    {
+        content.append(line);
+        content.append("\n");
+    }
 
     this->_html_content.push_back(content);
     return ; (void)error;
@@ -102,12 +108,31 @@ void    ErrorPages::add(RequestError error, std::string path)
 
 void    ErrorPages::replace(int error, std::string path)
 {
+    int pos = this->find(error);
+
+    if (pos == -1)
+        return this->add(error, path);
+
+    this->_data[error] = path;
+    std::string content = "";
+    std::string line;
+    std::ifstream   stream(path.c_str());
+
+    if (stream.is_open())
+    {
+        while (std::getline(stream, line))
+        {
+            content.append(line);
+            content.append("\n");
+        }
+    }
+    this->_html_content[pos] = content;
     return ;
 }
 
 void    ErrorPages::replace(RequestError error, std::string path)
 {
-    return ;
+    this->replace(macrosLinkRequest(error), path);
 }
 
 
