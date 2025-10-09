@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/09 20:31:03 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 21:06:36 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,6 +220,7 @@ int post_directory(Connection& connection) {
 	size_t			total;
 	long			written;
 	std::string		body;
+	std::string		response_body;
 
 	if (connection.getServer().storage().empty())
 		path = connection.getRequest().getPath();
@@ -267,15 +268,14 @@ int post_directory(Connection& connection) {
 		total += written;
 	}
 	close(fd);
-	connection.getResponse().setCode(204);
-	connection.getResponse().setCodeMessage("No Content");
+	connection.getResponse().setCode(200);
+	connection.getResponse().setCodeMessage("OK");
 	if (connection.getRequest().getKeepAlive() == "keep-alive")
 		connection.getResponse().setHeader("Connection", "keep-alive");
-	
-	// Check later to return URI path instead of system path
-	// std::cout << "path: " << path << std::endl;
-	// connection.getResponse().setHeader("Location", path);
-	
+	connection.getResponse().setHeader("Content-Type", "text/html");
+	response_body = "<!doctype html>\n\n<html><body><h1>Upload successful!</h1><p>Your file has been received.</p></body></html>";
+	connection.getResponse().setHeader("Content-Length", size_to_string(response_body.size()));
+	connection.getResponse().setBody(response_body);
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	// std::cout << connection.getResponse() << std::endl;
