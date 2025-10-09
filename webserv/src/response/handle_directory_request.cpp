@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/07 20:22:45 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 12:24:56 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ int case_index(Connection& connection, std::string& index) {
 	connection.getResponse().setCodeMessage("OK");
 	connection.getResponse().setHeader("Content-Length", size_to_string(body.size()));
 	connection.getResponse().setHeader("Content-Type", "text/html");
+	if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	// std::cout << connection.getResponse() << std::endl;
@@ -103,6 +105,8 @@ int case_autoindex(Connection& connection) {
 	connection.getResponse().setCodeMessage("OK");
 	connection.getResponse().setHeader("Content-Length", size_to_string(buffer.size()));
 	connection.getResponse().setHeader("Content-Type", "text/html");
+	if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	// std::cout << connection.getResponse() << std::endl;
@@ -214,6 +218,8 @@ int post_directory(Connection& connection) {
 	close(fd);
 	connection.getResponse().setCode(201);
 	connection.getResponse().setCodeMessage("Created");
+	if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "keep-alive");
 	
 	// Check later to return URI path instead of system path
 	connection.getResponse().setHeader("Location", path);

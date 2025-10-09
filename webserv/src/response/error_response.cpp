@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/24 10:52:39 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 12:19:26 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,8 @@ void error_response(Connection& connection, int code) {
 	connection.getResponse().setCodeMessage(codeMessage);
 	if (connection.getClose() == true)
 		connection.getResponse().setHeader("Connection", "close");
+	else
+		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().setHeader("Content-Type", "text/html");
 	connection.getResponse().setHeader("Content-Length", size_to_string(body.size()));
 	connection.getResponse().setBody(body);
