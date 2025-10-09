@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:05:10 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/07 19:07:21 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 20:31:56 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,6 +188,8 @@ int parse_request(Connection& connection, Config& config) {
 				case LENGTH_REQUIRED:
 					// fall through
 				case INTERNAL_ERROR:
+					// fall through
+				case CONTENT_TOO_LARGE:
 					// fall through
 				case BAD_REQUEST:
 					connection.setClose(true);

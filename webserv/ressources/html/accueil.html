@@ -184,7 +184,7 @@
         <div class="card-file">
           <div>
             <h3>DELETE</h3>
-            <p>Use DELETE method to delete todelete.txt<br>(if todelete.txt doesn't exist, create it first)</p>
+            <p>Use DELETE method to delete todelete.txt</p>
           </div>
           <button onclick="deleteFile()">Delete /test/todelete.txt</button>
           <script>
@@ -196,7 +196,7 @@
               if (res.ok) {
                 alert('File deleted successfully');
               } else {
-                alert('Failed to delete file');
+                alert('Failed to delete file, file does not exist');
               }
             });
           }
@@ -226,7 +226,7 @@
             <p>Use POST method to upload a file</p>
           </div>
           <form method="POST" action="/upload/" enctype="multipart/form-data">
-            <input type="file" />
+            <input type="file" name="file"/>
             <button type="submit">Doesnt work</button>
           </form>
         </div>

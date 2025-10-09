@@ -124,7 +124,6 @@ int main(int ac, char** av)
 	Config	*config = NULL;
 	ServerSocket *socket = NULL;
 
-	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/09 12:24:56 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 20:31:03 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,23 +140,76 @@ int get_directory(Connection& connection) {
 	return -1;
 }
 
-std::string generate_name(const std::string& extension) {
-	std::time_t	time;
-	std::string	name;
-	int			random;
+std::string parseMultiPartForm(Connection& connection) {
+	std::string::size_type	boundary_pos;
+	std::string::size_type	boundary_end_pos;
+	std::string::size_type	header_pos;
+	std::string				boundary;
+	std::string				boundary_end;
+	std::string				body;
+	std::string				parsed_body;
+	std::string				content_type;
+	std::string::size_type	file_name_pos;
+	std::string				file_name;
+	std::string::size_type	last_slash;
 
-	time = std::time(NULL);
-	random = std::rand();
-	return std::string("upload_"
-					+ size_to_string(time)
-					+ size_to_string(random)
-					+ extension);
+	content_type = connection.getRequest().getContentType();
+	if (content_type.find("multipart/form-data") == std::string::npos) {
+		error_response(connection, UNSUPPORTED_MEDIA_TYPE);
+		return "";
+	}
+	boundary_pos = content_type.find("boundary=");
+	if (boundary_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	boundary = content_type.substr(boundary_pos + 9);
+	if (boundary.empty()) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	boundary = "--" + boundary;
+	boundary_end = boundary + "--";
+	body = connection.getRequest().getBody();
+	if (body.empty()) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	file_name_pos = body.find("filename=");
+	if (file_name_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	file_name_pos += 10;
+	while (file_name_pos < body.size() && body[file_name_pos] != '"') {
+		file_name.push_back(body[file_name_pos]);
+		file_name_pos++;
+	}
+	last_slash = file_name.find_last_of("/\\");
+	if (last_slash != std::string::npos) {
+		file_name = file_name.substr(last_slash + 1);
+	}
+	header_pos = body.find("\r\n\r\n");
+	if (header_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	boundary_end_pos = body.find(boundary_end);
+	if (boundary_end_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	header_pos += 4;
+	if (boundary_end_pos >= 2 && body[boundary_end_pos - 2] == '\r' && body[boundary_end_pos - 1] == '\n') {
+		boundary_end_pos -= 2;
+	}
+	parsed_body = body.substr(header_pos, boundary_end_pos - header_pos);
+	connection.getRequest().setBody(parsed_body);
+	return file_name;
 }
 
-// Create a file with request body as content.
-// File's name is chosen by server.
+// Upload a file with request body as content.
 // stuffs to do
-// to remake because doesnt work
 // Blocking
 int post_directory(Connection& connection) {
 	std::string		file_name;
@@ -179,17 +232,15 @@ int post_directory(Connection& connection) {
 	}
 	if (path[0] == '/')
 		path.erase(0, 1);
-	extension = getExtension(connection.getRequest().getContentType());
-	while (true) {
-		file_name = generate_name(extension);
-		if (access(file_name.c_str(), F_OK) != -1)
-			continue ;
-		if (path[path.size() - 1] != '/')
-			path += '/';
-		path += file_name;
-		break ;
-	}
-	fd = open(path.c_str(), O_WRONLY | O_CREAT, 0644);
+	
+	file_name = parseMultiPartForm(connection);
+	if (file_name.empty())
+		return -1;
+
+	if (path[path.size() - 1] != '/')
+		path += '/';
+	path += file_name;
+	fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0) {
 		switch (errno) {
 			case EACCES:
@@ -216,17 +267,18 @@ int post_directory(Connection& connection) {
 		total += written;
 	}
 	close(fd);
-	connection.getResponse().setCode(201);
-	connection.getResponse().setCodeMessage("Created");
+	connection.getResponse().setCode(204);
+	connection.getResponse().setCodeMessage("No Content");
 	if (connection.getRequest().getKeepAlive() == "keep-alive")
 		connection.getResponse().setHeader("Connection", "keep-alive");
 	
 	// Check later to return URI path instead of system path
-	connection.getResponse().setHeader("Location", path);
+	// std::cout << "path: " << path << std::endl;
+	// connection.getResponse().setHeader("Location", path);
 	
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	std::cout << connection.getResponse() << std::endl;
+	// std::cout << connection.getResponse() << std::endl;
 	return 0;  
 }
 
