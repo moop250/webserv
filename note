@@ -1,0 +1,3 @@
+for cgi post
+-> use --data -> example:
+	curl -X POST http://127.0.0.1:8001/cgi/a.cpp -H "Content-Type: text/plain" --data "content=3 4 +"
