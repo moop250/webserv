@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 20:14:22 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/07 19:47:20 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 20:12:13 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ std::map<std::string, std::string> listExtension() {
 	format[".css"] = "text/css";
 	format[".txt"] = "text/plain";
 	format[".js"] = "application/javascript";
+	format[".gif"] = "image/gif";
 	return format;
 }
 
@@ -33,6 +34,7 @@ std::map<std::string, std::string> listDataType() {
 	format["text/css"] = ".css";
 	format["text/plain"] = ".txt";
 	format["application/javascript"] = ".js";
+	format["image/gif"] = ".gif";
 	return format;
 }
 
