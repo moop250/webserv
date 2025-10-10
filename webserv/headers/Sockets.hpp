@@ -21,8 +21,8 @@ enum recvReturns {
 enum fdTypes {
 	SERVER,
 	CLIENT,
-	CGI_IN,
-	CGI_OUT
+	SYS_FD_IN,
+	SYS_FD_OUT
 };
 
 enum fdStatus {
