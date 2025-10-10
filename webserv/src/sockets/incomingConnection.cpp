@@ -26,7 +26,7 @@ void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<in
 	status->insert(std::make_pair(newFD, FD_OK));
 	int flags = fcntl(newFD, F_GETFL, 0);
 	if (flags == -1) {
-		std::cerr << "addToPollfd: Failed to get socket flags for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
+		std::cerr << RED << "[ERROR] : " << WHITE << "addToPollfd: Failed to get socket flags for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
 		if (fdType == CGI) {
 			status->at(newFD) = CGIERROR;
 		} else {
@@ -35,7 +35,7 @@ void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<in
 	}
 
 	if (fcntl(newFD, F_SETFL, flags | O_NONBLOCK) == -1) {
-		std::cerr << "addToPollfd: Failed to set non-blocking mode for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
+		std::cerr << RED << "[ERROR] : " << WHITE << "addToPollfd: Failed to set non-blocking mode for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
 		if (fdType == CGI) {
 			status->at(newFD) = CGIERROR;
 		} else {
@@ -177,7 +177,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					setPOLLOUT(fd, &fdInfo->fds);
 					return 1;
 				case HUNGUP:
-					std::cout << YELLOW << "Recv: socket " << fd << " hung up" << RESET << std::endl;
+					std::cout << YELLOW << "[WARNING] : " << WHITE << "Recv: socket " << fd << " hung up" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					return -1;
@@ -189,8 +189,9 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					return 1;
 			}
 			break ;
-		} case CGI_IN: {
-			// handle sending data to the CGI
+		} case SYS_FD_IN: {
+			// handle sending data to the system
+			// Send in chunks to avoid hanging up on large files
 
 			return 1;
 		} default:
@@ -221,6 +222,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		remainingBytes -= offset;
 	}
 
+	// Limit how much can be sent at once
 	ssize_t status = send(fd, buf, remainingBytes, 0);
 	if (status < 0)
 		return 2;
@@ -263,8 +265,10 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			}
 		}
 		if (fdInfo->fds.at(i).revents & POLLOUT) {
-			if (fdInfo->fdTypes.at(fd) == CGI_OUT) {
-				// parse incoming CGI data probably in chunks
+			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
+				// parse incoming system data probably in chunks
+				// Only accept a certain amount of data at a time
+				// when all data has been parsed, change the flag
 
 				continue;
 			}
