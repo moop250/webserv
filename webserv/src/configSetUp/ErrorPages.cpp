@@ -121,6 +121,7 @@ void    ErrorPages::replace(int error, std::string path)
     int pos = this->find(error);
 
     std::cout << GREEN << "REPLACE !" << RESET << std::endl;
+    std::cout << "Pos is : " << pos << std::endl;
     if (pos == -1)
         return this->add(error, path);
 
@@ -265,20 +266,23 @@ bool ErrorPages::has(RequestError error)
 
 int ErrorPages::find(RequestError error) const
 {
-    int member = 0;
     int fmtError = macrosLinkRequest(error);
-    for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, member++)
-        if (i->first == fmtError)
-            return member;
-    return (-1);
+    return this->find(fmtError);
+   // for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, member++)
+   //     if (i->first == fmtError)
+   //         return member;
+   // return (-1);
 }
 
 int ErrorPages::find(int error) const
 {
     int member = 0;
     for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, member++)
+    {
         if (i->first == error)
             return member;
+        std::cout << "I->first : " << i->first << " and error is  : " << error << std::endl;
+    }
     return -1;
 }
 

@@ -148,10 +148,20 @@ int main(int ac, char** av)
 	port = "8001";
 
 	RequestServer	rs(*config, port, ip, name, path);
-	std::cout << rs << std::endl;
-	std::cout << rs.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;
+	std::cout << GREEN << rs.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;
 	std::cout << rs.errorPages().path(REQUEST_ERROR_NOT_FOUND) << std::endl;
+	std::cout << WHITE << rs.errorPages().content(REQUEST_ERROR_BAD_REQUEST);
 	std::cout << rs.errorPages().content(REQUEST_ERROR_NOT_FOUND);
+
+	RequestServer	rs2(*config, port, ip, name, "");
+	std::cout << BLUE << rs2.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;
+	std::cout << rs2.errorPages().path(REQUEST_ERROR_NOT_FOUND) << std::endl;
+	std::cout << WHITE << rs2.errorPages().content(REQUEST_ERROR_BAD_REQUEST);
+	std::cout << rs2.errorPages().content(REQUEST_ERROR_NOT_FOUND);
+
+
+
+
 	// dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	// 
 	// try {
