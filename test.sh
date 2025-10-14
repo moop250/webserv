@@ -1,144 +1,89 @@
 #!/bin/bash
 
-echo "///////////////////////////////////////////"
-echo "//   Test de comparaison nginx / webserv //"
-echo "///////////////////////////////////////////"
-echo
+display() {	# takes title for arg
+	echo ////////////////////////////////
+	echo 
+	echo testing : $1 ...
+}
 
-rm -f logs/* || { echo no log files to remove; }
+end_display() {	# takes test status for arg
+	echo test $1
+	echo && echo
+	echo ////////////////////////////////
+}
 
+test_server() {	# takes file to exec
+	display $1
+	
+	executable="$1.sh"
 
-####################################################
-#  Vérifications et définition du fichier config
-####################################################
+	./$executable > logs/$1.log
 
-if (( $# == 0 )); then
-    echo "Usage: $0 <config_file>"
-    exit 1
-fi
+	error=$(cat logs/$1.log | grep FAILED | wc -l)
+	if (( $error == 0 )) ; then
+		end_display SUCCESS
+	else
+		end_display FAILED
+	fi
+}
 
-CONFIG_PATH="$PWD/""$1"
+stress_test() {
+	echo this test may takes some time ...
 
-NAME=${1#configFiles/}
+	./tests/stress1.sh &
+	pid1=$!
+	./tests/stress2.sh &
+	pid2=$!
+	
+	
+	sleep 5
 
-NAME=${NAME%.config}
+	kill $pid1
+	kill $pid2
+}
 
-echo "CONFIG_PATH = $CONFIG_PATH"
-echo "NAME        = $NAME"
-
-echo Name : $NAME
-
-if [ ! -f "$CONFIG_PATH" ]; then
-    echo "Erreur: fichier $CONFIG_PATH introuvable."
-    exit 1
-fi
-
-# Vérifier que nginx, webserv et convert existent
-
-
-
-
-
-####################################################
-#  Création du répertoire logs
-####################################################
-
-LOG_DIR="./logs"
-mkdir "$LOG_DIR"
-NGINX_LOG="$LOG_DIR/nginxLogRequest.txt"
-WEBSERV_LOG="$LOG_DIR/webservLogRequest.txt"
-
-####################################################
-#  Conversion config pour nginx
-####################################################
-
-./convert "$CONFIG_PATH" 0 # 0 webserv --> nginx and 1 for nginx --> webserv
-cd configFiles ; mv *nginx* .. ; cd ..
-if [ ! -f ""$NAME"_nginx.config" ] ; then
-	echo La conversion a couille
+if (( $BASH_ARGC == 0 )) ; then
+        echo testing all && echo
+        ls tests > files
+        export files=$(cat files)
+        for file in $files
+        do
+                echo file is $file
+                test_server $file
+        done
 	exit
 fi
 
-####################################################
-#  Extraction server_name et port
-####################################################
+echo "What do you want to test ? "
+echo "1) autoindex"
+echo "2) cgi"
+echo "3) Client max body size"
+echo "4) hosts"
+echo "5) index"
+echo "6) locations"
+echo "7) methods"
+echo "8) names"
+echo "9) ports"
+echo "10) roots"
+echo "11) upload"
+echo "12) stress test"
 
-host_name=$(grep -m1 "<host>" "$CONFIG_PATH" | awk '{print $2}' | tr -d ';')
-port=$(grep -m1 "listen" "$CONFIG_PATH" | awk '{print $2}' | tr -d ';')
-search="${host_name}:${port}"
+read -e response
 
-echo Host: $host_name
-echo Port: $port
-echo "Target: $search"
-sleep 1
-echo
+case $response in \
+	"1") autoindex ;;
+	"2") cgi ;;
+        "3") client_size ;;
+        "4") host ;;
+        "5") index ;;
+        "6") location ;;
+        "7") methods ;;
+        "8") names ;;
+        "9") ports ;;
+        "10") root ;;
+        "11") upload ;;
+	"12") stress_test ;;
+	*) echo Invalid input ...
+esac
 
-####################################################
-#  NGINX EXECUTION
-####################################################
-
-echo try nginx ? y/n
-
-read -e line
-
-if [ ! -f line "n" ] ; then
-	echo "Execution nginx..."
-	sleep 1 
-
-	# --- GET tests ---
-	echo "GET requests sur nginx..."
-	
-	# --- POST tests ---
-	echo "POST requests sur nginx..."
-
-    	echo "NGINX terminé."
-	echo
-else
-	echo skipping nginx part
-	sleep 1
-fi
-
-####################################################
-#  WEBSERV EXECUTION
-####################################################
-
-echo "Execution webserv..."
-cd webserv || { echo "Impossible d'entrer dans le répertoire webserv"; exit 1; }
-make 
-./webserv "$CONFIG_PATH" &
-ws_pid=$!
-cd ..
-sleep 1
-
-curl $search >> $WEBSERV_LOG
-
-# --- GET tests ---
-echo "GET requests sur webserv..."
-
-curl -X GET $search
-
-# --- POST tests ---
-echo "POST requests sur webserv..."
-
-kill $ws_pid
-
-echo "Webserv terminé."
-echo
-
-####################################################
-#  Comparaison des logs
-####################################################
-
-echo "Comparaison des logs..."
-if diff -q "$WEBSERV_LOG" "$NGINX_LOG" >/dev/null; then
-    echo "Les réponses sont identiques."
-else
-    echo "Differences détectees :"
-    diff "$WEBSERV_LOG" "$NGINX_LOG" > ./logs/diff.log
-fi
-
-echo "Test finished"
-
-rm -f *nginx*.config || { echo ;}
-rm -f *webserv*.config || { echo ;}
-
+echo test finished
