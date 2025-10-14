@@ -17,7 +17,10 @@ end_display() {	# takes test status for arg
 test_server() {	# takes file to exec
 	display $1
 
-	cd tests	
+	move=$(echo $1 | grep tests | wc -l)
+	if (( $move == 0)) ; then
+		cd tests
+	fi
 	executable="$1"
 
 	if [[ ! -f "$executable" ]]; then
@@ -26,7 +29,7 @@ test_server() {	# takes file to exec
 		return
 	fi
 
-	./$executable  > logs/$1.log
+	./$executable # > logs/$1.log
 
 	if (( $? == 0 )) ; then
 		error=$(cat logs/$1.log | grep FAILED | wc -l)
@@ -38,7 +41,10 @@ test_server() {	# takes file to exec
 	else
 		echo test file not found
 	fi
-	cd ..
+	if (( $move == 0)) ; then
+                cd ..
+        fi
+
 }
 
 stress_test() {
@@ -56,7 +62,6 @@ stress_test() {
 	kill $pid2
 }
 
-mkdir logs
 if (( $BASH_ARGC == 0 )) ; then
         echo testing all && echo
         ls tests > files
@@ -69,9 +74,21 @@ if (( $BASH_ARGC == 0 )) ; then
 			test_server $file
         	fi
 	done
-	rm files
+	if [ -f "files" ] ; then
+		rm files
+	fi
 	exit
 fi
+
+for arg in $@
+do
+	do_i_test=$(echo $file | grep "stress" | wc -l)
+        if (( $do_i_test == 0 )) ; then
+        	test_server "tests/$arg.sh"
+	fi
+done
+exit
+
 
 echo "What do you want to test ? "
 echo "1) autoindex"
@@ -90,17 +107,17 @@ echo "12) stress test"
 read -e response
 
 case $response in \
-	"1") test_server autoindex ;;
-	"2") test_server cgi ;;
-        "3") test_server client_size ;;
-        "4") test_server host ;;
-        "5") test_server index ;;
-        "6") test_server location ;;
-        "7") test_server methods ;;
-        "8") test_server names ;;
-        "9") test_server ports ;;
-        "10") test_server root ;;
-        "11") test_server upload ;;
+	"1") test_server autoindex.sh ;;
+	"2") test_server cgi.sh ;;
+        "3") test_server client_size.sh ;;
+        "4") test_server host.sh ;;
+        "5") test_server index.sh ;;
+        "6") test_server location.sh ;;
+        "7") test_server methods.sh ;;
+        "8") test_server names.sh ;;
+        "9") test_server ports.sh ;;
+        "10") test_server root.sh ;;
+        "11") test_server upload.sh ;;
 	"12") stress_test ;;
 	*) echo Invalid input ...
 esac
