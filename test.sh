@@ -34,7 +34,7 @@ test_server() {	# takes file to exec
 
 	local name=$(echo $1 | tr -d tests)
 
-	./$executable > logs/$name.log
+	./$executable $2 > logs/$name.log
 
 	if (( $? == 0 )) ; then
 		error=$(cat logs/$name.log | grep FAILED | wc -l)
@@ -49,7 +49,6 @@ test_server() {	# takes file to exec
 	if (( $move == 0)) ; then
                 cd ..
         fi
-
 }
 
 stress_test() {
@@ -67,12 +66,37 @@ stress_test() {
 	kill $pid2
 }
 
+wich_config() {
+	echo "Quelle configuration a été utilisée pour lancer webserv ?"
+	echo 
+	echo "Liste des configs disponibles :"
+    	ls webserv/ressources/configFiles/goodConfigs/*.config | xargs -n1 basename
+    	echo
+    	echo -n "Entrez le nom du fichier config (ex: default.config) : "
+    	echo ...
+    	read config_name
+ 	if [[ ! -f "webserv/ressources/configFiles/goodConfigs/$config_name" ]]; then
+        	echo "Config $config_name introuvable dans goodConfigs. Abort."
+        	echo "FAILED: invalid config" && exit 1
+    	fi
+
+    	export config="$config_name"
+}
+
 if ! [[ -f "logs" ]] ; then
 	mkdir -p logs
 else
 	rm -rf logs
 	mkdir -p logs
 fi
+
+echo FIRST THINGS FIRST !
+
+wich_config
+
+echo config is : $config
+
+exit
 
 #	si 0 arg alors exec tout
 if (( $BASH_ARGC == 0 )) ; then
@@ -84,7 +108,7 @@ if (( $BASH_ARGC == 0 )) ; then
                 #echo file is $file
 		do_i_test=$(echo $file | grep "stress" | wc -l)
 		if (( $do_i_test == 0 )) ; then
-			test_server $file
+			test_server $file $config
         	fi
 	done
 	if [ -f "files" ] ; then
@@ -98,13 +122,14 @@ for arg in $@
 do
 	do_i_test=$(echo $file | grep "stress" | wc -l)
         if (( $do_i_test == 0 )) ; then
-        	test_server "tests/$arg.sh"
+        	test_server "tests/$arg.sh" $config
 	fi
 done
 
 sleep 1
 echo Done
 exit
+
 echo "Do you want to test something more ? "
 echo "1) autoindex"
 echo "2) cgi"
@@ -124,17 +149,17 @@ echo "'q' to escape"
 read -e response
 
 case $response in \
-	"1") test_server autoindex.sh ;;
-	"2") test_server cgi.sh ;;
-        "3") test_server client_size.sh ;;
-        "4") test_server host.sh ;;
-        "5") test_server index.sh ;;
-        "6") test_server location.sh ;;
-        "7") test_server methods.sh ;;
-        "8") test_server names.sh ;;
-        "9") test_server ports.sh ;;
-        "10") test_server root.sh ;;
-        "11") test_server upload.sh ;;
+	"1") test_server autoindex.sh $config;;
+	"2") test_server cgi.sh $config;;
+        "3") test_server client_size.sh $config;;
+        "4") test_server host.sh $config;;
+        "5") test_server index.sh $config;;
+        "6") test_server location.sh $config;;
+        "7") test_server methods.sh $config;;
+        "8") test_server names.sh $config;;
+        "9") test_server ports.sh $config;;
+        "10") test_server root.sh $config;;
+        "11") test_server upload.sh $config;;
 	"12") stress_test ;;
 	*) echo Invalid input ...
 esac
