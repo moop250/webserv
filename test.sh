@@ -29,10 +29,15 @@ test_server() {	# takes file to exec
 		return
 	fi
 
-	./$executable # > logs/$1.log
+
+	echo Here in $PWD
+
+	local name=$(echo $1 | tr -d tests)
+
+	./$executable > logs/$name.log
 
 	if (( $? == 0 )) ; then
-		error=$(cat logs/$1.log | grep FAILED | wc -l)
+		error=$(cat logs/$name.log | grep FAILED | wc -l)
 	        if (( $error == 0 )) ; then
         	        end_display SUCCESS
 	        else
@@ -62,6 +67,14 @@ stress_test() {
 	kill $pid2
 }
 
+if ! [[ -f "logs" ]] ; then
+	mkdir -p logs
+else
+	rm -rf logs
+	mkdir -p logs
+fi
+
+#	si 0 arg alors exec tout
 if (( $BASH_ARGC == 0 )) ; then
         echo testing all && echo
         ls tests > files
@@ -80,6 +93,7 @@ if (( $BASH_ARGC == 0 )) ; then
 	exit
 fi
 
+#	execute chaque argument donne au prog
 for arg in $@
 do
 	do_i_test=$(echo $file | grep "stress" | wc -l)
@@ -87,10 +101,11 @@ do
         	test_server "tests/$arg.sh"
 	fi
 done
+
+sleep 1
+echo Done
 exit
-
-
-echo "What do you want to test ? "
+echo "Do you want to test something more ? "
 echo "1) autoindex"
 echo "2) cgi"
 echo "3) Client max body size"
@@ -103,6 +118,8 @@ echo "9) ports"
 echo "10) roots"
 echo "11) upload"
 echo "12) stress test"
+echo "Tap enter alone to test it all"
+echo "'q' to escape"
 
 read -e response
 
@@ -126,4 +143,6 @@ echo
 echo 
 echo
 
-rm files 
+if [ -f files ] ; then
+	rm files 
+fi
