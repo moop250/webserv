@@ -8,6 +8,7 @@ ErrorPages::ErrorPages()
     int         errors[] = {
         301, 302, 400, 403, 404, 405, 411, 413,
         415, 500, 501, 505
+
     };
 
     _nbPages = 0;
@@ -64,6 +65,7 @@ ErrorPages::ErrorPages(const ErrorPages& copy) {
     this->_data = copy._data;
     this->_nbPages = copy._nbPages;
 }
+
 ErrorPages& ErrorPages::operator=(const ErrorPages& pages) {
     if (this != &pages) {
         this->_html_content = pages._html_content;
@@ -76,6 +78,17 @@ ErrorPages& ErrorPages::operator=(const ErrorPages& pages) {
 ErrorPages::~ErrorPages() {
     return ;
 }
+
+void    ErrorPages::setMap(std::map<int, std::string> m)
+{
+    _data = m;
+}
+
+void    ErrorPages::setContent(std::vector<std::string> v)
+{
+    _html_content = v;
+}
+
 
 void        ErrorPages::setNb(int newValue)
 {
@@ -116,19 +129,10 @@ void    ErrorPages::add(RequestError error, std::string path)
     this->add(macrosLinkRequest(error), path);
 }
 
-void    ErrorPages::replace(int error, std::string path)
+std::string extract_content(std::string path)
 {
-    int pos = this->find(error);
-
-    std::cout << GREEN << "REPLACE !" << RESET << std::endl;
-    std::cout << "Pos is : " << pos << std::endl;
-    if (pos == -1)
-        return this->add(error, path);
-
-    this->_data[error] = path;
     std::string content = "";
     std::string line;
-    std::cout << "path is : " << path << std::endl;
     std::ifstream   stream(std::string("ressources/" + path).c_str());
 
     if (stream.is_open())
@@ -139,9 +143,35 @@ void    ErrorPages::replace(int error, std::string path)
             content.append("\n");
         }
     }
-    
-    std::cout <<  "\n\n YAYYYY\n\n" << content;
-    this->_html_content[pos] = content;
+    return content;
+}
+
+void    ErrorPages::replace(int error, std::string path)
+{
+    int pos = this->find(error);
+
+    if (pos == -1)
+        return this->add(error, path);
+
+    std::map<int, std::string>  new_map;
+    std::vector<std::string>    new_vector;
+
+    for (std::map<int, std::string>::const_iterator i = this->_data.begin(); i != this->_data.end(); i++)
+    {
+        if (i->first == error)
+        {
+            new_vector.push_back(extract_content(path));
+            new_map.insert(std::make_pair(error, path));
+        }
+        else
+        {
+            new_vector.push_back(extract_content(i->second));
+            new_map.insert(std::make_pair(i->first, i->second));
+        }
+    }
+
+    this->_data = new_map;
+    this->_html_content = new_vector;
     return ;
 }
 
@@ -149,7 +179,6 @@ void    ErrorPages::replace(RequestError error, std::string path)
 {
     this->replace(macrosLinkRequest(error), path);
 }
-
 
 int ErrorPages::getNbPages() const { return _nbPages; }
 
@@ -204,7 +233,7 @@ std::string ErrorPages::path(RequestError error) const
 std::string ErrorPages::content(RequestError error) const
 {
     int index = find(error);
-    if (index == -1)
+    if (index == -1 ||  static_cast<size_t>(index) >= _html_content.size())
     {
         std::cerr << "Content not found\n";
         return ("");
@@ -281,7 +310,7 @@ int ErrorPages::find(int error) const
     {
         if (i->first == error)
             return member;
-        std::cout << "I->first : " << i->first << " and error is  : " << error << std::endl;
+//        std::cout << "I->first : " << i->first << " and error is  : " << error << std::endl;
     }
     return -1;
 }

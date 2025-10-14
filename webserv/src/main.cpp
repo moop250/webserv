@@ -143,6 +143,25 @@ int main(int ac, char** av)
 
 	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
 	
+	std::string	ip = "127.0.0.1";
+	std::string	port = "8001";
+	std::string	path = "/error/page/";
+	std::string	host = "localhost1";
+
+
+	RequestServer	rs1(*config, port, ip, host, "");
+	RequestServer	rs2(*config, port, ip, host, path);
+
+	std::cout << "ERROR 1 : " << rs1.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;
+	std::cout << "ERROR 2 : " << rs2.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;
+
+	std::cout << "ERROR 1 : " << rs1.errorPages().content(REQUEST_ERROR_NOT_FOUND) << std::endl;
+	std::cout << "ERROR 2 : " << rs2.errorPages().content(REQUEST_ERROR_NOT_FOUND) << std::endl;
+
+	delete config;
+
+	return 1;
+
 	try {
 		eventLoop(config, socket);
 	} catch (std::exception &e) {

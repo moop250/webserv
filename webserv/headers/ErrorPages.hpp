@@ -19,6 +19,9 @@ class ErrorPages
         ~ErrorPages();
 
         void        setNb(int newValue);
+        void        setMap(std::map<int, std::string>);
+        void        setContent(std::vector<std::string>);
+
         void        add(int error, std::string path);
         void        add(RequestError error, std::string path);
 

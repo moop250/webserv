@@ -32,6 +32,7 @@ class RequestServer
     bool                                _autoindex; // both
 
     std::string                         _location;
+
     public:
         RequestServer(bool def=false);
         RequestServer(Config config);
