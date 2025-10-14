@@ -1,3 +1,4 @@
+Petit rappel : Tout element de votre serveur devra se situer dans ressources
 
 # CONFIGURATION LOGIC UNIT EXPLAINED #
 
