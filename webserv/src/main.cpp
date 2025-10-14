@@ -150,6 +150,7 @@ int main(int ac, char** av)
 
 
 	RequestServer	rs1(*config, port, ip, host, "");
+	std::cout << "RS ! CREATED \n";
 	RequestServer	rs2(*config, port, ip, host, path);
 
 	std::cout << "ERROR 1 : " << rs1.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;

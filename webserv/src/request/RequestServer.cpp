@@ -112,10 +112,14 @@ RequestServer::RequestServer(Config config, std::string port, std::string ip, st
         for (int i = 0; i < LOCATION; i++)
             setToken(location, static_cast<e_TokenType>(i));
         _location = location.path;
+        for (int i = 0; i < LOCATION; i++)
+            setToken(server, static_cast<e_TokenType>(i));
+        setToken(location, ERROR_PAGE);
     }
+    else
+        for (int i = 0; i < LOCATION; i++)
+            setToken(server, static_cast<e_TokenType>(i));
 
-    for (int i = 0; i < LOCATION; i++)
-        setToken(server, static_cast<e_TokenType>(i));
     _isValid = true;
     //  find ip:port
     //  find server_name
@@ -158,6 +162,7 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
         case ERROR_PAGE:
             for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
             {
+                std::cout << "\nSetting serv\n";
                 if (_errorPages.has(i->first))
                     _errorPages.replace(i->first, i->second);
             }
@@ -211,6 +216,7 @@ void    RequestServer::setToken(t_Location loc, e_TokenType type)
         case ERROR_PAGE:
             for (std::map<int, std::string>::iterator i = loc.data.error_pages.begin(); i != loc.data.error_pages.end(); i++)
             {
+                std::cout << "\nsetting loc\n";
                 if (_errorPages.has(i->first))
                     _errorPages.replace(i->first, i->second);
             }
