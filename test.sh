@@ -4,17 +4,20 @@ display() {	# takes title for arg
 	echo ////////////////////////////////
 	echo 
 	echo testing : $1 ...
+	echo
 }
 
 end_display() {	# takes test status for arg
 	echo test $1
 	echo && echo
 	echo ////////////////////////////////
+	echo
 }
 
 test_server() {	# takes file to exec
 	display $1
-	
+
+	cd tests	
 	executable="$1.sh"
 
 	./$executable > logs/$1.log
@@ -25,6 +28,7 @@ test_server() {	# takes file to exec
 	else
 		end_display FAILED
 	fi
+	cd ..
 }
 
 stress_test() {
