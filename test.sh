@@ -18,15 +18,25 @@ test_server() {	# takes file to exec
 	display $1
 
 	cd tests	
-	executable="$1.sh"
+	executable="$1"
 
-	./$executable > logs/$1.log
+	if [[ ! -f "$executable" ]]; then
+		echo "Test file $executable not found"
+		cd ..
+		return
+	fi
 
-	error=$(cat logs/$1.log | grep FAILED | wc -l)
-	if (( $error == 0 )) ; then
-		end_display SUCCESS
+	./$executable  > logs/$1.log
+
+	if (( $? == 0 )) ; then
+		error=$(cat logs/$1.log | grep FAILED | wc -l)
+	        if (( $error == 0 )) ; then
+        	        end_display SUCCESS
+	        else
+        	        end_display FAILED
+        	fi
 	else
-		end_display FAILED
+		echo test file not found
 	fi
 	cd ..
 }
@@ -46,15 +56,20 @@ stress_test() {
 	kill $pid2
 }
 
+mkdir logs
 if (( $BASH_ARGC == 0 )) ; then
         echo testing all && echo
         ls tests > files
         export files=$(cat files)
         for file in $files
         do
-                echo file is $file
-                test_server $file
-        done
+                #echo file is $file
+		do_i_test=$(echo $file | grep "stress" | wc -l)
+		if (( $do_i_test == 0 )) ; then
+			test_server $file
+        	fi
+	done
+	rm files
 	exit
 fi
 
@@ -75,19 +90,23 @@ echo "12) stress test"
 read -e response
 
 case $response in \
-	"1") autoindex ;;
-	"2") cgi ;;
-        "3") client_size ;;
-        "4") host ;;
-        "5") index ;;
-        "6") location ;;
-        "7") methods ;;
-        "8") names ;;
-        "9") ports ;;
-        "10") root ;;
-        "11") upload ;;
+	"1") test_server autoindex ;;
+	"2") test_server cgi ;;
+        "3") test_server client_size ;;
+        "4") test_server host ;;
+        "5") test_server index ;;
+        "6") test_server location ;;
+        "7") test_server methods ;;
+        "8") test_server names ;;
+        "9") test_server ports ;;
+        "10") test_server root ;;
+        "11") test_server upload ;;
 	"12") stress_test ;;
 	*) echo Invalid input ...
 esac
 
-echo test finished
+echo 
+echo 
+echo
+
+rm files 
