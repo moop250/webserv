@@ -124,7 +124,6 @@ int main(int ac, char** av)
 	Config	*config = NULL;
 	ServerSocket *socket = NULL;
 
-	std::srand(std::time(NULL));
 	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
@@ -141,42 +140,22 @@ int main(int ac, char** av)
 		delete config;
 		return (-2);
 	}
-	std::string path, ip, name, port;
-	path = "/cgi/";
-	ip = "127.0.0.1";
-	name = "localhost1";
-	port = "8001";
 
-	RequestServer	rs(*config, port, ip, name, path);
-	std::cout << GREEN << rs.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;
-	std::cout << rs.errorPages().path(REQUEST_ERROR_NOT_FOUND) << std::endl;
-	std::cout << WHITE << rs.errorPages().content(REQUEST_ERROR_BAD_REQUEST);
-	std::cout << rs.errorPages().content(REQUEST_ERROR_NOT_FOUND);
-
-	RequestServer	rs2(*config, port, ip, name, "");
-	std::cout << BLUE << rs2.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;
-	std::cout << rs2.errorPages().path(REQUEST_ERROR_NOT_FOUND) << std::endl;
-	std::cout << WHITE << rs2.errorPages().content(REQUEST_ERROR_BAD_REQUEST);
-	std::cout << rs2.errorPages().content(REQUEST_ERROR_NOT_FOUND);
+	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
+	
+	try {
+		eventLoop(config, socket);
+	} catch (std::exception &e) {
+		std::cerr << RED << e.what() << RESET << std::endl;
+		delete config;
+		delete socket;
+		return (-3);
+	}
 
 
-
-
-	// dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
-	// 
-	// try {
-		// eventLoop(config, socket);
-	// } catch (std::exception &e) {
-		// std::cerr << RED << e.what() << RESET << std::endl;
-		// delete config;
-		// delete socket;
-		// return (-3);
-	// }
-
-
-	//Connection		connection;
-	//connection.setPort("8001");
-	//connection.setIP("127.0.0.1");
+	// Connection		connection;
+	// connection.setPort("8001");
+	// connection.setIP("127.0.0.1");
 
 	// // cpp
 	// connection.buffer = "POST /cgi/RPN.cpp HTTP/1.1\r\n"
@@ -205,39 +184,53 @@ int main(int ac, char** av)
 	// 					"\r\n"
 	// 					"Lausanne 42";
 
-	//	c		
-	//connection.buffer = "POST /cgi/main.c?q=cos%285%29 HTTP/1.1\r\n"
-	//					"Host: localhost1:8001\r\n"
-	//					"Connection: Keep-Alive\r\n"
-	//					"Keep-Alive: timeout=5, max=200\r\n"
-	//					"Content-Length: 6\r\n"
-	//					"\r\n"
-	//					"cos(5)";
+	// //	c		
+	// connection.buffer = "POST /cgi/main.c?q=cos%285%29 HTTP/1.1\r\n"
+	// 					"Host: localhost1:8001\r\n"
+	// 					"Connection: Keep-Alive\r\n"
+	// 					"Keep-Alive: timeout=5, max=200\r\n"
+	// 					"Content-Length: 6\r\n"
+	// 					"\r\n"
+	// 					"cos(5)";
 
-	// // GET file
-	// connection.buffer = "GET /configFiles/goodConfigs/simple.config HTTP/1.1\r\n"
-	// 				"Host: localhost1:8001\r\n"
-	// 				"Connection: Keep-Alive\r\n"
-	// 				"Keep-Alive: timeout=5, max=200\r\n"
-	// 				"\r\n";
+	// connection.buffer = "POST /upload/ HTTP/1.1\r\n"
+	// 					"Host: 127.0.0.1:8001\r\n"
+	// 					"Connection: Keep-Alive\r\n"
+	// 					"Keep-Alive: timeout=5, max=200\r\n"
+	// 					"Content-Length: 6\r\n"
+	// 					"\r\n"
+	// 					"cos(5)";
 
-//	int code = parse_request(connection, *config);
-//	// std::cout << code << std::endl;
-//	if (code != -1) {
-//		code = handle_request(connection);
-//		// std::cout << code << std::endl;
-//	try {
-//		socket = initalizeServer(config);
-//	} catch (std::exception &e) {
-//		std::cerr << RED << e.what() << RESET << std::endl;
-//		delete config;
-//		return (-2);
-//	}
+	// int code = parse_request(connection, *config);
+	// std::cout << code << std::endl;
+	// std::cout << "method: " << connection.getRequest().getMethod() << std::endl;
+	// std::cout << "Path: " << connection.getRequest().getPath() << std::endl;
+	// if (code != -1) {
+	// 	code = handle_request(connection);
+	// 	std::cout << code << std::endl;
+	// 	try {
+	// 		socket = initalizeServer(config);
+	// 	} catch (std::exception &e) {
+	// 		std::cerr << RED << e.what() << RESET << std::endl;
+	// 		delete config;
+	// 		return (-2);
+	// 	}
+	// }
+	
+	// std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
+	// (void)socket;
 
-//	std::cout << "RESPONSE:\n" << connection.getResponse() << std::endl;
+	// dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
+	
+	// try {
+	// 	eventLoop(config, socket);
+	// } catch (std::exception &e) {
+	// 	std::cerr << RED << e.what() << RESET << std::endl;
+	// 	delete config;
+	// 	delete socket;
+	// 	return (-3);
+	// }
 
 	delete config;
 	return 0;
-	(void)socket;
 }
-

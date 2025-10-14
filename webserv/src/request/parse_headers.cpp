@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/03 19:07:16 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 20:30:45 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,8 +167,9 @@ int content_length_check(Connection& connection) {
 	std::string	transferEncoding;
 	std::string	method;
 
-	if (connection.buffer.size() > connection.getServer().clientSize())
-			return CONTENT_TOO_LARGE;
+	if (connection.buffer.size() > connection.getServer().clientSize()) {
+		return CONTENT_TOO_LARGE;
+	}
 	contentLength = connection.getRequest().getHeader("content-length");
 	transferEncoding = connection.getRequest().getHeader("transfer-encoding");
 	method = connection.getRequest().getMethod();
@@ -185,8 +186,9 @@ int content_length_check(Connection& connection) {
 		connection.getRequest().setContentLength(strtol(contentLength.c_str(), NULL, 10));
 		if (connection.getRequest().getContentLength() <= 0)
 			return BAD_REQUEST;
-		if (connection.getRequest().getContentLength() > connection.getServer().clientSize())
+		if (connection.getRequest().getContentLength() > connection.getServer().clientSize()) {
 			return CONTENT_TOO_LARGE;
+		}
 		connection.setState(READING_BODY);
 		return READING_BODY;
 	}

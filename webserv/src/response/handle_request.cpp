@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/06 22:17:26 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/08 13:38:30 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,11 +64,11 @@ void path_merge_non_cgi(Connection& connection) {
 	
 	path = connection.getRequest().getPath();
 	root = connection.getServer().root();
+	location = connection.getServer().getLocation();
 	if (root.empty())
 		return;
 	if (root[root.size() - 1] == '/')
-		root.erase(root.size() - 1, 1);
-	location = connection.getServer().getLocation();	
+		root.erase(root.size() - 1, 1);	
 	if (location.empty()) {
 		path.insert(0, root);
 		connection.getRequest().setPath(path);
@@ -124,6 +124,10 @@ int handle_request(Connection& connection) {
 
 	location = connection.getServer().getLocation();
 	if (location == "/cgi" || location == "/cgi/") {
+		if (connection.getRequest().getMethod() == "DELETE") {
+			error_response(connection, METHOD_NOT_ALLOWED);
+			return -1;
+		}
 		if (path_merge_cgi(connection) == -1) {
 			return -1;
 		}

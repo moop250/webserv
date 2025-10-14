@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/06 11:08:42 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 12:20:25 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ Response::Response() {
 	this->setHeader("Date", getCurrentHttpTime());
 	this->setHeader("Server", "42_Webserv/1.0.0");
 	this->setHeader("Authors", "hoannguy, hlibine, aseite");
+	this->setHeader("Cache-Control", "no-cache");
 	this->code = -1;
 	this->contentLength = 0;
 }
@@ -112,6 +113,7 @@ Response& Response::clear() {
 	this->setHeader("Date", getCurrentHttpTime());
 	this->setHeader("Server", "42_Webserv/1.0.0");
 	this->setHeader("Authors", "hoannguy, hlibine, aseite");
+	this->setHeader("Cache-Control", "no-cache");
 	this->body.clear();
 	this->contentLength = 0;
 	this->contentType.clear();

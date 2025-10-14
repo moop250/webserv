@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 17:44:39 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/06 12:29:02 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 11:52:09 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,27 @@ void get_input(std::string& input) {
 int main(void) {
 	RPN			rpn;
 	std::string	input;
+	char		*content_len;
+	int			len;
 
 	std::string method(std::getenv("REQUEST_METHOD"));
 	if (method == "GET" || method == "Get" || method == "get") {
 		get_input(input);
 	} else if (method == "POST" || method == "Post" || method == "post") {
-		std::getline(std::cin, input);
+		content_len = std::getenv("CONTENT_LENGTH");
+		if (!content_len) {
+			send_error("Error: Missing Content-Length");
+			return -1;
+		}
+		len = std::atoi(content_len);
+		input.reserve(len);
+		for (int i = 0; i < len; ++i) {
+			char c;
+			std::cin.get(c);
+			input += c;
+		}
+		while (!input.empty() && (input[input.size() - 1] == '\n' || input[input.size() - 1] == '\r'))
+			input.erase(input.size() - 1);
 	} else {
 		send_error("Error: Bad request method");
 		return -1;

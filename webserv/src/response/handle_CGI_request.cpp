@@ -17,7 +17,9 @@
 #include "request_handler.hpp"
 #include "support_file.hpp"
 
-void set_env(Connection& connection, std::vector<std::string>& env) {
+void set_env(Connection& connection, std::vector<std::string>& env) {\
+	std::string	body;
+
 	env.push_back("REQUEST_METHOD=" + connection.getRequest().getMethod());
 	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env.push_back("SERVER_NAME=" + connection.getRequest().getHost());
@@ -25,7 +27,11 @@ void set_env(Connection& connection, std::vector<std::string>& env) {
 	env.push_back("HTTPS=off");
 	env.push_back("QUERY_STRING=" + connection.getRequest().getQuery());
 	if (connection.getRequest().getMethod() == "POST") {
-		env.push_back("CONTENT_LENGTH=" + size_to_string(connection.getRequest().getContentLength()));
+		body = connection.getRequest().getBody();
+		if (body.substr(0, 8) == "content=")
+			body.erase(0, 8);
+		connection.getRequest().setBody(body);
+		env.push_back("CONTENT_LENGTH=" + size_to_string(body.size()));
 		env.push_back("CONTENT_TYPE=" + connection.getRequest().getContentType());
 	}
 	// HTTP_COOKIE	bonus?
@@ -83,7 +89,7 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 	} else {
 		exit(-1);
 	}
-
+	
 	av.push_back(NULL);
 	dup2(in[0], STDIN_FILENO);
 	close(in[0]);
@@ -97,7 +103,7 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 
 // stuffs to do
 // update pollfd here
-// put a timeout here
+// timeout should be managed by poll()
 int parent_reap_output(Connection& connection, int in[2], int out[2], std::string& output) {
 	std::string	body;
 	char		buffer[4096];
@@ -206,12 +212,15 @@ int parse_cgi_output(Connection& connection, std::string& output) {
 		connection.getResponse().setHeader("Content-Length", size_to_string(output.size()));
 	if (connection.getResponse().getContentType().empty())
 		connection.getResponse().setHeader("Content-Type", "text/plain");
+	if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	return 0;
 }
 
 // stuffs to do
+// timeout should be managed by poll()
 int CGI_handler(Connection& connection) {
 	std::vector<std::string>	env_string;
 	std::vector<char*>			env_pointer;
@@ -222,10 +231,6 @@ int CGI_handler(Connection& connection) {
 	std::string					output;
 	int							status;
 	
-	if (connection.getRequest().getMethod() == "DELETE") {
-		error_response(connection, METHOD_NOT_ALLOWED);
-		return -1;
-	}
 	set_env(connection, env_string);
 	env = build_env(env_string, env_pointer);
 	if (pipe(in) < 0) { 
@@ -249,7 +254,6 @@ int CGI_handler(Connection& connection) {
 			break ;
 		default:
 			parent_reap_output(connection, in, out, output);
-			// timeout here
 			waitpid(pid, &status, 0);
 			return parse_cgi_output(connection, output);
 	}

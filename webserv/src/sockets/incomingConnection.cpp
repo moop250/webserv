@@ -26,7 +26,7 @@ void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<in
 	status->insert(std::make_pair(newFD, FD_OK));
 	int flags = fcntl(newFD, F_GETFL, 0);
 	if (flags == -1) {
-		std::cerr << "addToPollfd: Failed to get socket flags for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
+		std::cerr << RED << "[ERROR] : " << WHITE << "addToPollfd: Failed to get socket flags for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
 		if (fdType == CGI) {
 			status->at(newFD) = CGIERROR;
 		} else {
@@ -35,7 +35,7 @@ void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<in
 	}
 
 	if (fcntl(newFD, F_SETFL, flags | O_NONBLOCK) == -1) {
-		std::cerr << "addToPollfd: Failed to set non-blocking mode for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
+		std::cerr << RED << "[ERROR] : " << WHITE << "addToPollfd: Failed to set non-blocking mode for fd: " << newFD << " as type: " << fdType << " cancelling" << std::endl;
 		if (fdType == CGI) {
 			status->at(newFD) = CGIERROR;
 		} else {
@@ -122,11 +122,7 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 	addrLen = sizeof newRemote;
 	remoteFD = accept(fd, (struct sockaddr *)&newRemote,&addrLen);
 	if (remoteFD == -1) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK) {
-			return NOCONNCECTION;
-		} else {
-			return ACCEPTERROR;
-		}
+		return ACCEPTERROR;
 	}
 	addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
 
@@ -141,13 +137,10 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf) {
 	Connection *connect = &connectMap->at(fd);
 		std::string buf(8192, '\0');
-	
+
 		int nbytes = recv(fd, &buf[0], buf.size(), 0);
 		if (nbytes < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return CONTINUE_READ;
-			else
-				return RECVERROR;
+			return RECVERROR;
 		} else if (nbytes == 0)
 			return HUNGUP;
 
@@ -184,7 +177,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					setPOLLOUT(fd, &fdInfo->fds);
 					return 1;
 				case HUNGUP:
-					std::cout << YELLOW << "Recv: socket " << fd << " hung up" << RESET << std::endl;
+					std::cout << YELLOW << "[WARNING] : " << WHITE << "Recv: socket " << fd << " hung up" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					return -1;
@@ -196,6 +189,11 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					return 1;
 			}
 			break ;
+		} case SYS_FD_IN: {
+			// handle sending data to the system
+			// Send in chunks to avoid hanging up on large files
+
+			return 1;
 		} default:
 			std::cout << RED << "[ERROR] : " << WHITE << "Unknown POLLIN type" << RESET << std::endl;
 	}
@@ -215,7 +213,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 
 	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
-	size_t remainingBytes = out.size(), offset = 0;
+	ssize_t remainingBytes = out.size(), offset = 0;
 	const char *buf = out.c_str();
 
 	if (connect.getOffset() > 0) {
@@ -224,23 +222,16 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		remainingBytes -= offset;
 	}
 
-	ssize_t status = send(fd, buf, remainingBytes, MSG_DONTWAIT);
+	// Limit how much can be sent at once
+	ssize_t status = send(fd, buf, remainingBytes, 0);
+	if (status < 0)
+		return 2;
 	if (status == 0)
 		return 5;
-	if (status < 0) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK){
-			connect.setOffset(offset); 
-			return 1;
-		} else if (errno == EFAULT || errno == EINVAL) {
-			throw std::runtime_error("Send error: " + std::string(strerror(errno)));
-		} else {
-			return 2;
-		}
-	}
 
 	remainingBytes -= status;
+	offset += status;
 	if (remainingBytes > 0) {
-		offset += status;
 		connect.setOffset(offset);
 		return 1;
 	} 
@@ -274,6 +265,14 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			}
 		}
 		if (fdInfo->fds.at(i).revents & POLLOUT) {
+			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
+				// parse incoming system data probably in chunks
+				// Only accept a certain amount of data at a time
+				// when all data has been parsed, change the flag
+
+				continue;
+			}
+
 			// make sure connection isnt awaiting a cgi connection
 			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				handle_request(connectMap->at(fd));

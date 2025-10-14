@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/03 19:07:45 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/10/09 21:06:36 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,16 +24,9 @@ int case_index(Connection& connection, std::string& index) {
 	long		n;
 	std::string	body;
 	
+	index = connection.getRequest().getPath() + index;
 	fd = open(index.c_str(), O_RDONLY);
 	if (fd < 0) {
-		switch (errno) {
-			case EACCES:
-				error_response(connection, FORBIDDEN);
-				break ;
-			default:
-				error_response(connection, INTERNAL_ERROR);
-				break;
-		}
 		return -1;
 	}
 	while (true) {
@@ -47,7 +40,6 @@ int case_index(Connection& connection, std::string& index) {
 		}
 		if (n < 0) {
 			close(fd);
-			error_response(connection, INTERNAL_ERROR);
 			return -1;
 		}
 	}
@@ -56,9 +48,11 @@ int case_index(Connection& connection, std::string& index) {
 	connection.getResponse().setCodeMessage("OK");
 	connection.getResponse().setHeader("Content-Length", size_to_string(body.size()));
 	connection.getResponse().setHeader("Content-Type", "text/html");
+	if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	std::cout << connection.getResponse() << std::endl;
+	// std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
 
@@ -74,12 +68,10 @@ int case_autoindex(Connection& connection) {
 		path.erase(0, 1);
 	dir = opendir(path.c_str());
 	if (dir == NULL) {
-		if (errno == EACCES)
-			error_response(connection, FORBIDDEN);
-		else
-			error_response(connection, INTERNAL_ERROR);
 		return -1;
 	}
+	if (path[path.size() - 1] != '/')
+		path += "/";
 	while (true) {
 		ent = readdir(dir);
 		if (ent == NULL)
@@ -88,14 +80,13 @@ int case_autoindex(Connection& connection) {
 		if (file_name == "." || file_name == "..")
 			continue;
 		list = list + "      <li><a href="
-					+ path
-					+ "/"
 					+ file_name
 					+ ">"
 					+ file_name
 					+ "</a></li>\n";
 	}
-	list.erase(list.size() - 1);
+	if (!list.empty())
+		list.erase(list.size() - 1);
 	closedir(dir);
 	buffer = "<!DOCTYPE html>\n"
 			"\n"
@@ -114,16 +105,17 @@ int case_autoindex(Connection& connection) {
 	connection.getResponse().setCodeMessage("OK");
 	connection.getResponse().setHeader("Content-Length", size_to_string(buffer.size()));
 	connection.getResponse().setHeader("Content-Type", "text/html");
+	if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	// std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
 
-// Untested for autoindex case because config is wonky
 // index specified -> return index.html of that location/server
 // auto-index on -> return the list of files in that directory in html
-// both auto-index off and no index specified -> 403 Fobidden
+// both auto-index off and no index specified or error -> 403 Fobidden
 int get_directory(Connection& connection) {
 	std::string		index;
 	bool			autoindex;
@@ -135,66 +127,121 @@ int get_directory(Connection& connection) {
 		return -1;
 	}
 	if (!index.empty()) {
-		
-		// To test only
-		// fix later to replace with absolute path
-		// index = ".." + index;
 		if (index[0] == '/')
 			index.erase(0, 1);
-
 		if (case_index(connection, index) == 0)
 			return 0;
 	}
 	if (autoindex == true) {
-		return case_autoindex(connection);
+		if (case_autoindex(connection) == 0)
+			return 0;
 	}
-	error_response(connection, NOT_FOUND);
+	error_response(connection, FORBIDDEN);
 	return -1;
 }
 
-std::string generate_name(const std::string& extension) {
-	std::time_t	time;
-	std::string	name;
-	int			random;
+std::string parseMultiPartForm(Connection& connection) {
+	std::string::size_type	boundary_pos;
+	std::string::size_type	boundary_end_pos;
+	std::string::size_type	header_pos;
+	std::string				boundary;
+	std::string				boundary_end;
+	std::string				body;
+	std::string				parsed_body;
+	std::string				content_type;
+	std::string::size_type	file_name_pos;
+	std::string				file_name;
+	std::string::size_type	last_slash;
 
-	time = std::time(NULL);
-	random = std::rand();
-	return std::string("upload_"
-					+ size_to_string(time)
-					+ size_to_string(random)
-					+ extension);
+	content_type = connection.getRequest().getContentType();
+	if (content_type.find("multipart/form-data") == std::string::npos) {
+		error_response(connection, UNSUPPORTED_MEDIA_TYPE);
+		return "";
+	}
+	boundary_pos = content_type.find("boundary=");
+	if (boundary_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	boundary = content_type.substr(boundary_pos + 9);
+	if (boundary.empty()) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	boundary = "--" + boundary;
+	boundary_end = boundary + "--";
+	body = connection.getRequest().getBody();
+	if (body.empty()) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	file_name_pos = body.find("filename=");
+	if (file_name_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	file_name_pos += 10;
+	while (file_name_pos < body.size() && body[file_name_pos] != '"') {
+		file_name.push_back(body[file_name_pos]);
+		file_name_pos++;
+	}
+	last_slash = file_name.find_last_of("/\\");
+	if (last_slash != std::string::npos) {
+		file_name = file_name.substr(last_slash + 1);
+	}
+	header_pos = body.find("\r\n\r\n");
+	if (header_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	boundary_end_pos = body.find(boundary_end);
+	if (boundary_end_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	header_pos += 4;
+	if (boundary_end_pos >= 2 && body[boundary_end_pos - 2] == '\r' && body[boundary_end_pos - 1] == '\n') {
+		boundary_end_pos -= 2;
+	}
+	parsed_body = body.substr(header_pos, boundary_end_pos - header_pos);
+	connection.getRequest().setBody(parsed_body);
+	return file_name;
 }
 
-// Create a file with request body as content.
-// File's name is chosen by server.
+// Upload a file with request body as content.
 // stuffs to do
 // Blocking
 int post_directory(Connection& connection) {
 	std::string		file_name;
 	std::string		path;
 	std::string		extension;
+	std::string		root;
 	int				fd;
 	size_t			total;
 	long			written;
 	std::string		body;
+	std::string		response_body;
 
 	if (connection.getServer().storage().empty())
 		path = connection.getRequest().getPath();
-	else
+	else {
+		root = connection.getServer().root();
+		if (root[root.size() - 1] == '/')
+			root.erase(root.size() - 1);
 		path = connection.getServer().storage();
+		path = root + path;
+	}
 	if (path[0] == '/')
 		path.erase(0, 1);
-	extension = getExtension(connection.getRequest().getContentType());
-	while (true) {
-		file_name = generate_name(extension);
-		if (access(file_name.c_str(), F_OK) != -1)
-			continue ;
-		if (path[path.size() - 1] != '/')
-			path += '/';
-		path += file_name;
-		break ;
-	}
-	fd = open(path.c_str(), O_WRONLY | O_CREAT, 0644);
+	
+	file_name = parseMultiPartForm(connection);
+	if (file_name.empty())
+		return -1;
+
+	if (path[path.size() - 1] != '/')
+		path += '/';
+	path += file_name;
+	fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0) {
 		switch (errno) {
 			case EACCES:
@@ -221,15 +268,17 @@ int post_directory(Connection& connection) {
 		total += written;
 	}
 	close(fd);
-	connection.getResponse().setCode(201);
-	connection.getResponse().setCodeMessage("Created");
-	
-	// Check later to return URI path instead of system path
-	connection.getResponse().setHeader("Location", path);
-	
+	connection.getResponse().setCode(200);
+	connection.getResponse().setCodeMessage("OK");
+	if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "keep-alive");
+	connection.getResponse().setHeader("Content-Type", "text/html");
+	response_body = "<!doctype html>\n\n<html><body><h1>Upload successful!</h1><p>Your file has been received.</p></body></html>";
+	connection.getResponse().setHeader("Content-Length", size_to_string(response_body.size()));
+	connection.getResponse().setBody(response_body);
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	std::cout << connection.getResponse() << std::endl;
+	// std::cout << connection.getResponse() << std::endl;
 	return 0;  
 }
 
