@@ -148,6 +148,9 @@ int main(int ac, char** av)
 				  << "\n" << std::endl;
 	}
 
+	std::cout << "////////////////////////////////////////////////////\n"
+		<< "Logs : \n\n";
+
 	try {
 		eventLoop(config, socket);
 	} catch (std::exception &e) {
