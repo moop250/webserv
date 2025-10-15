@@ -154,7 +154,7 @@ bool    ConfigError::checkTokens()
             }
             if (i != j && (s.host() == s2.host() || s.port() == s2.port() || s.name() == s2.name()))
             {
-                std::cerr << YELLOW << "[WARNING]" << RESET << "Two servers share the same host, port or name\n\n";
+                std::cerr << YELLOW << "[WARNING]   : " << RESET << "Two servers share the same host, port or name\n\n";
                 return (OK);	// False initialement
             }
         }

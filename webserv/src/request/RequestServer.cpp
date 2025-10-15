@@ -17,7 +17,7 @@ RequestServer::RequestServer(bool def) {
     _location = "";
     if (!def)
         return ;
-    std::cout << CYAN << "Default server configuration\n" << RESET << std::flush;
+//    std::cout <<  CYAN << "[INFO]       : " << RESET << "from request a default server configuration\n" << RESET << std::flush;
     _isValid = true;
     _serverName = "Aaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     _host = "127.0.0.1";
