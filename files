@@ -1,0 +1,13 @@
+autoindex.sh
+cgi.sh
+client_size.sh
+host.sh
+index.sh
+location.sh
+methods.sh
+names.sh
+ports.sh
+root.sh
+stress1.sh
+stress2.sh
+upload.sh

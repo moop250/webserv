@@ -34,7 +34,7 @@ test_server() {	# takes file to exec
 
 	local name=$(echo $1 | tr -d tests)
 
-	./$executable $2 > logs/$name.log
+	./$executable $2 >> logs/$name.log
 
 	if (( $? == 0 )) ; then
 		error=$(cat logs/$name.log | grep FAILED | wc -l)
@@ -79,8 +79,11 @@ wich_config() {
         	echo "Config $config_name introuvable dans goodConfigs. Abort."
         	echo "FAILED: invalid config" && exit 1
     	fi
-
-    	export config="$config_name"
+	if (( $(echo $config1 | wc -l) != 0 )) ; then
+		export config2="$config_name"
+	else
+    		export config1="$config_name"
+	fi
 }
 
 if ! [[ -f "logs" ]] ; then
@@ -94,9 +97,11 @@ echo FIRST THINGS FIRST !
 
 wich_config
 
-echo config is : $config
+echo config is : $config1
 
-exit
+wich_config
+
+echo config 2 is : $config2 
 
 #	si 0 arg alors exec tout
 if (( $BASH_ARGC == 0 )) ; then
@@ -110,6 +115,7 @@ if (( $BASH_ARGC == 0 )) ; then
 		if (( $do_i_test == 0 )) ; then
 			test_server $file $config
         	fi
+		sleep 1
 	done
 	if [ -f "files" ] ; then
 		rm files
