@@ -124,14 +124,12 @@ int main(int ac, char** av)
 	Config	*config = NULL;
 	ServerSocket *socket = NULL;
 
-	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
 	else
 		config = parseConfigFile("ressources/configFiles/goodConfigs/default.config", dfile);
 	if (!config)
 		return (-1);
-	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
 	try {
 		socket = initalizeServer(config);
@@ -141,8 +139,15 @@ int main(int ac, char** av)
 		return (-2);
 	}
 
-	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
-	
+	std::cout << "Servers available :\n";
+
+	for (int i = 0; i < config->getNbServers(); i++)
+	{
+		std::cout << "\nServer name 	: " << config->getServerData(i).server_name
+				  << "\nHost:port pair	: " << config->getServerData(i).host << ":" << config->getServerData(i).port
+				  << "\n" << std::endl;
+	}
+
 	try {
 		eventLoop(config, socket);
 	} catch (std::exception &e) {
