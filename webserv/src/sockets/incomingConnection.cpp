@@ -245,7 +245,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		return 4;
 	else if (connect.getRequest().getKeepAlive() == "keep-alive")
 		return 3;
-	std::cout << RED << "Keep alive: " << connect.getRequest().getKeepAlive() << RESET << std::endl;
+	// 400 Bad request with post happens after 0 is returned
 	return 0;
 }
 
