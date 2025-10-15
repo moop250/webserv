@@ -222,8 +222,8 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		remainingBytes -= offset;
 	}
 
-	// Limit how much can be sent at once
-	ssize_t status = send(fd, buf, remainingBytes, 0);
+	ssize_t chunk = (remainingBytes < SEND_CHUNK) ? remainingBytes : SEND_CHUNK;
+	ssize_t status = send(fd, buf, chunk, 0);
 	if (status < 0)
 		return 2;
 	if (status == 0)
