@@ -5,6 +5,7 @@
 # include "Connection.hpp"
 # include <poll.h>
 
+# define SEND_CHUNK 4096
 
 enum connectionReturns {
 	CONNECTIONSUCCESS = 0,
