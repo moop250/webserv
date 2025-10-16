@@ -92,7 +92,7 @@ void	eventLoop(Config *config, ServerSocket *socket)
 			int	pollCount = poll(&fdInfo.fds[0], socket->getTotalSocketCount(), 0);
 
 			 if (!g_running)
-                break;
+				break;
 			if (pollCount == -1) {
 				std::cerr << "Error: Poll" << std::endl;
 				break;
@@ -101,7 +101,7 @@ void	eventLoop(Config *config, ServerSocket *socket)
 			if (pollCount > 0)
 				incomingConnection(socket, &fdInfo, config, &connectMap);
 			if (pollCount == 0)
-				handleTimeout(&fdInfo);			
+				handleTimeout(&fdInfo);
 		}
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
