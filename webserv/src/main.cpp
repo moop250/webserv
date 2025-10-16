@@ -74,7 +74,7 @@ static void close_all(int sig)
             i->fd = -1;
         }
     }
-    std::cerr << CYAN <<  "\n[INFO]	: " << RESET << "SIGQUIT reçu, sockets fermés" << std::endl;
+    std::cerr << CYAN << "\n[INFO]	: " << RESET << "SIGQUIT reçu, sockets fermés" << std::endl;
 }
 
 void	eventLoop(Config *config, ServerSocket *socket)
