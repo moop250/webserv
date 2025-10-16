@@ -88,6 +88,7 @@ void    Config::parseContent()
 
     if (trim.empty())
         return _servers.push_back(getDefaultServ(0));
+
     _servers.pop_back();    // rm default
     while (!trim.empty())
     {
