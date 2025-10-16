@@ -26,6 +26,7 @@ void    Config::initTokenMaps()
 static void eraseComments(std::string &buf)
 {
     size_t  from = 0, to;
+    int     secure_break = 0;
 
     while ((from = buf.find("#", from)) != std::string::npos)
     {
@@ -36,6 +37,8 @@ static void eraseComments(std::string &buf)
             buf.erase(from);
         else
             buf.erase(from, to - from);
+        if (secure_break++ > 1000)
+            break ;
     }
 }
 
@@ -50,10 +53,13 @@ void    formatContent(std::string &buf)
     for (int i = 0; i < 3; i++)
     {
         pos = 0, lastpos = 0;
+        int secure_break = 0;
         while ((pos = buf.find(tokens[i], lastpos)) != std::string::npos)
         {
             buf.insert(pos + 1, 1, '\n');
             lastpos = pos + 2;
+            if (secure_break++ > 1000)
+                break ;
         }
     }
     eraseComments(buf);
@@ -95,7 +101,7 @@ Config::Config(std::string fileName, Debug &dfile) :
     if (readFile.is_open())
     {
         while (std::getline(readFile, buf))
-        _content.append(buf);
+            _content.append(buf);
     }
     else
     {
@@ -104,6 +110,7 @@ Config::Config(std::string fileName, Debug &dfile) :
         return ;
     }
     _dfile->append(buf.c_str());
+
     initTokenMaps();
     _servers.push_back(getDefaultServ(0));
     formatContent(_content);

@@ -54,7 +54,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	ConfigError	error(*config);
 	if (error.isConfigValid())
 		return (config);
-	std::cerr << RED << "Program stopped\n" << RESET;
+	std::cerr << RED << "[INFO]		: " << "Program stopped\n" << RESET;
 	delete config;
 	return NULL;
 }
@@ -74,7 +74,7 @@ static void close_all(int sig)
             i->fd = -1;
         }
     }
-    std::cerr << "[INFO] SIGQUIT reçu, sockets fermés" << std::endl;
+    std::cerr << CYAN <<  "\n[INFO]	: " << RESET << "SIGQUIT reçu, sockets fermés" << std::endl;
 }
 
 void	eventLoop(Config *config, ServerSocket *socket)
@@ -85,7 +85,7 @@ void	eventLoop(Config *config, ServerSocket *socket)
 
 	std::map<int, Connection> connectMap;
 
-	signal(SIGQUIT, close_all);
+	signal(SIGINT, close_all);
 	g_fds = fdInfo.fds;
 	try {
 		while (1) {
@@ -141,12 +141,15 @@ int main(int ac, char** av)
 
 	std::cout << "Servers available :\n";
 
-	for (int i = 0; i < config->getNbServers(); i++)
+	int	iter = 0;
+	for (; iter < config->getNbServers(); iter++)
 	{
-		std::cout << "\nServer name 	: " << config->getServerData(i).server_name
-				  << "\nHost:port pair	: " << config->getServerData(i).host << ":" << config->getServerData(i).port
+		std::cout << "\nServer name 	: " << config->getServerData(iter).server_name
+				  << "\nHost:port pair	: " << config->getServerData(iter).host << ":" << config->getServerData(iter).port
 				  << "\n" << std::endl;
 	}
+	if (iter == 0) {
+		std::cout << "NO SERVER AVAILABLE\n"; return 1; }
 
 	std::cout << "////////////////////////////////////////////////////\n"
 		<< "Logs : \n\n";
