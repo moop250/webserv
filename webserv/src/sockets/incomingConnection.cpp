@@ -257,14 +257,11 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			close(fd);
 			removeFromPollfd(fdInfo, fd, sockets, connectMap);
 			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
-			continue;
 		}
-		if (fdInfo->fds.at(i).revents & POLLIN) {
-			if (handlePOLLIN(fd, sockets, fdInfo, connectMap, config) <= 0) {
-				continue;
-			}
+		else if (fdInfo->fds.at(i).revents & POLLIN) {
+			handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
 		}
-		if (fdInfo->fds.at(i).revents & POLLOUT) {
+		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
 				// parse incoming system data probably in chunks
 				// Only accept a certain amount of data at a time
@@ -274,7 +271,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			}
 
 			// make sure connection isnt awaiting a cgi connection
-			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
+			else if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				handle_request(connectMap->at(fd));
 			}
 
