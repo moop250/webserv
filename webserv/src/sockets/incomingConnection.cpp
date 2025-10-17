@@ -269,7 +269,6 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 
 				continue;
 			}
-
 			// make sure connection isnt awaiting a cgi connection
 			else if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				handle_request(connectMap->at(fd));
