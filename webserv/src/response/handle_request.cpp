@@ -46,9 +46,14 @@ int parse_request_type(Connection& connection) {
 	if (S_ISDIR(file_stat.st_mode)) {
 		connection.getRequest().setRequestType(Directory);
 	} else if (S_ISREG(file_stat.st_mode)) {
-		extension = path.substr(path.rfind('.'));
+		size_t	pos = path.rfind('.');
+		pos == std::string::npos ? extension = "binary" : extension = path.substr(path.rfind('.'));
 		connection.getRequest().setRequestType(File);
 		connection.getRequest().setFileType(extension);
+		if (extension == "binary") {
+			error_response(connection, UNSUPPORTED_MEDIA_TYPE);
+			return -1;
+		}
 	} else {
 		error_response(connection, BAD_REQUEST);
 		return -1;
@@ -123,16 +128,23 @@ int handle_request(Connection& connection) {
 	std::string	location;
 
 	location = connection.getServer().getLocation();
+	std::cout << "1\n";
 	if (location == "/cgi" || location == "/cgi/") {
 		if (connection.getRequest().getMethod() == "DELETE") {
+			std::cout << "1\n";
+
 			error_response(connection, METHOD_NOT_ALLOWED);
 			return -1;
 		}
 		if (path_merge_cgi(connection) == -1) {
+			std::cout << "1\n";
+
 			return -1;
 		}
 	} else {
 		path_merge_non_cgi(connection);
+		std::cout << "1\n";
+
 		if (parse_request_type(connection) == -1)
 			return -1;
 	}

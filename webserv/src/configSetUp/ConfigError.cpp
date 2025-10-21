@@ -21,7 +21,7 @@ ConfigError::ConfigError(const Config &c) :
     };
     static const char *msg[CONFIG_CHECKERS] = {
         "Unmatching bracket. Missing '{' or '}'", "No server specified in config file",
-        "Line does not match format", "Missing token"
+        "Line does not match format", "Missing | Unvalid token"
     };
 
     for (int i = 0; i < CONFIG_CHECKERS; i++)

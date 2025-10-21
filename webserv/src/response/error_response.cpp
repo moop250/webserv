@@ -94,6 +94,8 @@ void error_response(Connection& connection, int code) {
 	std::string	codeMessage;
 
 	codeMessage = error_message(code);
+	std::cout << "IN ERROR RESPONSET\n";
+	std::cout << ROSE << "[DEBUG]		: " << RESET << "Error message is " << YELLOW << codeMessage << std::endl;
 	if (codeMessage.empty()) {
 		code = 500;
 		codeMessage = "Internal Server Error";
