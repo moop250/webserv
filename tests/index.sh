@@ -4,7 +4,7 @@ echo In index test file
 
 
 
-URL="http://localhost:8080/"
+URL="http://127.0.0.1:8000/"
 CONTENT=$(curl -s $URL)
 
 if echo "$CONTENT" | grep -qi "Welcome"; then

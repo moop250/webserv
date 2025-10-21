@@ -2,7 +2,7 @@
 
 echo In autoindex test file
 
-URL="http://localhost:8080/"
+URL="http://127.0.0.1:8000/"
 
 curl -s $URL > page.html
 

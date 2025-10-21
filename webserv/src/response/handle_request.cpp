@@ -45,8 +45,6 @@ int parse_request_type(Connection& connection) {
 	}
 	if (S_ISDIR(file_stat.st_mode)) {
 		connection.getRequest().setRequestType(Directory);
-		std::cout << "11111\n";
-
 	} else if (S_ISREG(file_stat.st_mode)) {
 		size_t	pos = path.rfind('.');
 		pos == std::string::npos ? extension = "binary" : extension = path.substr(path.rfind('.'));
