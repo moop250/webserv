@@ -190,8 +190,11 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			}
 			break ;
 		} case SYS_FD_IN: {
-			// handle sending data to the system
-			// Send in chunks to avoid hanging up on large files
+			// handle receiving data to the system
+
+			return 1;
+		} case CGI_FD_IN: {
+			// handle reciving data to the CGI
 
 			return 1;
 		} default:
@@ -213,17 +216,10 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 
 	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
-	ssize_t remainingBytes = out.size(), offset = 0;
-	const char *buf = out.c_str();
-
-	if (connect.getOffset() > 0) {
-		buf += connect.getOffset();
-		offset = connect.getOffset();
-		remainingBytes -= offset;
-	}
+	ssize_t offset = connect.getOffset(), remainingBytes = (out.size() - offset);
 
 	ssize_t chunk = (remainingBytes < SEND_CHUNK) ? remainingBytes : SEND_CHUNK;
-	ssize_t status = send(fd, buf, chunk, 0);
+	ssize_t status = send(fd, out.c_str() + offset, chunk, 0);
 	if (status < 0)
 		return 2;
 	if (status == 0)
