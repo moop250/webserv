@@ -226,9 +226,8 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		return 5;
 
 	remainingBytes -= status;
-	offset += status;
 	if (remainingBytes > 0) {
-		connect.setOffset(offset);
+		connect.setOffset(offset + status);
 		return 1;
 	} 
 
