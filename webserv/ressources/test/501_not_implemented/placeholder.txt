@@ -1,0 +1,2 @@
+Send an HTTP method not implemented (like FOO) to trigger 501.
+
