@@ -153,3 +153,12 @@ Method:
 - `constructResponse()` -> Construct a HTTP response from a response object. Return std::string.
 - `sendResponse(int fd_client)` -> Send HTTP response.
 ///////////////////////////////////////////////////////////////////////////////////////////
+
+# TESTER WEBSERV
+
+##  Utiliser test.sh
+
+Les verifications automatiques (SUCCESS & FAILED) ne sont valides que pour 
+les fichiers de configuration default et default_bis
+
+

@@ -28,9 +28,6 @@ test_server() {	# takes file to exec
 		cd ..
 		return
 	fi
-
-
-	echo Here in $PWD
   	
 	sub=.sh
 	name=$1
