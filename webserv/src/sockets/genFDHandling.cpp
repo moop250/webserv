@@ -26,9 +26,9 @@ int handleFDIn(t_fdInfo *fdInfo, int fd, Connection connect) {
 
 int handleFDOut(t_fdInfo *fdInfo, int fd, Connection connect) {
 	std::string body = connect.getRequest().getBody();
-	size_t offset = connect.getOffset(), status = -1, remainingBytes = (body.size() - offset);
+	size_t offset = connect.getOffset(), remainingBytes = (body.size() - offset);
 
-	ssize_t chunk = (remainingBytes < SEND_CHUNK) ? remainingBytes : SEND_CHUNK;
+	ssize_t status, chunk = (remainingBytes < SEND_CHUNK) ? remainingBytes : SEND_CHUNK;
 	status = write(fd, body.c_str() + offset, chunk);
 	if (status < 0) {
 		close(fd);
