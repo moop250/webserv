@@ -17,7 +17,7 @@
 Connection::Connection() {
 	this->state = READING_METHOD;
 	this->chunked_size = -1;
-	this->offset = -2;
+	this->offset = 0;
 	this->reconnect = false;
 	this->close = false;
 	this->server = getDefaultServer();
@@ -35,6 +35,7 @@ Connection& Connection::operator =(const Connection& assign) {
 		this->chunked_size = assign.chunked_size;
 		this->offset = assign.offset;
 		this->buffer = assign.buffer;
+		this->iobuffer = assign.iobuffer;
 		this->reconnect = assign.reconnect;
 		this->close = assign.close;
 		this->port = assign.port;
@@ -68,6 +69,7 @@ Connection& Connection::clear() {
 	this->chunked_size = -1;
 	this->offset = -2;
 	this->buffer.clear();
+	this->iobuffer.clear();
 	this->reconnect = true;
 	this->close = false;
 	// Server not reset!

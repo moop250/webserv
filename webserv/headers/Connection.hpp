@@ -47,6 +47,7 @@ class Connection {
 
 	public:
 		std::string		buffer;
+		std::string		iobuffer;
 
 		Connection();
 		Connection(const Connection& copy);
