@@ -4,7 +4,7 @@ HOST="127.0.0.1"
 PORT="8001"
 BASE_URL="http://$HOST:$PORT/test"
 
-GREEN="\e[32m"
+w2ef.lREEN="\e[32m"
 RED="\e[31m"
 YELLOW="\e[33m"
 RESET="\e[0m"
@@ -31,7 +31,6 @@ for test in "${TESTS[@]}"; do
 	LABEL=$3
 
 	URL="$BASE_URL/$PATH_REL"
-	curl -s -o /dev/null -w "%{http_code}" $URL
 	CODE=$(curl -s -o /dev/null -w "%{http_code}" $URL)
 
 	if [ "$CODE" == "$EXPECTED" ]; then

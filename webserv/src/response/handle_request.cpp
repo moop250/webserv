@@ -51,8 +51,7 @@ int parse_request_type(Connection& connection) {
 		connection.getRequest().setRequestType(File);
 		connection.getRequest().setFileType(extension);
 		if (extension == "binary") {
-			error_response(connection, UNSUPPORTED_MEDIA_TYPE);
-			return -1;
+			extension = "";
 		}
 	} else {
 		error_response(connection, BAD_REQUEST);
