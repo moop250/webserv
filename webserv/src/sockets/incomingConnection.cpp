@@ -164,7 +164,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 				case ACCEPTERROR:
 					throw std::runtime_error("handlePOLLIN Accept error");
 				default:
-					std::cout << YELLOW << "Accept: New connection on socket: " << tmp << RESET << std::endl;
+					std::cout <<   CYAN << "[INFO]		: " << RESET << "Accept: New connection on socket: " << tmp << RESET << std::endl;
 			}
 			break ;
 		} case CLIENT: {
@@ -177,7 +177,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					setPOLLOUT(fd, &fdInfo->fds);
 					return 1;
 				case HUNGUP:
-					std::cout << YELLOW << "[WARNING] : " << WHITE << "Recv: socket " << fd << " hung up" << RESET << std::endl;
+					std::cout << YELLOW << "[WARNING]	: " << WHITE << "Recv: socket " << fd << " hung up" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					return -1;
@@ -195,7 +195,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 
 			return 1;
 		} default:
-			std::cout << RED << "[ERROR] : " << WHITE << "Unknown POLLIN type" << RESET << std::endl;
+			std::cout << RED << "[ERROR]	: " << WHITE << "Unknown POLLIN type" << RESET << std::endl;
 	}
 	return 0;
 }
@@ -222,8 +222,8 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		remainingBytes -= offset;
 	}
 
-	// Limit how much can be sent at once
-	ssize_t status = send(fd, buf, remainingBytes, 0);
+	ssize_t chunk = (remainingBytes < SEND_CHUNK) ? remainingBytes : SEND_CHUNK;
+	ssize_t status = send(fd, buf, chunk, 0);
 	if (status < 0)
 		return 2;
 	if (status == 0)
@@ -245,7 +245,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		return 4;
 	else if (connect.getRequest().getKeepAlive() == "keep-alive")
 		return 3;
-	std::cout << RED << "Keep alive: " << connect.getRequest().getKeepAlive() << RESET << std::endl;
+	// 400 Bad request with post happens after 0 is returned
 	return 0;
 }
 
@@ -292,19 +292,19 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					break ;
 				case 3:
 					fdInfo->timeout[fd] = time(NULL);
-					std::cout << "Keep-alive timer started" << std::endl;
+					std::cout <<   CYAN << "[INFO]		: " << RESET << "Keep-alive timer started" << std::endl;
 					connectMap->at(fd).clear();
 					setPOLLIN(fd, &fdInfo->fds);
 					continue;
 				case 4:
-					std::cout << YELLOW << "[WARNING] : " << WHITE << "POLLOUT: close flag on socket: " << fd << "... closing" << RESET << std::endl;
+					std::cout << YELLOW << "[WARNING]	: " << WHITE << "POLLOUT: close flag on socket: " << fd << "... closing" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					continue;
 				case 5:
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
-					std::cout << YELLOW << "[WARNING] : " << WHITE << "POLLOUT: socket " << fd << " hung up" << RESET << std::endl;
+					std::cout << YELLOW << "[WARNING]	: " << WHITE << "POLLOUT: socket " << fd << " hung up" << RESET << std::endl;
 					continue;
 				case 6:
 					close(fd);

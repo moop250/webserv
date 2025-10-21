@@ -17,7 +17,7 @@ RequestServer::RequestServer(bool def) {
     _location = "";
     if (!def)
         return ;
-    std::cout << CYAN << "Default server configuration\n" << RESET << std::flush;
+//    std::cout <<  CYAN << "[INFO]       : " << RESET << "from request a default server configuration\n" << RESET << std::flush;
     _isValid = true;
     _serverName = "Aaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     _host = "127.0.0.1";
@@ -54,7 +54,7 @@ static size_t   findServer(Config config, std::string ip, std::string port)
         if ((serv.host == ip || serv.host == "0.0.0.0") && serv.port == port)
             return i;
     }
-    std::cout << YELLOW << "server host:port not found\n" << RESET;
+    std::cout <<   CYAN << "[INFO]      : " << RESET  << "server host:port not found\n" << RESET;
     return std::string::npos;
 }
 
@@ -66,7 +66,7 @@ static size_t   findServer(Config config, std::string name)
         if (serv.server_name == name)
             return i;
     }
-    std::cout <<  YELLOW <<"server name not found\n" << RESET;
+    std::cout <<  CYAN << "[INFO]       : " << RESET << "server name not found\n" << RESET;
     return std::string::npos;
 }
 
@@ -91,7 +91,7 @@ static size_t   findLocation(std::string path, t_ServerData server)
             return id;
         id++;
     }
-    std::cout <<  YELLOW << "\nPath doesn't match any location\n" << RESET;
+    std::cout <<   CYAN << "[INFO]          : " << RESET <<  "Path doesn't match any location\n" << RESET;
     return std::string::npos;
 }
 
@@ -162,11 +162,9 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
         case ERROR_PAGE:
             for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)
             {
-                std::cout << "\nSetting serv\n";
                 if (_errorPages.has(i->first))
                     _errorPages.replace(i->first, i->second);
             }
-            std::cout << "\n\n\n" <<  std::endl;
             break ;
         case UPLOAD_STORAGE:
             _storage = serv.upload_storage;
@@ -216,11 +214,9 @@ void    RequestServer::setToken(t_Location loc, e_TokenType type)
         case ERROR_PAGE:
             for (std::map<int, std::string>::iterator i = loc.data.error_pages.begin(); i != loc.data.error_pages.end(); i++)
             {
-                std::cout << "\nsetting loc\n";
                 if (_errorPages.has(i->first))
                     _errorPages.replace(i->first, i->second);
             }
-            std::cout << "\n\n\n" <<  std::endl;
             break ;
         case UPLOAD_STORAGE:
             _storage = loc.data.upload_storage;

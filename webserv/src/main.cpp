@@ -54,7 +54,7 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	ConfigError	error(*config);
 	if (error.isConfigValid())
 		return (config);
-	std::cerr << RED << "Program stopped\n" << RESET;
+	std::cerr << RED << "[INFO]		: " << "Program stopped\n" << RESET;
 	delete config;
 	return NULL;
 }
@@ -74,7 +74,7 @@ static void close_all(int sig)
             i->fd = -1;
         }
     }
-    std::cerr << "[INFO] SIGQUIT reçu, sockets fermés" << std::endl;
+    std::cerr << CYAN << "\n[INFO]	: " << RESET << "SIGQUIT reçu, sockets fermés" << std::endl;
 }
 
 void	eventLoop(Config *config, ServerSocket *socket)
@@ -85,7 +85,7 @@ void	eventLoop(Config *config, ServerSocket *socket)
 
 	std::map<int, Connection> connectMap;
 
-	signal(SIGQUIT, close_all);
+	signal(SIGINT, close_all);
 	g_fds = fdInfo.fds;
 	try {
 		while (1) {
@@ -101,7 +101,7 @@ void	eventLoop(Config *config, ServerSocket *socket)
 			if (pollCount > 0)
 				incomingConnection(socket, &fdInfo, config, &connectMap);
 			if (pollCount == 0)
-				handleTimeout(&fdInfo);
+				handleTimeout(&fdInfo);			
 		}
 	} catch (std::exception &e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
@@ -124,14 +124,12 @@ int main(int ac, char** av)
 	Config	*config = NULL;
 	ServerSocket *socket = NULL;
 
-	dfile.append("\n\n//////////////////\n// Parsing Part //\n//////////////////");
 	if (ac == 2)
 		config = parseConfigFile(static_cast<std::string>(av[1]), dfile);
 	else
 		config = parseConfigFile("ressources/configFiles/goodConfigs/default.config", dfile);
 	if (!config)
 		return (-1);
-	dfile.append("\n\n//////////////////\n//  Setup Part  //\n//////////////////");
 
 	try {
 		socket = initalizeServer(config);
@@ -141,27 +139,20 @@ int main(int ac, char** av)
 		return (-2);
 	}
 
-	dfile.append("\n\n//////////////////////\n// Event loop start //\n//////////////////////");
-	
-	std::string	ip = "127.0.0.1";
-	std::string	port = "8001";
-	std::string	path = "/error/page/";
-	std::string	host = "localhost1";
+	std::cout << "Servers available :\n";
 
+	int	iter = 0;
+	for (; iter < config->getNbServers(); iter++)
+	{
+		std::cout << "\nServer name 	: " << config->getServerData(iter).server_name
+				  << "\nHost:port pair	: " << config->getServerData(iter).host << ":" << config->getServerData(iter).port
+				  << "\n" << std::endl;
+	}
+	if (iter == 0) {
+		std::cout << "NO SERVER AVAILABLE\n"; return 1; }
 
-	RequestServer	rs1(*config, port, ip, host, "");
-	std::cout << "RS ! CREATED \n";
-	RequestServer	rs2(*config, port, ip, host, path);
-
-	std::cout << "ERROR 1 : " << rs1.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;
-	std::cout << "ERROR 2 : " << rs2.errorPages().path(REQUEST_ERROR_BAD_REQUEST) << std::endl;
-
-	std::cout << "ERROR 1 : " << rs1.errorPages().content(REQUEST_ERROR_NOT_FOUND) << std::endl;
-	std::cout << "ERROR 2 : " << rs2.errorPages().content(REQUEST_ERROR_NOT_FOUND) << std::endl;
-
-	delete config;
-
-	return 1;
+	std::cout << "////////////////////////////////////////////////////\n"
+		<< "Logs : \n\n";
 
 	try {
 		eventLoop(config, socket);

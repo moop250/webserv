@@ -24,6 +24,7 @@ t_ServerData    getDefaultServ(bool with_location)
     defaultServ.locations.push_back(default_location_values);
     if (!with_location)
         return defaultServ;
+
     return (defaultServ);
 }
 

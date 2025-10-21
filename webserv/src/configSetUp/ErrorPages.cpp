@@ -153,7 +153,6 @@ void    ErrorPages::replace(int error, std::string path)
     if (pos == -1)
         return this->add(error, path);
 
-    std::cout << ROSE << "SUUUUUUUUUB TIME ! \n" << RESET;
     std::map<int, std::string>  new_map;
     std::vector<std::string>    new_vector;
 
@@ -161,7 +160,6 @@ void    ErrorPages::replace(int error, std::string path)
     {
         if (i->first == error)
         {
-            std::cout << YELLOW << "Replacing with new path : " << path << RESET;
             new_vector.push_back(extract_content(path));
             new_map.insert(std::make_pair(error, path));
         }
