@@ -152,9 +152,9 @@ bool    ConfigError::checkTokens()
                 std::cerr << "host or port not defined in server\n";
                 return (KO);    //  add here if more imperative tokens
             }
-            if (i != j && (s.port() == s2.port() || s.name() == s2.name()))
+            if (i != j && (s.port() == s2.port()))// || s.name() == s2.name()))
             {
-                std::cerr << YELLOW << "[WARNING]   : " << RESET << "Two servers share the same host, port or name\n\n";
+                std::cerr << YELLOW << "[WARNING]   : " << RESET << "Two servers share the same port\n\n";
                 return (KO);	// False initialement
             }
         }
@@ -255,7 +255,7 @@ static std::string describeErrorContext(std::string content, std::string _errorL
     int servId = 0, locId = 0;
 
     servId = countOccurence("server ", content, 0, content.find(_errorLine)) - 1;
-    msg += static_cast<char>(servId);
+    msg += static_cast<char>(servId + '0');
     msg += '\'';
     msg += " in location block nb : ";
     size_t  from = 0;

@@ -1,0 +1,62 @@
+#!/bin/bash
+# ============================================================
+# http_codes.sh — Vérifie les codes HTTP de Webserv
+# adapté à la structure dans ressources/test/
+# ============================================================
+
+HOST="127.0.0.1"
+PORT="8001"
+BASE_URL="http://$HOST:$PORT/test"
+
+# Couleurs
+GREEN="\e[32m"
+RED="\e[31m"
+YELLOW="\e[33m"
+RESET="\e[0m"
+
+echo -e "\n🔎 ${YELLOW}Test des codes HTTP sur $BASE_URL${RESET}"
+echo "---------------------------------------------------------"
+
+# Tableau : chemin relatif + code attendu + description
+declare -a TESTS=(
+  "301_redirect 301 Moved_Permanently"
+  "302_redirect 302 Found"
+  "403_forbidden 403 Forbidden"
+  "404_missing/doesnotexist.txt 404 Not_Found"
+  "405_method 405 Method_Not_Allowed"
+  "411_length_required 411 Length_Required"
+  "413_too_large 413 Content_Too_Large"
+  "415_wrong_media/weird.bin 415 Unsupported_Media_Type"
+  "500_internal_error/crash.py 500 Internal_Error"
+  "501_not_implemented 501 Not_Implemented"
+  "505_http_version 505 HTTP_Version_Mismatch"
+  "204_empty/empty.txt 204 No_Content"
+)
+
+# Vérifie si le serveur répond
+if ! curl -s -o /dev/null -w "%{http_code}" $BASE_URL/index.html | grep -q "200"; then
+  echo -e "${RED}❌ Le serveur ne répond pas sur $BASE_URL${RESET}"
+  echo "➡️  Lance ./webserv configs/default.conf avant de tester."
+  exit 1
+fi
+
+# Boucle principale
+for test in "${TESTS[@]}"; do
+  set -- $test
+  PATH_REL=$1
+  EXPECTED=$2
+  LABEL=$3
+
+  URL="$BASE_URL/$PATH_REL"
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" $URL)
+
+  if [ "$CODE" == "$EXPECTED" ]; then
+    echo -e "${GREEN}✅ $LABEL -> $CODE${RESET}"
+  else
+    echo -e "${RED}❌ $LABEL -> $CODE (attendu $EXPECTED)${RESET}"
+  fi
+done
+
+echo "---------------------------------------------------------"
+echo -e "${YELLOW}✔️  Tests terminés${RESET}"
+

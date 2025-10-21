@@ -59,9 +59,10 @@ Config	*parseConfigFile(std::string file, Debug &dfile)
 	return NULL;
 }
 
-
 std::vector<pollfd> g_fds;
 volatile sig_atomic_t g_running = 1; // 1 = en cours, 0 = stop
+
+#include <stdio.h>
 
 static void close_all(int sig)
 {
@@ -74,6 +75,7 @@ static void close_all(int sig)
             i->fd = -1;
         }
     }
+	remove("Debug.log");
     std::cerr << CYAN << "\n[INFO]	: " << RESET << "SIGQUIT reçu, sockets fermés" << std::endl;
 }
 
