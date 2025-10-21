@@ -2,7 +2,7 @@
 
 echo In autoindex test file
 
-URL="http://localhost:8080/dir_without_index/"
+URL="http://localhost:8080/"
 
 curl -s $URL > page.html
 

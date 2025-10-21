@@ -79,6 +79,7 @@ void    ConfigError::explicitTheError()
     _error--;
     sanitizeLine(_errorLine);
     std::cout << ROSE << "Line concerned : " << _errorLine << RESET << '\n';
+    std::cout << "Line indexed at : " << _lineCount << '\n';
     switch (_error)
     {
         case ERROR_BRACKET:
@@ -118,10 +119,13 @@ bool ConfigError::checkBrackets()
 {
     int open = 0, close = 0;
     size_t  len = _content.length();
+    int line = 0;
 
 //    std::cout << "In check brackets\n";
     for (size_t i = 0; i < len; i++)
     {
+        if (_content[i] == '\n')
+            line++;
         if (_content[i] == '{')
             open++;
         if (_content[i] == '}')
@@ -129,6 +133,7 @@ bool ConfigError::checkBrackets()
     }
     if (open != close || !open)
         _isValid = 0;
+    _lineCount = line;
     return OK;
 }
 
@@ -252,17 +257,11 @@ static int countOccurence(std::string toFind, std::string in, size_t from, size_
 static std::string describeErrorContext(std::string content, std::string _errorLine)
 {
     std::string msg = "Server '";
-    int servId = 0, locId = 0;
+    int servId = 0;
 
     servId = countOccurence("server ", content, 0, content.find(_errorLine)) - 1;
     msg += static_cast<char>(servId + '0');
     msg += '\'';
-    msg += " in location block nb : ";
-    size_t  from = 0;
-    while (servId-- > 0)
-        from = content.find("server", from);
-    locId = countOccurence("location ", content, from, content.find(_errorLine));
-    msg += locId + '0';
     return msg;
 }
 
@@ -278,6 +277,8 @@ bool    ConfigError::checkConfig()
             _isValid = KO;
     if (_isValid)
         return OK;
+    std::cout << CYAN << "[INFO]        : " << RESET
+        << "Ne pas etre trop dur sur l'exactitude de l'erreur relatee, merci bien. ^^\n\n" << std::flush;
     std::string describeContext = describeErrorContext(_content, _errorLine);
     Error(errors[_error].c_str(), describeContext.c_str(), "Your config file", _lineCount);
     explicitTheError();

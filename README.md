@@ -158,7 +158,5 @@ Method:
 
 ##  Utiliser test.sh
 
-Les verifications automatiques (SUCCESS & FAILED) ne sont valides que pour 
-les fichiers de configuration default et default_bis
-
+Les verifications automatiques (SUCCESS & FAILED) ne sont valides que pour default.config
 
