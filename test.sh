@@ -68,26 +68,6 @@ stress_test() {
 	kill $pid2
 }
 
-# wich_config() {
-	# echo "Quelle configuration a été utilisée pour lancer webserv ?"
-	# echo 
-	# echo "Liste des configs disponibles :"
-    	# ls webserv/ressources/configFiles/goodConfigs/*.config | xargs -n1 basename
-    	# echo
-    	# echo -n "Entrez le nom du fichier config (ex: default.config) : "
-    	# echo ...
-    	# read config_name
- 	# if [[ ! -f "webserv/ressources/configFiles/goodConfigs/$config_name" ]]; then
-        	# echo "Config $config_name introuvable dans goodConfigs. Abort."
-        	# echo "FAILED: invalid config" && exit 1
-    	# fi
-	# if (( $(echo $config1 | wc -l) != 0 )) ; then
-		# export config2="$config_name"
-	# else
-    	# export config1="$config_name"
-	# fi
-# }
-
 if ! [[ -f "logs" ]] ; then
 	mkdir -p logs
 else
@@ -95,17 +75,6 @@ else
 	mkdir -p logs
 fi
 
-# echo FIRST THINGS FIRST !
-# 
-# wich_config
-# 
-# echo config is : $config1
-# 
-# wich_config
-# 
-# echo config 2 is : $config2 
-# 
-#	si 0 arg alors exec tout
 if (( $BASH_ARGC == 0 )) ; then
         echo testing all && echo
         ls tests > files
@@ -122,17 +91,15 @@ if (( $BASH_ARGC == 0 )) ; then
 	if [ -f "files" ] ; then
 		rm files
 	fi
-	exit
+else
+	for arg in $@
+	do
+		do_i_test=$(echo $file | grep "stress" | wc -l)
+		if (( $do_i_test == 0 )) ; then
+	        	test_server "tests/$arg.sh" $config
+		fi
+	done
 fi
-
-#	execute chaque argument donne au prog
-for arg in $@
-do
-	do_i_test=$(echo $file | grep "stress" | wc -l)
-	if (( $do_i_test == 0 )) ; then
-        	test_server "tests/$arg.sh" $config
-	fi
-done
 
 if [ -f "files" ] ; then
 	rm files
@@ -140,7 +107,7 @@ fi
 
 sleep 1
 echo Done
-exit
+exit	# Mode interactif un peu chiant...
 
 echo "Do you want to test something more ? "
 echo "1) autoindex"
