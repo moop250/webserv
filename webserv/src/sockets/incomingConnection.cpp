@@ -277,7 +277,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				case 1:
 					continue ;
 				case 2:
-					std::cout << YELLOW << "POLLOUT: non fatal error on socket: " << fd << "... closing" << RESET << std::endl;
+					std::cout <<   YELLOW << "[WARNING]	: " << RESET << "POLLOUT: non fatal error on socket: " << fd << "... closing" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					break ;
@@ -300,7 +300,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				case 6:
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
-					std::cout << YELLOW << "POLLOUT: socket " << fd << " timed out... closing" << RESET << std::endl;
+					std::cout <<   CYAN << "[INFO]		: " << RESET << "POLLOUT: socket " << fd << " timed out... closing" << RESET << std::endl;
 					continue;
 			}
 		}

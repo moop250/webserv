@@ -67,7 +67,7 @@ Connection& Connection::clear() {
 	this->request.clear();
 	this->response.clear();
 	this->chunked_size = -1;
-	this->offset = -2;
+	this->offset = 0;
 	this->buffer.clear();
 	this->iobuffer.clear();
 	this->reconnect = true;
