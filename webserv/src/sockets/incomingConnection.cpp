@@ -52,15 +52,7 @@ void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<in
 	newConnection.setState(READING_METHOD);
 	connectMap->insert(std::make_pair(newFD, newConnection));
 	fdInfo->fdTypes.insert(std::make_pair(newFD, fdType));
-
-	switch (fdType) {
-		case CLIENT :
-			sockets->incrementClientCount();
-			break;
-		default:
-			std::cout << "unknown fd type in addToPollfd" << std::endl;
-			break;
-	}
+	sockets->incrementClientCount();
 }
 
 void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
@@ -277,7 +269,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				case 1:
 					continue ;
 				case 2:
-					std::cout <<   YELLOW << "[WARNING]	: " << RESET << "POLLOUT: non fatal error on socket: " << fd << "... closing" << RESET << std::endl;
+					std::cout << YELLOW << "[WARNING]	: " << RESET << "POLLOUT: non fatal error on socket: " << fd << "... closing" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					break ;
