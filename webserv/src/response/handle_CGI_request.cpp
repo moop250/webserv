@@ -113,6 +113,8 @@ int parent_reap_output(Connection& connection, int in[2], int out[2], std::strin
 
 	close(in[0]);
 	close(out[1]);
+
+	// move to poll
 	if (connection.getRequest().getMethod() == "POST") {
 		total = 0;
 		body = connection.getRequest().getBody();
@@ -130,6 +132,8 @@ int parent_reap_output(Connection& connection, int in[2], int out[2], std::strin
 		}
 	}
 	close(in[1]);
+
+	// move to poll
 	while (true) {
 		// Blocking here
 		n = read(out[0], buffer, sizeof(buffer));

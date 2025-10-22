@@ -30,6 +30,9 @@ int case_index(Connection& connection, std::string& index) {
 		return -1;
 	}
 	// add to pollfd
+
+
+	// move to poll
 	while (true) {
 		// Blocking here
 		n = read(fd, buffer, sizeof(buffer));
@@ -254,6 +257,9 @@ int post_directory(Connection& connection) {
 		}
 		return -1;
 	}
+	// add fd to pollfd
+	
+	// Move this to poll
 	total = 0;
 	body = connection.getRequest().getBody();
 	while (total < body.size()) {

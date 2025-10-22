@@ -52,6 +52,7 @@ int get_file(Connection& connection) {
 		add fd to pollfd
 	*/
 
+	// move to poll
 	connection.getResponse().setContentType(getMIMEType(connection.getRequest().getFileType()));
 	while (true) {
 		// Blocking here
@@ -68,16 +69,6 @@ int get_file(Connection& connection) {
 			return -1;
 		}
 	}
-
-	/*
-		Run read function
-		if it read the whole thing fill out the connection code
-		else wait till the next loop to take in more data
-
-		how store read data in the meantime?
-		how access read data?
-			map?
-	*/
 
 	connection.getResponse().setContentLength(body.size());
 	connection.getResponse().setBody(body);
