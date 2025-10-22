@@ -23,7 +23,9 @@ enum fdTypes {
 	SERVER,
 	CLIENT,
 	SYS_FD_IN,
-	SYS_FD_OUT
+	SYS_FD_OUT,
+	CGI_FD_IN,
+	CGI_FD_OUT
 };
 
 enum fdStatus {

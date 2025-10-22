@@ -29,6 +29,7 @@ int case_index(Connection& connection, std::string& index) {
 	if (fd < 0) {
 		return -1;
 	}
+	// add to pollfd
 	while (true) {
 		// Blocking here
 		n = read(fd, buffer, sizeof(buffer));

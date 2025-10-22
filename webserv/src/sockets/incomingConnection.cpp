@@ -52,15 +52,7 @@ void addToPollfd(t_fdInfo *fdInfo, int newFD, ServerSocket *sockets, std::map<in
 	newConnection.setState(READING_METHOD);
 	connectMap->insert(std::make_pair(newFD, newConnection));
 	fdInfo->fdTypes.insert(std::make_pair(newFD, fdType));
-
-	switch (fdType) {
-		case CLIENT :
-			sockets->incrementClientCount();
-			break;
-		default:
-			std::cout << "unknown fd type in addToPollfd" << std::endl;
-			break;
-	}
+	sockets->incrementClientCount();
 }
 
 void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap) {
@@ -190,8 +182,11 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			}
 			break ;
 		} case SYS_FD_IN: {
-			// handle sending data to the system
-			// Send in chunks to avoid hanging up on large files
+			// handle receiving data to the system
+
+			return 1;
+		} case CGI_FD_IN: {
+			// handle reciving data to the CGI
 
 			return 1;
 		} default:
@@ -213,26 +208,18 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 
 	Response resp =  connect.getResponse();
 	std::string out = resp.getResponseComplete();
-	ssize_t remainingBytes = out.size(), offset = 0;
-	const char *buf = out.c_str();
-
-	if (connect.getOffset() > 0) {
-		buf += connect.getOffset();
-		offset = connect.getOffset();
-		remainingBytes -= offset;
-	}
+	ssize_t offset = connect.getOffset(), remainingBytes = (out.size() - offset);
 
 	ssize_t chunk = (remainingBytes < SEND_CHUNK) ? remainingBytes : SEND_CHUNK;
-	ssize_t status = send(fd, buf, chunk, 0);
+	ssize_t status = send(fd, out.c_str() + offset, chunk, 0);
 	if (status < 0)
 		return 2;
 	if (status == 0)
 		return 5;
 
 	remainingBytes -= status;
-	offset += status;
 	if (remainingBytes > 0) {
-		connect.setOffset(offset);
+		connect.setOffset(offset + status);
 		return 1;
 	} 
 
@@ -257,14 +244,11 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			close(fd);
 			removeFromPollfd(fdInfo, fd, sockets, connectMap);
 			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
-			continue;
 		}
-		if (fdInfo->fds.at(i).revents & POLLIN) {
-			if (handlePOLLIN(fd, sockets, fdInfo, connectMap, config) <= 0) {
-				continue;
-			}
+		else if (fdInfo->fds.at(i).revents & POLLIN) {
+			handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
 		}
-		if (fdInfo->fds.at(i).revents & POLLOUT) {
+		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
 				// parse incoming system data probably in chunks
 				// Only accept a certain amount of data at a time
@@ -272,9 +256,8 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 
 				continue;
 			}
-
 			// make sure connection isnt awaiting a cgi connection
-			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
+			else if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				handle_request(connectMap->at(fd));
 			}
 
@@ -286,7 +269,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				case 1:
 					continue ;
 				case 2:
-					std::cout << YELLOW << "POLLOUT: non fatal error on socket: " << fd << "... closing" << RESET << std::endl;
+					std::cout << YELLOW << "[WARNING]	: " << RESET << "POLLOUT: non fatal error on socket: " << fd << "... closing" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					break ;
@@ -309,7 +292,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				case 6:
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
-					std::cout << YELLOW << "POLLOUT: socket " << fd << " timed out... closing" << RESET << std::endl;
+					std::cout <<   CYAN << "[INFO]		: " << RESET << "POLLOUT: socket " << fd << " timed out... closing" << RESET << std::endl;
 					continue;
 			}
 		}
