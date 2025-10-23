@@ -9,8 +9,9 @@
 
 enum connectionReturns {
 	CONNECTIONSUCCESS = 0,
-	ACCEPTERROR = -1,
-	NOCONNCECTION = -2
+	ACCEPTERROR_NONFATAL = -1,
+	ACCEPTERROR_FATAL = -2,
+	NOCONNCECTION = -3
 };
 
 enum recvReturns {

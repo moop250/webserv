@@ -114,7 +114,18 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 	addrLen = sizeof newRemote;
 	remoteFD = accept(fd, (struct sockaddr *)&newRemote,&addrLen);
 	if (remoteFD == -1) {
-		return ACCEPTERROR;
+		if (errno == EINTR)
+			std::cout << YELLOW << "[WARNING]	: " << WHITE << "accept() was interrupted by a signel. Retrying next loop..." << RESET << std::endl;
+		else if (errno == EMFILE || errno == ENFILE) {
+			std::cout << RED << "[ERROR]	: " << WHITE << "accept() failed: " << strerror(errno) << std::endl;
+			return ACCEPTERROR_NONFATAL;
+		} else if (errno == ENOMEM) {
+			std::cout << RED << "[ERROR]	: " << WHITE << "accept() failed: " << strerror(errno) << std::endl;
+			return ACCEPTERROR_FATAL;
+		} else {
+			std::cout << RED << "[ERROR]	: " << WHITE << "accept() failed: " << strerror(errno) << std::endl;
+			return ACCEPTERROR_FATAL;
+		}
 	}
 	addToPollfd(fdInfo, remoteFD, sockets, connectMap, CLIENT);
 
@@ -153,7 +164,9 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			{
 				case NOCONNCECTION:
 					return -1;
-				case ACCEPTERROR:
+				case ACCEPTERROR_NONFATAL:
+					return -2;
+				case ACCEPTERROR_FATAL:
 					throw std::runtime_error("handlePOLLIN Accept error");
 				default:
 					std::cout <<   CYAN << "[INFO]		: " << RESET << "Accept: New connection on socket: " << tmp << RESET << std::endl;
