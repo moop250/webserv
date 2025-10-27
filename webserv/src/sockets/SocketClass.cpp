@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include "unistd.h"
 
-ServerSocket::ServerSocket() : clientCount_(0) {}
+ServerSocket::ServerSocket() {}
 
 ServerSocket::~ServerSocket() {
 	if (this->getSocketCount() <= 0)
@@ -113,28 +113,12 @@ int	ServerSocket::getSocketCount() {
 	return this->serverSocketFd_.size();
 }
 
-int	ServerSocket::getTotalSocketCount() {
-	return this->serverSocketFd_.size() + this->clientCount_;
-}
-
 int	ServerSocket::getSocketPort(int pos) {
 	return this->serverPort_.at(pos);
 }
 
-void	ServerSocket::incrementClientCount() {
-	++this->clientCount_;
-}
-
-void	ServerSocket::decrementClientCount() {
-	--this->clientCount_;
-}
-
 t_connectionAddrInfo ServerSocket::getServerAddrInfo(int fd) {
 	return this->serverAddrInfo_.at(fd);
-}
-
-t_connectionAddrInfo ServerSocket::getClientAddrInfo(int fd) {
-	return this->clientAddrInfo_.at(fd);
 }
 
 void ServerSocket::setServerAddrInfo(int fd, std::string address, std::string port) {

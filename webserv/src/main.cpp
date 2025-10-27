@@ -89,7 +89,7 @@ void	eventLoop(Config *config, ServerSocket *socket)
 	g_fds = fdInfo.fds;
 	try {
 		while (1) {
-			int	pollCount = poll(&fdInfo.fds[0], socket->getTotalSocketCount(), 0);
+			int	pollCount = poll(&fdInfo.fds[0], fdInfo.fds.size(), 0);
 
 			 if (!g_running)
 				break;
