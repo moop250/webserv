@@ -2,6 +2,7 @@
 #include "../../headers/Sockets.hpp"
 #include "../../headers/Connection.hpp"
 #include "../../headers/request_handler.hpp"
+#include "../../headers/GenFD.hpp"
 #include <cerrno>
 #include <climits>
 #include <cstring>
@@ -192,11 +193,17 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			}
 			break ;
 		} case SYS_FD_IN: {
-			// handle receiving data to the system
+			// handle receiving data from the system
+			if (handleFDIn(fdInfo, fd, &connectMap->at(fd)) == 0) {
+				// set info here
+			}
 
 			return 1;
 		} case CGI_FD_IN: {
-			// handle reciving data to the CGI
+			// handle reciving data from the CGI
+			if (handleFDIn(fdInfo, fd, &connectMap->at(fd)) == 0) {
+				// set info here
+			}
 
 			return 1;
 		} default:
@@ -260,9 +267,9 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
-				// parse incoming system data probably in chunks
-				// Only accept a certain amount of data at a time
-				// when all data has been parsed, change the flag
+				if (handleFDOut(fdInfo, fd, &connectMap->at(fd)) == 0) {
+					// run any "on successful send" code here
+				}
 
 				continue;
 			}
