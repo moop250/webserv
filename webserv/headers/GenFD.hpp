@@ -8,7 +8,8 @@
 #include <cstdio>
 #include <string>
 
-int handleFDIn(t_fdInfo *fdInfo, int fd, Connection *connect);
-int handleFDOut(t_fdInfo *fdInfo, int fd, Connection *connect);
+int		handleFDIn(t_fdInfo *fdInfo, int fd, Connection *connect);
+int		handleFDOut(t_fdInfo *fdInfo, int fd, Connection *connect);
+void	addToGenFD(t_fdInfo *fdInfo, int newFD, int originFD, int fdType);
 
 #endif

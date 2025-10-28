@@ -38,16 +38,17 @@ enum fdStatus {
 
 typedef struct s_fdInfo {
 
-	std::vector<pollfd> fds;
-	std::map<int, int> fdTypes;
-	std::map<int, int> fdStatus;
-	std::map<int, time_t> timeout;
+	std::vector<pollfd>			fds;
+	std::map<int, int>			fdTypes;
+	std::map<int, int>			fdStatus;
+	std::map<int, time_t>		timeout;
+	std::map<int, Connection>	connectMap;
 
 } t_fdInfo;
 
 ServerSocket *initalizeServer(Config *serverConfig);
 void initPoll(ServerSocket *socket, t_fdInfo *fdInfo);
-int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap);
+int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config);
 void handleTimeout(t_fdInfo *fdInfo);
 void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<int, Connection> *connectMap);
 

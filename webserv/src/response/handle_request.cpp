@@ -15,6 +15,7 @@
 #include "Connection.hpp"
 #include "Config.hpp"
 #include "request_handler.hpp"
+#include "GenFD.hpp"
 #include "support_file.hpp"
 
 int parse_request_type(Connection& connection) {
@@ -118,7 +119,7 @@ int path_merge_cgi(Connection& connection) {
 	}
 }
 
-int handle_request(Connection& connection) {
+int handle_request(int fd, t_fdInfo *fdInfo, Connection& connection) {
 	int	requestType;
 	std::string	location;
 
@@ -140,7 +141,7 @@ int handle_request(Connection& connection) {
 	if (requestType == CGI)
 		return CGI_handler(connection);
 	if (requestType == Directory)
-		return directory_handler(connection);
+		return directory_handler(fd, fdInfo, connection);
 	if (requestType == File)
 		return file_handler(connection);
 	return -1;

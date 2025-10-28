@@ -16,6 +16,7 @@
 #include "Config.hpp"
 #include "RequestServer.hpp"
 #include "Connection.hpp"
+#include "Sockets.hpp"
 
 void		error_response(Connection& connection, int code);
 
@@ -27,12 +28,12 @@ int			parse_body_chunked(Connection& connection);
 int			parse_body(Connection& connection);
 int			parse_request(Connection& connection, Config& config);
 
-int			handle_request(Connection& connection);
+int			handle_request(int fd, t_fdInfo *fdInfo, Connection& connection);
 int			file_handler(Connection& connection);
 int			get_file(Connection& connection);
 int			post_file(Connection& connection);
 int			delete_file(Connection& connection);
-int			directory_handler(Connection& connection);
+int			directory_handler(int originFD, t_fdInfo *fdInfo, Connection& connection);
 int			get_directory(Connection& connection);
 int			post_directory(Connection& connection);
 int			delete_directory(Connection& connection);

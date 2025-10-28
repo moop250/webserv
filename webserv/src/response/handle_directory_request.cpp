@@ -14,15 +14,16 @@
 #include "Response.hpp"
 #include "Connection.hpp"
 #include "Config.hpp"
+#include "GenFD.hpp"
 #include "request_handler.hpp"
 
 // stuffs to do
 // Blocking
-int case_index(Connection& connection, std::string& index) {
+int case_index(int originFD, t_fdInfo *fdInfo, Connection& connection, std::string& index) {
 	int			fd;
-	char		buffer[4096];
+/* 	char		buffer[4096];
 	long		n;
-	std::string	body;
+	std::string	body; */
 	
 	index = connection.getRequest().getPath() + index;
 	fd = open(index.c_str(), O_RDONLY);
@@ -30,10 +31,12 @@ int case_index(Connection& connection, std::string& index) {
 		return -1;
 	}
 	// add to pollfd
-
+	addToGenFD(fdInfo, fd, originFD, SYS_FD_IN);
+	connection.setState(CONNECTION_LOCK);
+	return 0;
 
 	// move to poll
-	while (true) {
+	/* while (true) {
 		// Blocking here
 		n = read(fd, buffer, sizeof(buffer));
 		if (n > 0) {
@@ -46,8 +49,11 @@ int case_index(Connection& connection, std::string& index) {
 			close(fd);
 			return -1;
 		}
-	}
-	connection.getResponse().setBody(body);
+	} */
+
+
+
+/* 	connection.getResponse().setBody(body);
 	connection.getResponse().setCode(200);
 	connection.getResponse().setCodeMessage("OK");
 	connection.getResponse().setHeader("Content-Length", size_to_string(body.size()));
@@ -55,7 +61,7 @@ int case_index(Connection& connection, std::string& index) {
 	if (connection.getRequest().getKeepAlive() == "keep-alive")
 		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().constructResponse();
-	connection.setState(SENDING_RESPONSE);
+	connection.setState(SENDING_RESPONSE); */
 	// std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
@@ -120,7 +126,7 @@ int case_autoindex(Connection& connection) {
 // index specified -> return index.html of that location/server
 // auto-index on -> return the list of files in that directory in html
 // both auto-index off and no index specified or error -> 403 Fobidden
-int get_directory(Connection& connection) {
+int get_directory(int originFD, t_fdInfo *fdInfo, Connection& connection) {
 	std::string		index;
 	bool			autoindex;
 
@@ -133,7 +139,7 @@ int get_directory(Connection& connection) {
 	if (!index.empty()) {
 		if (index[0] == '/')
 			index.erase(0, 1);
-		if (case_index(connection, index) == 0)
+		if (case_index(originFD, fdInfo, connection, index) == 0)
 			return 0;
 	}
 	if (autoindex == true) {
@@ -295,12 +301,12 @@ int delete_directory(Connection& connection) {
 	return -1;
 }
 
-int directory_handler(Connection& connection) {
+int directory_handler(int originFD, t_fdInfo *fdInfo, Connection& connection) {
 	std::string	method;
 
 	method = connection.getRequest().getMethod();
 	if (method == "GET")
-		return get_directory(connection);
+		return get_directory(originFD, fdInfo, connection);
 	else if (method == "POST")
 		return post_directory(connection);
 	else if (method == "DELETE")

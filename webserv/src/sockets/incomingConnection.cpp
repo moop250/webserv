@@ -43,12 +43,12 @@ void addToPollfd(t_fdInfo *fdInfo, int newFD, std::map<int, Connection> *connect
 			status->at(newFD) = CLIENTERROR;
 		}
 	}
-	
+
 	newPollFD.fd = newFD;
 	newPollFD.events = POLLIN;
 	newPollFD.revents = 0;
 	fds->push_back(newPollFD);
-	
+
 	Connection	newConnection;
 	newConnection.setState(READING_METHOD);
 	connectMap->insert(std::make_pair(newFD, newConnection));
@@ -195,7 +195,19 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 		} case SYS_FD_IN: {
 			// handle receiving data from the system
 			if (handleFDIn(fdInfo, fd, &connectMap->at(fd)) == 0) {
-				// set info here
+				// set related client data
+				Connection *connection = &connectMap->at(fd);
+				connection->getResponse().setBody(connection->iobuffer);
+				connection->getResponse().setCode(200);
+				connection->getResponse().setCodeMessage("OK");
+				connection->getResponse().setHeader("Content-Length", size_to_string(connection->iobuffer.size()));
+				connection->getResponse().setHeader("Content-Type", "text/html");
+				if (connection->getRequest().getKeepAlive() == "keep-alive")
+					connection->getResponse().setHeader("Connection", "keep-alive");
+				connection->getResponse().constructResponse();
+				connection->setState(SENDING_RESPONSE); 
+				removeFromPollfd(fdInfo, fd, connectMap);
+				return 1;
 			}
 
 			return 1;
@@ -203,6 +215,9 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			// handle reciving data from the CGI
 			if (handleFDIn(fdInfo, fd, &connectMap->at(fd)) == 0) {
 				// set info here
+
+				removeFromPollfd(fdInfo, fd, connectMap);
+				return 1;
 			}
 
 			return 1;
@@ -253,7 +268,8 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 	return 0;
 }
 
-int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap) {
+int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config) {
+	std::map<int, Connection> *connectMap = &fdInfo->connectMap;
 	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
 
@@ -269,13 +285,23 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
 				if (handleFDOut(fdInfo, fd, &connectMap->at(fd)) == 0) {
 					// run any "on successful send" code here
+					// Maybe make it a dedicated function
+
+					removeFromPollfd(fdInfo, fd, connectMap);
+					continue;
 				}
 
 				continue;
 			}
+
+
 			// make sure connection isnt awaiting a cgi connection
-			else if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
-				handle_request(connectMap->at(fd));
+			if (connectMap->at(fd).getState() != CONNECTION_LOCK) {
+				handle_request(fd, fdInfo, connectMap->at(fd));
+			}
+		
+			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
+				continue;
 			}
 
 			switch (handlePOLLOUT(fd, connectMap, fdInfo)) {

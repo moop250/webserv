@@ -57,7 +57,8 @@ SRCS        = tdd.cpp catch_amalgamated.cpp \
 		  response/handle_CGI_request.cpp \
 	      sockets/SocketClass.cpp \
 	      sockets/serverInitialization.cpp \
-		  sockets/incomingConnection.cpp
+		  sockets/incomingConnection.cpp \
+		  sockets/GenFD.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 

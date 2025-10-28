@@ -83,8 +83,6 @@ void	eventLoop(Config *config, ServerSocket *socket)
 
 	initPoll(socket, &fdInfo);
 
-	std::map<int, Connection> connectMap;
-
 	signal(SIGINT, close_all);
 	g_fds = fdInfo.fds;
 	try {
@@ -99,7 +97,7 @@ void	eventLoop(Config *config, ServerSocket *socket)
 			}
 
 			if (pollCount > 0)
-				incomingConnection(socket, &fdInfo, config, &connectMap);
+				incomingConnection(socket, &fdInfo, config);
 			if (pollCount == 0)
 				handleTimeout(&fdInfo);
 		}
