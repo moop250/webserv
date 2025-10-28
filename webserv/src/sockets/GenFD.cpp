@@ -1,6 +1,6 @@
 #include "../../headers/GenFD.hpp"
 
-int handleFDIn(t_fdInfo *fdInfo, int fd, Connection *connect) {
+int handleFDIn(int fd, Connection *connect) {
 	char	buffer[BUFSIZ];
 	std::string *output = &connect->iobuffer;
 	ssize_t	n = 0;
@@ -19,7 +19,7 @@ int handleFDIn(t_fdInfo *fdInfo, int fd, Connection *connect) {
 	return 0;
 }
 
-int handleFDOut(t_fdInfo *fdInfo, int fd, Connection *connect) {
+int handleFDOut(int fd, Connection *connect) {
 	std::string body = connect->getRequest().getBody();
 	size_t offset = connect->getOffset(), remainingBytes = (body.size() - offset);
 

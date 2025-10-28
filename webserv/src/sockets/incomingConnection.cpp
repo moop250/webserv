@@ -194,7 +194,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			break ;
 		} case SYS_FD_IN: {
 			// handle receiving data from the system
-			if (handleFDIn(fdInfo, fd, &connectMap->at(fd)) == 0) {
+			if (handleFDIn(fd, &connectMap->at(fd)) == 0) {
 				// set related client data
 				Connection *connection = &connectMap->at(fd);
 				connection->getResponse().setBody(connection->iobuffer);
@@ -213,7 +213,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			return 1;
 		} case CGI_FD_IN: {
 			// handle reciving data from the CGI
-			if (handleFDIn(fdInfo, fd, &connectMap->at(fd)) == 0) {
+			if (handleFDIn(fd, &connectMap->at(fd)) == 0) {
 				// set info here
 
 				removeFromPollfd(fdInfo, fd, connectMap);
@@ -283,7 +283,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config) 
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
-				if (handleFDOut(fdInfo, fd, &connectMap->at(fd)) == 0) {
+				if (handleFDOut(fd, &connectMap->at(fd)) == 0) {
 					// run any "on successful send" code here
 					// Maybe make it a dedicated function
 
