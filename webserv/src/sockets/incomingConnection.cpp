@@ -114,9 +114,10 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 	addrLen = sizeof newRemote;
 	remoteFD = accept(fd, (struct sockaddr *)&newRemote,&addrLen);
 	if (remoteFD == -1) {
-		if (errno == EINTR)
+		if (errno == EINTR) {
 			std::cout << YELLOW << "[WARNING]	: " << WHITE << "accept() was interrupted by a signel. Retrying next loop..." << RESET << std::endl;
-		else if (errno == EMFILE || errno == ENFILE) {
+			return ACCEPTERROR_NONFATAL;
+		} else if (errno == EMFILE || errno == ENFILE) {
 			std::cout << RED << "[ERROR]	: " << WHITE << "accept() failed: " << strerror(errno) << std::endl;
 			return ACCEPTERROR_NONFATAL;
 		} else if (errno == ENOMEM) {
