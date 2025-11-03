@@ -1,6 +1,10 @@
 #!/bin/bash
 
+iter=0
 for i in {0..999}
 do
+	iter=$i
+	sleep 0.1
 	curl 127.0.0.1:8001/html/accueil.html >> foo1.log
+	echo Page getted : $iter >> foo1.log
 done

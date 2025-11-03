@@ -68,6 +68,13 @@ stress_test() {
 	kill $pid2
 }
 
+echo Do a stress-test and quit ? Y/n
+read -e
+if [ $REPLY == "Y" ] ; then
+	stress_test
+	exit
+fi
+
 if ! [[ -f "logs" ]] ; then
 	mkdir -p logs
 else
