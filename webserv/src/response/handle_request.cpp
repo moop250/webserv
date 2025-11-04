@@ -139,7 +139,7 @@ int handle_request(int fd, t_fdInfo *fdInfo, Connection& connection) {
 	}
 	requestType = static_cast<int>(connection.getRequest().getRequestType());
 	if (requestType == CGI)
-		return CGI_handler(connection);
+		return CGI_handler(fd, fdInfo, connection);
 	if (requestType == Directory)
 		return directory_handler(fd, fdInfo, connection);
 	if (requestType == File)

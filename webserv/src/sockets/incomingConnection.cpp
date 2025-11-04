@@ -207,19 +207,19 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 				connection->getResponse().constructResponse();
 				connection->setState(SENDING_RESPONSE); 
 				removeFromPollfd(fdInfo, fd, connectMap);
-				return 1;
 			}
-
 			return 1;
 		} case CGI_FD_IN: {
 			// handle reciving data from the CGI
 			if (handleFDIn(fd, &connectMap->at(fd)) == 0) {
 				// set info here
+				if (connectMap->at(fd).lock)
+					break;
+				Connection *connection = &connectMap->at(fd);
 
+				connection->setState(SENDING_RESPONSE); 
 				removeFromPollfd(fdInfo, fd, connectMap);
-				return 1;
 			}
-
 			return 1;
 		} default:
 			std::cout << RED << "[ERROR]	: " << WHITE << "Unknown POLLIN type" << RESET << std::endl;
@@ -288,18 +288,24 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config) 
 					// Maybe make it a dedicated function
 
 					removeFromPollfd(fdInfo, fd, connectMap);
-					continue;
 				}
 
 				continue;
 			}
+			else if (fdInfo->fdTypes.at(fd) == CGI_FD_OUT) {
+				if (handleFDOut(fd, &connectMap->at(fd)) == 0) {
 
+					connectMap->at(fd).lock = false;
+					removeFromPollfd(fdInfo, fd, connectMap);
+				}
+				continue;
+			}
 
 			// make sure connection isnt awaiting a cgi connection
 			if (connectMap->at(fd).getState() != CONNECTION_LOCK) {
 				handle_request(fd, fdInfo, connectMap->at(fd));
 			}
-		
+
 			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				continue;
 			}

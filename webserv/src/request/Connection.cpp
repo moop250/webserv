@@ -21,6 +21,7 @@ Connection::Connection() {
 	this->reconnect = false;
 	this->close = false;
 	this->server = getDefaultServer();
+	this->lock = false;
 }
 Connection::Connection(const Connection& copy) {
 	*this = copy;
@@ -40,6 +41,7 @@ Connection& Connection::operator =(const Connection& assign) {
 		this->close = assign.close;
 		this->port = assign.port;
 		this->ip = assign.ip;
+		this->lock = assign.lock;
 	}
 	return *this;
 }
@@ -72,6 +74,7 @@ Connection& Connection::clear() {
 	this->iobuffer.clear();
 	this->reconnect = true;
 	this->close = false;
+	this->lock = false;
 	// Server not reset!
 	// Port and IP not reset!
 	return *this;

@@ -12,6 +12,7 @@ int handleFDIn(int fd, Connection *connect) {
 	}
 	if (n < 0) {
 		close(fd);
+		error_response(*connect, INTERNAL_ERROR);
 		return -1;
 	}
 

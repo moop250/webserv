@@ -16,6 +16,8 @@
 #include "Config.hpp"
 #include "request_handler.hpp"
 #include "support_file.hpp"
+#include "GenFD.hpp"
+#include <utility>
 
 void set_env(Connection& connection, std::vector<std::string>& env) {\
 	std::string	body;
@@ -104,18 +106,32 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 // stuffs to do
 // update pollfd here
 // timeout should be managed by poll()
-int parent_reap_output(Connection& connection, int in[2], int out[2], std::string& output) {
-	std::string	body;
+int parent_reap_output(int fd, t_fdInfo *fdInfo, Connection& connection, int in[2], int out[2], std::string& output) {
+/* 	std::string	body;
 	char		buffer[4096];
 	long		n;
 	size_t		total;
-	long		written;
+	long		written; */
+
+	(void)output;
 
 	close(in[0]);
 	close(out[1]);
 
-	// move to poll
 	if (connection.getRequest().getMethod() == "POST") {
+		addToGenFD(fdInfo, in[1], fd, CGI_FD_OUT);
+		connection.lock = true;
+	}
+	else
+		close(in[1]);
+
+	addToGenFD(fdInfo, out[0], fd, CGI_FD_IN);
+	connection.setState(CONNECTION_LOCK);
+	return 0;
+}
+
+/* 	if (connection.getRequest().getMethod() == "POST") {
+		addToGenFD(fdInfo, in[1], fd, CGI_FD_OUT)
 		total = 0;
 		body = connection.getRequest().getBody();
 		while (total < body.size()) {
@@ -133,7 +149,6 @@ int parent_reap_output(Connection& connection, int in[2], int out[2], std::strin
 	}
 	close(in[1]);
 
-	// move to poll
 	while (true) {
 		// Blocking here
 		n = read(out[0], buffer, sizeof(buffer));
@@ -148,9 +163,7 @@ int parent_reap_output(Connection& connection, int in[2], int out[2], std::strin
 			return -1;
 		}
 	}
-	close(out[0]);
-	return 0;
-}
+	close(out[0]); */
 
 int parse_cgi_output(Connection& connection, std::string& output) {
 	std::string::size_type	end_pos;
@@ -225,7 +238,7 @@ int parse_cgi_output(Connection& connection, std::string& output) {
 
 // stuffs to do
 // timeout should be managed by poll()
-int CGI_handler(Connection& connection) {
+int CGI_handler(int fd, t_fdInfo *fdInfo, Connection& connection) {
 	std::vector<std::string>	env_string;
 	std::vector<char*>			env_pointer;
 	char						**env;
@@ -257,8 +270,9 @@ int CGI_handler(Connection& connection) {
 			child_launch_CGI(connection, in, out, env);
 			break ;
 		default:
-			parent_reap_output(connection, in, out, output);
+			parent_reap_output(fd, fdInfo, connection, in, out, output);
 			waitpid(pid, &status, 0);
+			// Modify parse_cgi_output to work in poll
 			return parse_cgi_output(connection, output);
 	}
 	return 0;

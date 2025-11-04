@@ -37,7 +37,7 @@ int			directory_handler(int originFD, t_fdInfo *fdInfo, Connection& connection);
 int			get_directory(Connection& connection);
 int			post_directory(Connection& connection);
 int			delete_directory(Connection& connection);
-int			CGI_handler(Connection& connection);
+int			CGI_handler(int fd, t_fdInfo *fdInfo, Connection& connection);
 
 std::string	size_to_string(size_t size);
 std::string	trim(const std::string &str);
