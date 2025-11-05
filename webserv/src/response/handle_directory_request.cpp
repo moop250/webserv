@@ -192,8 +192,8 @@ int post_directory(int originFD, t_fdInfo *fdInfo, Connection& connection) {
 	std::string		extension;
 	std::string		root;
 	int				fd;
-	size_t			total;
-	long			written;
+	// size_t			total;
+	// long			written;
 	std::string		body;
 	std::string		response_body;
 
