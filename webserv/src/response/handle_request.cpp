@@ -143,6 +143,6 @@ int handle_request(int fd, t_fdInfo *fdInfo, Connection& connection) {
 	if (requestType == Directory)
 		return directory_handler(fd, fdInfo, connection);
 	if (requestType == File)
-		return file_handler(connection);
+		return file_handler(fd, fdInfo, connection);
 	return -1;
 }

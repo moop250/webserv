@@ -15,6 +15,8 @@
 #include "Connection.hpp"
 #include "Config.hpp"
 #include "request_handler.hpp"
+#include "Sockets.hpp"
+#include "GenFD.hpp"
 
 std::string size_to_string(size_t size) {
 	std::ostringstream	oss;
@@ -26,12 +28,12 @@ std::string size_to_string(size_t size) {
 }
 
 // return the file
-int get_file(Connection& connection) {
+int get_file(int originFD, t_fdInfo* fdInfo, Connection& connection) {
 	std::string	path;
-	std::string	body;
+	// std::string	body;
 	int			fd;
-	char		buffer[4096];
-	long		n;
+/* 	char		buffer[4096];
+	long		n; */
 
 	path = connection.getRequest().getPath();
 
@@ -48,12 +50,16 @@ int get_file(Connection& connection) {
 		return -1;
 	}
 
+	addToGenFD(fdInfo, fd, originFD, SYS_FD_IN);
+	connection.setState(CONNECTION_LOCK);
+	connection.getResponse().setContentType(getMIMEType(connection.getRequest().getFileType()));
+	return 0;
 	/*
 		add fd to pollfd
 	*/
 
 	// move to poll
-	connection.getResponse().setContentType(getMIMEType(connection.getRequest().getFileType()));
+	/*
 	while (true) {
 		// Blocking here
 		n = read(fd, buffer, sizeof(buffer));
@@ -81,16 +87,16 @@ int get_file(Connection& connection) {
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	// std::cout << connection.getResponse() << std::endl;
-	return 0;
+	return 0; */
 }
 
 // Append the request body to the file if enough permission
 // Stuffs to do
-int post_file(Connection& connection) {
+int post_file(int originFD, t_fdInfo* fdInfo, Connection& connection) {
 	std::string		path;
 	int				fd;
-	size_t			total;
-	long			written;
+/* 	size_t			total;
+	long			written; */
 	std::string		body;
 
 	path = connection.getRequest().getPath();
@@ -107,30 +113,12 @@ int post_file(Connection& connection) {
 		return -1;
 	}
 	// extension validation so eg: not append jpeg into html?
-	total = 0;
+/* 	total = 0; */
 	body = connection.getRequest().getBody();
 	if (body.substr(0, 8) == "content=")
 		body.erase(0, 8);
-	while (total < body.size()) {
-		// Blocking here
-		written = write(fd, body.c_str() + total, body.size() - total);
-		if (written < 0) {
-			close(fd);
-			error_response(connection, INTERNAL_ERROR);
-			return -1;
-		}
-		if (written == 0)
-			break;
-		total += written;
-	}
-	close(fd);
-	connection.getResponse().setCode(204);
-	connection.getResponse().setCodeMessage("No Content");
-	if (connection.getRequest().getKeepAlive() == "keep-alive")
-		connection.getResponse().setHeader("Connection", "keep-alive");
-	connection.getResponse().constructResponse();
-	connection.setState(SENDING_RESPONSE);
-	// std::cout << connection.getResponse() << std::endl;
+	addToGenFD(fdInfo, fd, originFD, SYS_FD_OUT);
+	return 0;
 	return 0;
 }
 
@@ -143,19 +131,6 @@ int delete_file(Connection& connection) {
 	if (path[0] == '/')
 		path.erase(0, 1);
 	if (std::remove(path.c_str()) != 0) {
-		switch (errno) {
-			case EACCES:
-				// fallthrough
-			case EPERM:
-				error_response(connection, FORBIDDEN);
-				break;
-			case ENOENT:
-				error_response(connection, NOT_FOUND);
-				break;
-			default:
-				error_response(connection, INTERNAL_ERROR);
-				break;
-		}
 		return -1;
 	}
 	connection.getResponse().setCode(204);
@@ -168,14 +143,14 @@ int delete_file(Connection& connection) {
 	return 0;
 }
 
-int file_handler(Connection& connection) {
+int file_handler(int fd, t_fdInfo *fdInfo, Connection& connection) {
 	std::string	method;
 
 	method = connection.getRequest().getMethod();
 	if (method == "GET")
-		return get_file(connection);
+		return get_file(fd, fdInfo, connection);
 	else if (method == "POST")
-		return post_file(connection);
+		return post_file(fd, fdInfo, connection);
 	else if (method == "DELETE")
 		return delete_file(connection);
 	return -1;

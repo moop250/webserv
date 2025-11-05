@@ -5,6 +5,8 @@
 #include "../../headers/GenFD.hpp"
 #include <cerrno>
 #include <climits>
+#include <cstddef>
+#include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
 #include <map>
@@ -193,10 +195,9 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			}
 			break ;
 		} case SYS_FD_IN: {
-			// handle receiving data from the system
-			if (handleFDIn(fd, &connectMap->at(fd)) == 0) {
-				// set related client data
-				Connection *connection = &connectMap->at(fd);
+			int originFD = fdInfo->ioFdMap.at(fd);
+			if (handleFDIn(fd, &connectMap->at(originFD)) == 0) {
+				Connection *connection = &connectMap->at(originFD);
 				connection->getResponse().setBody(connection->iobuffer);
 				connection->getResponse().setCode(200);
 				connection->getResponse().setCodeMessage("OK");
@@ -206,19 +207,18 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					connection->getResponse().setHeader("Connection", "keep-alive");
 				connection->getResponse().constructResponse();
 				connection->setState(SENDING_RESPONSE); 
-				removeFromPollfd(fdInfo, fd, connectMap);
+				removeFromGenfd(fdInfo, fd);
 			}
 			return 1;
 		} case CGI_FD_IN: {
-			// handle reciving data from the CGI
-			if (handleFDIn(fd, &connectMap->at(fd)) == 0) {
-				// set info here
-				if (connectMap->at(fd).lock)
-					break;
-				Connection *connection = &connectMap->at(fd);
-
+			int originFD = fdInfo->ioFdMap.at(fd);
+			if (connectMap->at(originFD).lock)
+				break;
+			if (handleFDIn(fd, &connectMap->at(originFD)) == 0) {
+				Connection *connection = &connectMap->at(originFD);
+				parse_cgi_output(*connection, connection->iobuffer);
 				connection->setState(SENDING_RESPONSE); 
-				removeFromPollfd(fdInfo, fd, connectMap);
+				removeFromGenfd(fdInfo, fd);
 			}
 			return 1;
 		} default:
@@ -268,49 +268,64 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 	return 0;
 }
 
-int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config) {
+int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, int pollCount) {
 	std::map<int, Connection> *connectMap = &fdInfo->connectMap;
-	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
+	int processed = 0;
+
+	for (size_t i = 0; i < fdInfo->fds.size() && processed < pollCount; ++i) {
 		int fd = fdInfo->fds.at(i).fd;
 
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
 			close(fd);
 			removeFromPollfd(fdInfo, fd, connectMap);
 			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
+			++processed;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLIN) {
 			handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
+			++processed;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
-				if (handleFDOut(fd, &connectMap->at(fd)) == 0) {
-					// run any "on successful send" code here
-					// Maybe make it a dedicated function
-
-					removeFromPollfd(fdInfo, fd, connectMap);
+				int originFD = fdInfo->ioFdMap.at(fd);
+				if (handleFDOut(fd, &connectMap->at(originFD)) == 0) {
+					Connection *connection = &connectMap->at(originFD);
+					connection->getResponse().setCode(204);
+					connection->getResponse().setCodeMessage("No Content");
+					if (connection->getRequest().getKeepAlive() == "keep-alive")
+						connection->getResponse().setHeader("Connection", "keep-alive");
+					connection->getResponse().constructResponse();
+					connection->setState(SENDING_RESPONSE);
+					removeFromGenfd(fdInfo, fd);
 				}
-
+				++processed;
 				continue;
 			}
 			else if (fdInfo->fdTypes.at(fd) == CGI_FD_OUT) {
-				if (handleFDOut(fd, &connectMap->at(fd)) == 0) {
-
-					connectMap->at(fd).lock = false;
-					removeFromPollfd(fdInfo, fd, connectMap);
+				int originFD = fdInfo->ioFdMap.at(fd);
+				if (handleFDOut(fd, &connectMap->at(originFD)) == 0) {
+					connectMap->at(originFD).lock = false;
+					removeFromGenfd(fdInfo, fd);
 				}
+				++processed;
 				continue;
 			}
 
 			// make sure connection isnt awaiting a cgi connection
-			if (connectMap->at(fd).getState() != CONNECTION_LOCK) {
+			if (connectMap->at(fd).getState() != CONNECTION_LOCK && connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				handle_request(fd, fdInfo, connectMap->at(fd));
 			}
 
+			// std::cout << "Should not be looping here" << std::endl;
+
 			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
+				++processed;
 				continue;
 			}
 
-			switch (handlePOLLOUT(fd, connectMap, fdInfo)) {
+			int result = handlePOLLOUT(fd, connectMap, fdInfo);
+			++processed;
+			switch (result) {
 				case 0:
 					connectMap->at(fd).clear();
 					setPOLLIN(fd, &fdInfo->fds);

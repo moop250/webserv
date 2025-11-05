@@ -75,8 +75,23 @@ void addToGenFD(t_fdInfo *fdInfo, int newFD, int originFD, int fdType) {
 	newPollFD.revents = 0;
 	fds->push_back(newPollFD);
 
-	std::map<int, Connection> *connectMap = &fdInfo->connectMap;
-	Connection	*originConnection = &connectMap->at(originFD);
-	connectMap->insert(std::make_pair(newFD, *originConnection));
+	fdInfo->ioFdMap.insert(std::make_pair(newFD, originFD));
 	fdInfo->fdTypes.insert(std::make_pair(newFD, fdType));
+}
+
+void removeFromGenfd(t_fdInfo *fdInfo, int fd) {
+	std::vector<pollfd> *fds = &fdInfo->fds;
+	std::vector<pollfd>::iterator it = fds->begin();
+	for (; it != fds->end(); ++it) {
+		if (it->fd == fd) {
+			fds->erase(it);
+			break;
+		}
+	}
+	fdInfo->ioFdMap.erase(fd);
+	fdInfo->fdTypes.erase(fd);
+	fdInfo->fdStatus.erase(fd);
+	if (fdInfo->timeout.count(fd) > 0) {
+		fdInfo->timeout.erase(fd);
+	}
 }

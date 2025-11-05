@@ -106,7 +106,7 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 // stuffs to do
 // update pollfd here
 // timeout should be managed by poll()
-int parent_reap_output(int fd, t_fdInfo *fdInfo, Connection& connection, int in[2], int out[2], std::string& output) {
+int parent_reap_output(int originFD, t_fdInfo *fdInfo, Connection& connection, int in[2], int out[2], std::string& output) {
 /* 	std::string	body;
 	char		buffer[4096];
 	long		n;
@@ -119,13 +119,13 @@ int parent_reap_output(int fd, t_fdInfo *fdInfo, Connection& connection, int in[
 	close(out[1]);
 
 	if (connection.getRequest().getMethod() == "POST") {
-		addToGenFD(fdInfo, in[1], fd, CGI_FD_OUT);
+		addToGenFD(fdInfo, in[1], originFD, CGI_FD_OUT);
 		connection.lock = true;
 	}
 	else
 		close(in[1]);
 
-	addToGenFD(fdInfo, out[0], fd, CGI_FD_IN);
+	addToGenFD(fdInfo, out[0], originFD, CGI_FD_IN);
 	connection.setState(CONNECTION_LOCK);
 	return 0;
 }
@@ -272,8 +272,7 @@ int CGI_handler(int fd, t_fdInfo *fdInfo, Connection& connection) {
 		default:
 			parent_reap_output(fd, fdInfo, connection, in, out, output);
 			waitpid(pid, &status, 0);
-			// Modify parse_cgi_output to work in poll
-			return parse_cgi_output(connection, output);
+			return 0;
 	}
 	return 0;
 }

@@ -17,52 +17,17 @@
 #include "GenFD.hpp"
 #include "request_handler.hpp"
 
-// stuffs to do
-// Blocking
+
 int case_index(int originFD, t_fdInfo *fdInfo, Connection& connection, std::string& index) {
 	int			fd;
-/* 	char		buffer[4096];
-	long		n;
-	std::string	body; */
 	
 	index = connection.getRequest().getPath() + index;
 	fd = open(index.c_str(), O_RDONLY);
 	if (fd < 0) {
 		return -1;
 	}
-	// add to pollfd
 	addToGenFD(fdInfo, fd, originFD, SYS_FD_IN);
 	connection.setState(CONNECTION_LOCK);
-	return 0;
-
-	// move to poll
-	/* while (true) {
-		// Blocking here
-		n = read(fd, buffer, sizeof(buffer));
-		if (n > 0) {
-			body.append(buffer, n);
-		}
-		if (n == 0) {
-			break;
-		}
-		if (n < 0) {
-			close(fd);
-			return -1;
-		}
-	} */
-
-
-
-/* 	connection.getResponse().setBody(body);
-	connection.getResponse().setCode(200);
-	connection.getResponse().setCodeMessage("OK");
-	connection.getResponse().setHeader("Content-Length", size_to_string(body.size()));
-	connection.getResponse().setHeader("Content-Type", "text/html");
-	if (connection.getRequest().getKeepAlive() == "keep-alive")
-		connection.getResponse().setHeader("Connection", "keep-alive");
-	connection.getResponse().constructResponse();
-	connection.setState(SENDING_RESPONSE); */
-	// std::cout << connection.getResponse() << std::endl;
 	return 0;
 }
 
@@ -221,7 +186,7 @@ std::string parseMultiPartForm(Connection& connection) {
 // Upload a file with request body as content.
 // stuffs to do
 // Blocking
-int post_directory(Connection& connection) {
+int post_directory(int originFD, t_fdInfo *fdInfo, Connection& connection) {
 	std::string		file_name;
 	std::string		path;
 	std::string		extension;
@@ -263,10 +228,12 @@ int post_directory(Connection& connection) {
 		}
 		return -1;
 	}
+	addToGenFD(fdInfo, fd, originFD, SYS_FD_IN);
+	return 0;
 	// add fd to pollfd
 	
 	// Move this to poll
-	total = 0;
+/* 	total = 0;
 	body = connection.getRequest().getBody();
 	while (total < body.size()) {
 		// Blocking here
@@ -291,7 +258,7 @@ int post_directory(Connection& connection) {
 	connection.getResponse().setBody(response_body);
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	// std::cout << connection.getResponse() << std::endl;
+	// std::cout << connection.getResponse() << std::endl; */
 	return 0;  
 }
 
@@ -308,7 +275,7 @@ int directory_handler(int originFD, t_fdInfo *fdInfo, Connection& connection) {
 	if (method == "GET")
 		return get_directory(originFD, fdInfo, connection);
 	else if (method == "POST")
-		return post_directory(connection);
+		return post_directory(originFD, fdInfo, connection);
 	else if (method == "DELETE")
 		return delete_directory(connection);
 	return -1;
