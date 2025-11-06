@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/06 16:47:37 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 17:35:33 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include "Response.hpp"
 #include "Config.hpp"
 #include "RequestServer.hpp"
+
+#define FILE_CHUNK_SIZE 65536
 
 enum State {
 	READING_METHOD = 1,
