@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/06 17:24:11 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 17:42:31 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,12 +184,14 @@ int post_file_remake(Connection& connection) {
 	std::string		body;
 	size_t			to_write;
 
-	to_write = 64;
 	body = connection.getRequest().getBody();
 	fdin = connection.getFDIN();
-	if (body.substr(0, 8) == "content=")
+	if (body.substr(0, 8) == "content=") {
+		body.erase(0, 8);
 		connection.getRequest().removeBody(0, 8);
+	}
 	if (connection.getState() == IO_OPERATION) {
+		to_write = std::min((size_t)8192, body.size());
 		written = write(fdin, body.c_str(), to_write);
 		if (written < 0) {
 			close(fdin);
@@ -198,19 +200,16 @@ int post_file_remake(Connection& connection) {
 			error_response(connection, INTERNAL_ERROR);
 			return -1;
 		}
-		if (written == 0) {
-			close(fdin);
-			// set fdin to -1
-			connection.setFDIN(-1);
-			// state to MAKING_RESPONSE
-			connection.setState(MAKING_RESPONSE);
-			// operation to No
-			connection.setOperation(No);
-		}
 		if (written > 0) {
 			connection.getRequest().removeBody(0, written);
-			return 0;
+			body.erase(0, written);
+            if (!body.empty())
+                return 0;
 		}
+		close(fdin);
+		connection.setFDIN(-1);
+		connection.setState(MAKING_RESPONSE);
+		connection.setOperation(No);
 	}
 	if (connection.getState() == MAKING_RESPONSE) {
 		connection.getResponse().setCode(204);
@@ -229,7 +228,7 @@ int get_file_remake(Connection& connection) {
 	std::string	path;
 	std::string	body;
 	int			fdin;
-	char		buffer[64];
+	char		buffer[FILE_CHUNK_SIZE];
 	long		n;
 	int			size;
 
