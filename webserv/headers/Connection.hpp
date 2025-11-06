@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/23 11:48:47 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 16:47:37 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,16 @@ enum State {
 	CONTINUE_READ = 7,
 
 	MAKING_RESPONSE = 8,
-	SENDING_RESPONSE = 9,
+	IO_OPERATION = 9,
+	SENDING_RESPONSE = 10,
 	
-	WAITING_REQUEST = 10
+	WAITING_REQUEST = 11
+};
+
+enum Operation {
+	In,
+	Out,
+	No
 };
 
 class Connection {
@@ -44,6 +51,11 @@ class Connection {
 		bool			close;
 		std::string		port;
 		std::string		ip;
+		int				fdin;
+		int				fdout;
+		int				requestType;
+		Operation		operation;
+
 
 	public:
 		std::string		buffer;
@@ -65,6 +77,10 @@ class Connection {
 		bool			getClose() const;
 		std::string		getPort() const;
 		std::string		getIP() const;
+		int				getFDIN() const;
+		int				getFDOUT() const;
+		int				getRequestType() const;
+		Operation		getOperation() const;
 
 		Connection&		setState(const State state);
 		Connection&		setServer(const RequestServer& server);
@@ -74,6 +90,10 @@ class Connection {
 		Connection&		setClose(const bool close);
 		Connection&		setPort(const std::string port);
 		Connection&		setIP(const std::string ip);
+		Connection&		setFDIN(const int fdin);
+		Connection&		setFDOUT(const int fdout);
+		Connection&		setRequestType(const int requestType);
+		Connection&		setOperation(const Operation operation);
 
 		Connection&		minusOffset(long size);
 		Connection&		plusOffset(long size);

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:18:51 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 16:43:06 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 16:54:32 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ class Response {
 		Response&	setCodeMessage(const std::string& message);
 		void		setHeader(const std::string& key, const std::string& value);
 		Response&	setBody(const std::string& body);
+		void		appendBody(const char *buffer, long size);
 		Response&	setContentLength(const size_t len);
 		Response&	setContentType(const std::string& type);
 

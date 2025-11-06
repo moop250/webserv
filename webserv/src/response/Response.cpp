@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/09 12:20:25 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 16:54:35 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,6 +195,9 @@ void Response::setHeader(const std::string& key, const std::string& value) {
 Response& Response::setBody(const std::string& body) {
 	this->body = body;
 	return *this;
+}
+void Response::appendBody(const char *buffer, long size) {
+	this->body.append(buffer, size);
 }
 Response& Response::setContentLength(const size_t len) {
 	this->contentLength = len;
