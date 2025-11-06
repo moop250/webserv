@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/03 19:07:07 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 16:47:09 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@ Connection::Connection() {
 	this->reconnect = false;
 	this->close = false;
 	this->server = getDefaultServer();
+	this->fdin = -1;
+	this->fdout = -1;
+	this->requestType = None;
+	this->operation = No;
 }
 Connection::Connection(const Connection& copy) {
 	*this = copy;
@@ -40,6 +44,10 @@ Connection& Connection::operator =(const Connection& assign) {
 		this->close = assign.close;
 		this->port = assign.port;
 		this->ip = assign.ip;
+		this->fdin = assign.fdin;
+		this->fdout = assign.fdout;
+		this->requestType = assign.requestType;
+		this->operation = assign.operation;
 	}
 	return *this;
 }
@@ -74,6 +82,10 @@ Connection& Connection::clear() {
 	this->close = false;
 	// Server not reset!
 	// Port and IP not reset!
+	this->fdin = -1;
+	this->fdout = -1;
+	this->requestType = None;
+	this->operation = No;
 	return *this;
 }
 
@@ -110,6 +122,18 @@ std::string Connection::getPort() const {
 }
 std::string Connection::getIP() const {
 	return this->ip;
+}
+int Connection::getFDIN() const {
+	return this->fdin;
+}
+int Connection::getFDOUT() const {
+	return this->fdout;
+}
+int Connection::getRequestType() const {
+	return this->requestType;
+}
+Operation Connection::getOperation() const {
+	return this->operation;
 }
 
 #include <dirent.h>
@@ -152,5 +176,21 @@ Connection& Connection::setPort(const std::string port) {
 }
 Connection& Connection::setIP(const std::string ip) {
 	this->ip = ip;
+	return *this;
+}
+Connection& Connection::setFDIN(const int fdin) {
+	this->fdin = fdin;
+	return *this;
+}
+Connection& Connection::setFDOUT(const int fdout) {
+	this->fdout = fdout;
+	return *this;
+}
+Connection& Connection::setRequestType(const int requestType) {
+	this->requestType = requestType;
+	return *this;
+}
+Connection& Connection::setOperation(const Operation operation) {
+	this->operation = operation;
 	return *this;
 }

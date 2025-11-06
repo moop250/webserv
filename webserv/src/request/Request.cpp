@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/04 16:42:27 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 17:22:03 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,6 +174,9 @@ Request& Request::setRequestType(const int type) {
 Request& Request::setBody(const std::string& body) {
 	this->body = body;
 	return *this;
+}
+void Request::removeBody(const int pos1, const int pos2) {
+	this->body.erase(pos1, pos2);
 }
 Request& Request::setContentLength(const size_t len) {
 	this->contentLength = len;

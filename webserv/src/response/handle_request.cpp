@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/08 13:38:30 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 17:24:12 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,5 +154,107 @@ int handle_request(Connection& connection) {
 		return directory_handler(connection);
 	if (requestType == File)
 		return file_handler(connection);
+	return -1;
+}
+
+// MOOP -> open new fd for file
+int open_FILE_FD(Connection& connection, std::string& method) {
+	std::string	path;
+
+	path = connection.getRequest().getPath();
+	if (method == "GET") {
+		// set fdin
+		connection.setFDIN(open(path.c_str(), O_RDONLY));
+		if (connection.getFDIN() < 0) {
+			switch (errno) {
+				case EACCES:
+					error_response(connection, FORBIDDEN);
+					break ;
+				default:
+					error_response(connection, INTERNAL_ERROR);
+					break ;
+			}
+			return -1;
+		}
+		// set state to IO_OPERATION
+		connection.setState(IO_OPERATION);
+		// fdout is -1 by default
+		// set operation to in
+		connection.setOperation(In);
+	} else if (method == "POST") {
+		connection.setFDIN(open(path.c_str(), O_WRONLY | O_APPEND, 0644));
+		if (connection.getFDIN() < 0) {
+			switch (errno) {
+				case EACCES:
+					error_response(connection, FORBIDDEN);
+					break ;
+				default:
+					error_response(connection, INTERNAL_ERROR);
+					break;
+			}
+			return -1;
+		}
+		// set state to IO_OPERATION
+		connection.setState(IO_OPERATION);
+		// fdout is -1 by default
+		// set operation to in
+		connection.setOperation(In);
+	}
+	return 0;
+}
+
+// MOOP -> Parse_request_type qui vient apres parse_request()
+int parse_type_fd(Connection& connection) {
+	int			requestType;
+	std::string	method;
+	std::string	location;
+
+	location = connection.getServer().getLocation();
+	std::cout << "1\n";
+	if (location == "/cgi" || location == "/cgi/") {
+		if (connection.getRequest().getMethod() == "DELETE") {
+			std::cout << "1\n";
+
+			error_response(connection, METHOD_NOT_ALLOWED);
+			return -1;
+		}
+		if (path_merge_cgi(connection) == -1) {
+			std::cout << "1\n";
+
+			return -1;
+		}
+	} else {
+		path_merge_non_cgi(connection);
+		std::cout << "1\n";
+
+		if (parse_request_type(connection) == -1)
+			return -1;
+	}
+	requestType = static_cast<int>(connection.getRequest().getRequestType());
+	connection.setRequestType(requestType);
+	method = connection.getRequest().getMethod();
+	// if (requestType == CGI && (method == "GET" || method == "POST")) {
+	// 	return open_CGI_FD(connection);
+	// }
+	// if (requestType == Directory && (method == "GET" || method == "POST")) {
+	// 	return open_DIR_FD(connection);
+	// }
+	if (requestType == File && (method == "GET" || method == "POST")) {
+		return open_FILE_FD(connection, method);
+	}
+	return 0;
+}
+
+// MOOP -> le nouveau handle_request
+int handle_request_remake(Connection& connection) {
+	int	requestType;
+
+	requestType = connection.getRequestType();
+	// if (requestType == CGI)
+	// 	return CGI_handler_remake(connection);
+	// if (requestType == Directory)
+	// 	return directory_handler_remake(connection);
+	if (requestType == File)
+		return file_handler_remake(connection);
 	return -1;
 }

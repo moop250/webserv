@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/09/11 14:16:33 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 17:22:01 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,7 @@ class Request {
 		Request&	setFileType(const std::string& fileType);
 		Request&	setRequestType(const int type);
 		Request&	setBody(const std::string& body);
+		void		removeBody(const int pos1, const int pos2);
 		Request&	setContentLength(const size_t len);
 		Request&	setContentType(const std::string& type);
 		Request&	setKeepAlive(const std::string& config);

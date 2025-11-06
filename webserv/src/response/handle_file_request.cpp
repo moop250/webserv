@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/09 12:24:37 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/06 17:24:11 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,6 @@ int get_file(Connection& connection) {
 		}
 		return -1;
 	}
-
-	/*
-		add fd to pollfd
-	*/
 
 	// move to poll
 	connection.getResponse().setContentType(getMIMEType(connection.getRequest().getFileType()));
@@ -176,6 +172,118 @@ int file_handler(Connection& connection) {
 		return get_file(connection);
 	else if (method == "POST")
 		return post_file(connection);
+	else if (method == "DELETE")
+		return delete_file(connection);
+	return -1;
+}
+
+// MOOP -> new post file
+int post_file_remake(Connection& connection) {
+	int				fdin;
+	long			written;
+	std::string		body;
+	size_t			to_write;
+
+	to_write = 64;
+	body = connection.getRequest().getBody();
+	fdin = connection.getFDIN();
+	if (body.substr(0, 8) == "content=")
+		connection.getRequest().removeBody(0, 8);
+	if (connection.getState() == IO_OPERATION) {
+		written = write(fdin, body.c_str(), to_write);
+		if (written < 0) {
+			close(fdin);
+			connection.setFDIN(-1);
+			connection.setOperation(No);
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
+		if (written == 0) {
+			close(fdin);
+			// set fdin to -1
+			connection.setFDIN(-1);
+			// state to MAKING_RESPONSE
+			connection.setState(MAKING_RESPONSE);
+			// operation to No
+			connection.setOperation(No);
+		}
+		if (written > 0) {
+			connection.getRequest().removeBody(0, written);
+			return 0;
+		}
+	}
+	if (connection.getState() == MAKING_RESPONSE) {
+		connection.getResponse().setCode(204);
+		connection.getResponse().setCodeMessage("No Content");
+		if (connection.getRequest().getKeepAlive() == "keep-alive")
+			connection.getResponse().setHeader("Connection", "keep-alive");
+		connection.getResponse().constructResponse();
+		connection.setState(SENDING_RESPONSE);
+		// std::cout << connection.getResponse() << std::endl;
+	}
+	return 0;
+}
+
+// MOOP -> new get file
+int get_file_remake(Connection& connection) {
+	std::string	path;
+	std::string	body;
+	int			fdin;
+	char		buffer[64];
+	long		n;
+	int			size;
+
+	connection.getResponse().setContentType(getMIMEType(connection.getRequest().getFileType()));
+	fdin = connection.getFDIN();
+	// if data left to read
+	if (connection.getState() == IO_OPERATION) {
+		n = read(fdin, buffer, sizeof(buffer));
+		if (n > 0) {
+			connection.getResponse().appendBody(buffer, n);
+			return 0;
+		}
+		// No data left
+		if (n == 0) {
+			close(fdin);
+			// set fdin to -1
+			connection.setFDIN(-1);
+			// state to MAKING_RESPONSE
+			connection.setState(MAKING_RESPONSE);
+			// operation to No
+			connection.setOperation(No);
+		}
+		if (n < 0) {
+			close(fdin);
+			connection.setFDIN(-1);
+			connection.setOperation(No);
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
+	}
+	if (connection.getState() == MAKING_RESPONSE) {
+		size = connection.getResponse().getBody().size();
+		connection.getResponse().setContentLength(size);
+		connection.getResponse().setCode(200);
+		connection.getResponse().setCodeMessage("OK");
+		connection.getResponse().setHeader("Content-Length", size_to_string(size));
+		connection.getResponse().setHeader("Content-Type", connection.getResponse().getContentType());
+		if (connection.getRequest().getKeepAlive() == "keep-alive")
+			connection.getResponse().setHeader("Connection", "keep-alive");
+		connection.getResponse().constructResponse();
+		connection.setState(SENDING_RESPONSE);
+		// std::cout << connection.getResponse() << std::endl;
+	}
+	return 0;
+}
+
+int file_handler_remake(Connection& connection) {
+	std::string	method;
+
+	method = connection.getRequest().getMethod();
+	if (method == "GET")
+		return get_file_remake(connection);
+	else if (method == "POST")
+		return post_file_remake(connection);
 	else if (method == "DELETE")
 		return delete_file(connection);
 	return -1;
