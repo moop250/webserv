@@ -43,6 +43,8 @@ int			CGI_handler_remake(Connection& connection);
 void		child_launch_CGI(Connection& connection, int in[2], int out[2], char **env);
 void		set_env(Connection& connection, std::vector<std::string>& env);
 char		**build_env(std::vector<std::string>& env, std::vector<char*>& pointer);
+int         parse_type_fd(Connection& connection);
+int         handle_request_remake(Connection& connection);
 
 std::string	size_to_string(size_t size);
 std::string	trim(const std::string &str);

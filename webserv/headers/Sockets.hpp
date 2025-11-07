@@ -17,7 +17,8 @@ enum connectionReturns {
 enum recvReturns {
 	EXITPARSING = 0,
 	HUNGUP = -1,
-	RECVERROR = -2
+	RECVERROR = -2,
+	PARSE_TYPE_FDERROR = -3
 };
 
 enum fdTypes {
@@ -42,6 +43,7 @@ typedef struct s_fdInfo {
 	std::map<int, int> fdTypes;
 	std::map<int, int> fdStatus;
 	std::map<int, time_t> timeout;
+	std::map<int, int>	ioFdMap;
 
 } t_fdInfo;
 

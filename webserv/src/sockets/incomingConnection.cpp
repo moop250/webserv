@@ -2,6 +2,7 @@
 #include "../../headers/Sockets.hpp"
 #include "../../headers/Connection.hpp"
 #include "../../headers/request_handler.hpp"
+#include "../../headers/GenFD.hpp"
 #include <cerrno>
 #include <climits>
 #include <cstring>
@@ -138,21 +139,30 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 	return remoteFD;
 };
 
-static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf) {
+static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> *connectMap, Config *conf) {
 	Connection *connect = &connectMap->at(fd);
-		std::string buf(8192, '\0');
+	std::string buf(8192, '\0');
 
-		int nbytes = recv(fd, &buf[0], buf.size(), 0);
-		if (nbytes < 0) {
-			return RECVERROR;
-		} else if (nbytes == 0)
-			return HUNGUP;
+	int nbytes = recv(fd, &buf[0], buf.size(), 0);
+	if (nbytes < 0) {
+		return RECVERROR;
+	} else if (nbytes == 0)
+		return HUNGUP;
 
-		buf.resize(nbytes);
+	buf.resize(nbytes);
 
-		connect->buffer.append(buf);
-		if (parse_request(*connect, *conf) == CONTINUE_READ)
-			return CONTINUE_READ;
+	connect->buffer.append(buf);
+	if (parse_request(*connect, *conf) == CONTINUE_READ)
+		return CONTINUE_READ;
+
+	if (parse_type_fd(*connect) < 0) {
+		return PARSE_TYPE_FDERROR;
+	}
+
+	if (connect->getFDIN() < 0)
+		addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
+	if (connect->getFDOUT() < 0)
+		addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
 
 	return EXITPARSING;
 };
@@ -177,7 +187,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			if (fdInfo->timeout.count(fd) > 0) {
 				fdInfo->timeout.erase(fd);
 			}
-			switch(handleClientData(fd, connectMap, conf))
+			switch(handleClientData(fdInfo, fd, connectMap, conf))
 			{
 				case EXITPARSING:
 					setPOLLOUT(fd, &fdInfo->fds);
@@ -191,18 +201,13 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					return -1;
+				case PARSE_TYPE_FDERROR:
+					// IDK what to do here
+					return -1;
 				case CONTINUE_READ:
 					return 1;
 			}
 			break ;
-		} case SYS_FD_IN: {
-			// handle receiving data to the system
-
-			return 1;
-		} case CGI_FD_IN: {
-			// handle reciving data to the CGI
-
-			return 1;
 		} default:
 			std::cout << RED << "[ERROR]	: " << WHITE << "Unknown POLLIN type" << RESET << std::endl;
 	}
@@ -260,19 +265,31 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLIN) {
-			handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
+			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
+				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
+			} else {
+				// how to handle in case of error?
+				handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+			}
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
-			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
-				// parse incoming system data probably in chunks
-				// Only accept a certain amount of data at a time
-				// when all data has been parsed, change the flag
 
+			if (connectMap->at(fd).getState() == MAKING_RESPONSE || connectMap->at(fd).getState() == IO_OPERATION) {
+				// how to handle in case of error?
+				handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+			}
+
+			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				continue;
 			}
-			// make sure connection isnt awaiting a cgi connection
-			else if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
-				handle_request(connectMap->at(fd));
+
+			if (connectMap->at(fd).getFDIN() < 0) {
+				removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
+				connectMap->at(fd).setFDIN(-1);
+			}
+			if (connectMap->at(fd).getFDOUT() < 0) {
+				removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
+				connectMap->at(fd).setFDOUT(-1);
 			}
 
 			switch (handlePOLLOUT(fd, connectMap, fdInfo)) {
