@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/06 17:17:07 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 11:29:49 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ int			parse_headers(Connection& connection, Config& config);
 int			parse_body_chunked(Connection& connection);
 int			parse_body(Connection& connection);
 int			parse_request(Connection& connection, Config& config);
+std::string	parseMultiPartForm(Connection& connection);
 
 int			handle_request(Connection& connection);
 int			file_handler(Connection& connection);

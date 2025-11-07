@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/06 17:42:31 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 11:37:28 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,23 +179,23 @@ int file_handler(Connection& connection) {
 
 // MOOP -> new post file
 int post_file_remake(Connection& connection) {
-	int				fdin;
+	int				fdout;
 	long			written;
 	std::string		body;
 	size_t			to_write;
 
 	body = connection.getRequest().getBody();
-	fdin = connection.getFDIN();
+	fdout = connection.getFDOUT();
 	if (body.substr(0, 8) == "content=") {
 		body.erase(0, 8);
 		connection.getRequest().removeBody(0, 8);
 	}
 	if (connection.getState() == IO_OPERATION) {
-		to_write = std::min((size_t)8192, body.size());
-		written = write(fdin, body.c_str(), to_write);
+		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
+		written = write(fdout, body.c_str(), to_write);
 		if (written < 0) {
-			close(fdin);
-			connection.setFDIN(-1);
+			close(fdout);
+			connection.setFDOUT(-1);
 			connection.setOperation(No);
 			error_response(connection, INTERNAL_ERROR);
 			return -1;
@@ -206,8 +206,8 @@ int post_file_remake(Connection& connection) {
             if (!body.empty())
                 return 0;
 		}
-		close(fdin);
-		connection.setFDIN(-1);
+		close(fdout);
+		connection.setFDOUT(-1);
 		connection.setState(MAKING_RESPONSE);
 		connection.setOperation(No);
 	}
@@ -225,8 +225,6 @@ int post_file_remake(Connection& connection) {
 
 // MOOP -> new get file
 int get_file_remake(Connection& connection) {
-	std::string	path;
-	std::string	body;
 	int			fdin;
 	char		buffer[FILE_CHUNK_SIZE];
 	long		n;

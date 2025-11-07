@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/09 21:06:36 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 11:43:47 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,7 @@ int case_index(Connection& connection, std::string& index) {
 	if (fd < 0) {
 		return -1;
 	}
-	// add to pollfd
-
-
-	// move to poll
+	
 	while (true) {
 		// Blocking here
 		n = read(fd, buffer, sizeof(buffer));
@@ -57,6 +54,53 @@ int case_index(Connection& connection, std::string& index) {
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	// std::cout << connection.getResponse() << std::endl;
+	return 0;
+}
+
+// MOOP -> case index remake
+int case_index_remake(Connection& connection) {
+	int			fdin;
+	char		buffer[FILE_CHUNK_SIZE];
+	long		n;
+	int			size;
+	
+	fdin = connection.getFDIN();
+	if (connection.getState() == IO_OPERATION) {
+		n = read(fdin, buffer, sizeof(buffer));
+		if (n > 0) {
+			connection.getResponse().appendBody(buffer, n);
+			return 0;
+		}
+		if (n == 0) {
+			close(fdin);
+			// set fdin to -1
+			connection.setFDIN(-1);
+			// state to MAKING_RESPONSE
+			connection.setState(MAKING_RESPONSE);
+			// operation to No
+			connection.setOperation(No);
+		}
+		if (n < 0) {
+			close(fdin);
+			connection.setFDIN(-1);
+			connection.setOperation(No);
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
+	}
+	if (connection.getState() == MAKING_RESPONSE) {
+		size = connection.getResponse().getBody().size();
+		connection.getResponse().setContentLength(size);
+		connection.getResponse().setCode(200);
+		connection.getResponse().setCodeMessage("OK");
+		connection.getResponse().setHeader("Content-Length", size_to_string(size));
+		connection.getResponse().setHeader("Content-Type", "text/html");
+		if (connection.getRequest().getKeepAlive() == "keep-alive")
+			connection.getResponse().setHeader("Connection", "keep-alive");
+		connection.getResponse().constructResponse();
+		connection.setState(SENDING_RESPONSE);
+		// std::cout << connection.getResponse() << std::endl;
+	}
 	return 0;
 }
 
@@ -135,6 +179,8 @@ int get_directory(Connection& connection) {
 			index.erase(0, 1);
 		if (case_index(connection, index) == 0)
 			return 0;
+		// if (case_index_remake(connection) == 0)
+		// 	return 0;
 	}
 	if (autoindex == true) {
 		if (case_autoindex(connection) == 0)
@@ -142,74 +188,6 @@ int get_directory(Connection& connection) {
 	}
 	error_response(connection, FORBIDDEN);
 	return -1;
-}
-
-std::string parseMultiPartForm(Connection& connection) {
-	std::string::size_type	boundary_pos;
-	std::string::size_type	boundary_end_pos;
-	std::string::size_type	header_pos;
-	std::string				boundary;
-	std::string				boundary_end;
-	std::string				body;
-	std::string				parsed_body;
-	std::string				content_type;
-	std::string::size_type	file_name_pos;
-	std::string				file_name;
-	std::string::size_type	last_slash;
-
-	content_type = connection.getRequest().getContentType();
-	if (content_type.find("multipart/form-data") == std::string::npos) {
-		error_response(connection, UNSUPPORTED_MEDIA_TYPE);
-		return "";
-	}
-	boundary_pos = content_type.find("boundary=");
-	if (boundary_pos == std::string::npos) {
-		error_response(connection, BAD_REQUEST);
-		return "";
-	}
-	boundary = content_type.substr(boundary_pos + 9);
-	if (boundary.empty()) {
-		error_response(connection, BAD_REQUEST);
-		return "";
-	}
-	boundary = "--" + boundary;
-	boundary_end = boundary + "--";
-	body = connection.getRequest().getBody();
-	if (body.empty()) {
-		error_response(connection, BAD_REQUEST);
-		return "";
-	}
-	file_name_pos = body.find("filename=");
-	if (file_name_pos == std::string::npos) {
-		error_response(connection, BAD_REQUEST);
-		return "";
-	}
-	file_name_pos += 10;
-	while (file_name_pos < body.size() && body[file_name_pos] != '"') {
-		file_name.push_back(body[file_name_pos]);
-		file_name_pos++;
-	}
-	last_slash = file_name.find_last_of("/\\");
-	if (last_slash != std::string::npos) {
-		file_name = file_name.substr(last_slash + 1);
-	}
-	header_pos = body.find("\r\n\r\n");
-	if (header_pos == std::string::npos) {
-		error_response(connection, BAD_REQUEST);
-		return "";
-	}
-	boundary_end_pos = body.find(boundary_end);
-	if (boundary_end_pos == std::string::npos) {
-		error_response(connection, BAD_REQUEST);
-		return "";
-	}
-	header_pos += 4;
-	if (boundary_end_pos >= 2 && body[boundary_end_pos - 2] == '\r' && body[boundary_end_pos - 1] == '\n') {
-		boundary_end_pos -= 2;
-	}
-	parsed_body = body.substr(header_pos, boundary_end_pos - header_pos);
-	connection.getRequest().setBody(parsed_body);
-	return file_name;
 }
 
 // Upload a file with request body as content.
@@ -289,6 +267,54 @@ int post_directory(Connection& connection) {
 	return 0;  
 }
 
+// MOOP -> post directory remake
+int post_directory_remake(Connection& connection) {
+	std::string		extension;
+	int				fdout;
+	long			written;
+	std::string		body;
+	size_t			to_write;
+	std::string		response_body;
+
+	body = connection.getRequest().getBody();
+	fdout = connection.getFDOUT();
+	if (connection.getState() == IO_OPERATION) {
+		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
+		written = write(fdout, body.c_str(), to_write);
+		if (written < 0) {
+			close(fdout);
+			connection.setFDOUT(-1);
+			connection.setOperation(No);
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
+		if (written > 0) {
+			connection.getRequest().removeBody(0, written);
+			body.erase(0, written);
+            if (!body.empty())
+                return 0;
+		}
+		close(fdout);
+		connection.setFDOUT(-1);
+		connection.setState(MAKING_RESPONSE);
+		connection.setOperation(No);
+	}
+	if (connection.getState() == MAKING_RESPONSE) {
+		connection.getResponse().setCode(200);
+		connection.getResponse().setCodeMessage("OK");
+		if (connection.getRequest().getKeepAlive() == "keep-alive")
+			connection.getResponse().setHeader("Connection", "keep-alive");
+		connection.getResponse().setHeader("Content-Type", "text/html");
+		response_body = "<!doctype html>\n\n<html><body><h1>Upload successful!</h1><p>Your file has been received.</p></body></html>";
+		connection.getResponse().setHeader("Content-Length", size_to_string(response_body.size()));
+		connection.getResponse().setBody(response_body);
+		connection.getResponse().constructResponse();
+		connection.setState(SENDING_RESPONSE);
+		// std::cout << connection.getResponse() << std::endl;
+	}
+	return 0;  
+}
+
 // Reject with 403 Fobidden if Delete request targets directory
 int delete_directory(Connection& connection) {
 	error_response(connection, FORBIDDEN);
@@ -303,6 +329,8 @@ int directory_handler(Connection& connection) {
 		return get_directory(connection);
 	else if (method == "POST")
 		return post_directory(connection);
+	// else if (method == "POST")
+	// 	return post_directory_remake(connection);
 	else if (method == "DELETE")
 		return delete_directory(connection);
 	return -1;

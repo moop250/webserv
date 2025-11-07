@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/06 17:28:16 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 11:49:48 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,8 +182,9 @@ int open_FILE_FD(Connection& connection, std::string& method) {
 		// set operation to in
 		connection.setOperation(In);
 	} else if (method == "POST") {
-		connection.setFDIN(open(path.c_str(), O_WRONLY | O_APPEND, 0644));
-		if (connection.getFDIN() < 0) {
+		// set fdout
+		connection.setFDOUT(open(path.c_str(), O_WRONLY | O_APPEND, 0644));
+		if (connection.getFDOUT() < 0) {
 			switch (errno) {
 				case EACCES:
 					error_response(connection, FORBIDDEN);
@@ -196,10 +197,154 @@ int open_FILE_FD(Connection& connection, std::string& method) {
 		}
 		// set state to IO_OPERATION
 		connection.setState(IO_OPERATION);
-		// fdout is -1 by default
+		// fdin is -1 by default
 		// set operation to in
-		connection.setOperation(In);
+		connection.setOperation(Out);
 	}
+	return 0;
+}
+
+std::string parseMultiPartForm(Connection& connection) {
+	std::string::size_type	boundary_pos;
+	std::string::size_type	boundary_end_pos;
+	std::string::size_type	header_pos;
+	std::string				boundary;
+	std::string				boundary_end;
+	std::string				body;
+	std::string				parsed_body;
+	std::string				content_type;
+	std::string::size_type	file_name_pos;
+	std::string				file_name;
+	std::string::size_type	last_slash;
+
+	content_type = connection.getRequest().getContentType();
+	if (content_type.find("multipart/form-data") == std::string::npos) {
+		error_response(connection, UNSUPPORTED_MEDIA_TYPE);
+		return "";
+	}
+	boundary_pos = content_type.find("boundary=");
+	if (boundary_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	boundary = content_type.substr(boundary_pos + 9);
+	if (boundary.empty()) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	boundary = "--" + boundary;
+	boundary_end = boundary + "--";
+	body = connection.getRequest().getBody();
+	if (body.empty()) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	file_name_pos = body.find("filename=");
+	if (file_name_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	file_name_pos += 10;
+	while (file_name_pos < body.size() && body[file_name_pos] != '"') {
+		file_name.push_back(body[file_name_pos]);
+		file_name_pos++;
+	}
+	last_slash = file_name.find_last_of("/\\");
+	if (last_slash != std::string::npos) {
+		file_name = file_name.substr(last_slash + 1);
+	}
+	header_pos = body.find("\r\n\r\n");
+	if (header_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	boundary_end_pos = body.find(boundary_end);
+	if (boundary_end_pos == std::string::npos) {
+		error_response(connection, BAD_REQUEST);
+		return "";
+	}
+	header_pos += 4;
+	if (boundary_end_pos >= 2 && body[boundary_end_pos - 2] == '\r' && body[boundary_end_pos - 1] == '\n') {
+		boundary_end_pos -= 2;
+	}
+	parsed_body = body.substr(header_pos, boundary_end_pos - header_pos);
+	connection.getRequest().setBody(parsed_body);
+	return file_name;
+}
+
+// MOOP -> open new fd for directory
+int open_DIR_FD(Connection& connection, std::string& method) {
+	std::string	index;
+
+	if (method == "GET") {
+		index = connection.getServer().index();
+		if (!index.empty()) {
+			if (index[0] == '/')
+				index.erase(0, 1);
+			connection.setFDIN(open(index.c_str(), O_RDONLY));
+			if (connection.getFDIN() < 0) {
+				switch (errno) {
+					case EACCES:
+						error_response(connection, FORBIDDEN);
+						break ;
+					default:
+						error_response(connection, INTERNAL_ERROR);
+						break ;
+				}
+				return -1;
+			}
+			// set state to IO_OPERATION
+			connection.setState(IO_OPERATION);
+			// fdout is -1 by default
+			// set operation to in
+			connection.setOperation(In);
+		}
+	} else if (method == "POST") {
+		std::string	file_name;
+		std::string	path;
+		std::string	root;
+
+		if (connection.getServer().storage().empty())
+			path = connection.getRequest().getPath();
+		else {
+			root = connection.getServer().root();
+			if (root[root.size() - 1] == '/')
+				root.erase(root.size() - 1);
+			path = connection.getServer().storage();
+			path = root + path;
+		}
+		if (path[0] == '/')
+			path.erase(0, 1);
+		file_name = parseMultiPartForm(connection);
+		if (file_name.empty())
+			return -1;
+		if (path[path.size() - 1] != '/')
+			path += '/';
+		path += file_name;
+		connection.setFDOUT(open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644));
+		if (connection.getFDOUT() < 0) {
+			switch (errno) {
+				case EACCES:
+					error_response(connection, FORBIDDEN);
+					break ;
+				default:
+					error_response(connection, INTERNAL_ERROR);
+					break;
+			}
+			return -1;
+		}
+		// set state to IO_OPERATION
+		connection.setState(IO_OPERATION);
+		// fdin is -1 by default
+		// set operation to in
+		connection.setOperation(Out);
+	}
+	return 0;
+}
+
+int open_CGI_FD(Connection& connection, std::string& method) {
+	(void)connection;
+	(void)method;
 	return 0;
 }
 
@@ -233,12 +378,12 @@ int parse_type_fd(Connection& connection) {
 	requestType = static_cast<int>(connection.getRequest().getRequestType());
 	connection.setRequestType(requestType);
 	method = connection.getRequest().getMethod();
-	// if (requestType == CGI && (method == "GET" || method == "POST")) {
-	// 	return open_CGI_FD(connection);
-	// }
-	// if (requestType == Directory && (method == "GET" || method == "POST")) {
-	// 	return open_DIR_FD(connection);
-	// }
+	if (requestType == CGI && (method == "GET" || method == "POST")) {
+		return open_CGI_FD(connection, method);
+	}
+	if (requestType == Directory && (method == "GET" || method == "POST")) {
+		return open_DIR_FD(connection, method);
+	}
 	if (requestType == File && (method == "GET" || method == "POST")) {
 		return open_FILE_FD(connection, method);
 	}
@@ -252,8 +397,8 @@ int handle_request_remake(Connection& connection) {
 	requestType = connection.getRequestType();
 	// if (requestType == CGI)
 	// 	return CGI_handler_remake(connection);
-	// if (requestType == Directory)
-	// 	return directory_handler_remake(connection);
+	if (requestType == Directory)
+		return directory_handler(connection);
 	if (requestType == File)
 		return file_handler_remake(connection);
 	return -1;
