@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/10/09 12:19:26 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 14:47:55 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ std::string error_message(std::string& code) {
 		return "Internal Server Error";
 	if (code == "501")
 		return "Not Implemented";
+	if (code == "504")
+		return "Gateway Timeout";
 	if (code == "505")
 		return "Http Version Mismatch";
 	return "";
@@ -83,6 +85,8 @@ std::string error_message(int code) {
 			return "Internal Server Error";
 		case 501:
 			return "Not Implemented";
+		case 504:
+			return "Gateway Timeout";
 		case 505:
 			return "Http Version Mismatch";
 	}

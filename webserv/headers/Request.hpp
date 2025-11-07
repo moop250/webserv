@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/06 17:22:01 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 14:44:00 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@
 #define UNSUPPORTED_MEDIA_TYPE 415
 #define INTERNAL_ERROR 500
 #define NOT_IMPLEMENTED 501
+#define GATEWAY_TIMEOUT 504
 #define HTTP_VERSION_MISMATCH 505
 
 #define NO_CONTENT 204

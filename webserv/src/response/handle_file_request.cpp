@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 11:37:28 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 13:12:46 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,8 +203,8 @@ int post_file_remake(Connection& connection) {
 		if (written > 0) {
 			connection.getRequest().removeBody(0, written);
 			body.erase(0, written);
-            if (!body.empty())
-                return 0;
+			if (!body.empty())
+				return 0;
 		}
 		close(fdout);
 		connection.setFDOUT(-1);

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/06 16:47:09 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 13:28:33 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ Connection::Connection() {
 	this->fdout = -1;
 	this->requestType = None;
 	this->operation = No;
+	this->pid = -1;
 }
 Connection::Connection(const Connection& copy) {
 	*this = copy;
@@ -48,6 +49,9 @@ Connection& Connection::operator =(const Connection& assign) {
 		this->fdout = assign.fdout;
 		this->requestType = assign.requestType;
 		this->operation = assign.operation;
+		this->pid = assign.pid;
+		this->cgi_output = assign.cgi_output;
+		this->cgi_time = assign.cgi_time;
 	}
 	return *this;
 }
@@ -86,6 +90,8 @@ Connection& Connection::clear() {
 	this->fdout = -1;
 	this->requestType = None;
 	this->operation = No;
+	this->pid = -1;
+	this->cgi_output.clear();
 	return *this;
 }
 
@@ -134,6 +140,15 @@ int Connection::getRequestType() const {
 }
 Operation Connection::getOperation() const {
 	return this->operation;
+}
+pid_t Connection::getPid() const {
+	return this->pid;
+}
+std::string Connection::get_CgiOutput() const {
+	return this->cgi_output;
+}
+std::time_t Connection::get_CgiTime() const {
+	return this->cgi_time;
 }
 
 #include <dirent.h>
@@ -192,5 +207,21 @@ Connection& Connection::setRequestType(const int requestType) {
 }
 Connection& Connection::setOperation(const Operation operation) {
 	this->operation = operation;
+	return *this;
+}
+Connection& Connection::setPid(const pid_t pid) {
+	this->pid = pid;
+	return *this;
+}
+Connection& Connection::appendCGIoutput(const char *buffer, long size) {
+	this->cgi_output.append(buffer, size);
+	return *this;
+}
+Connection& Connection::setCGIoutput(const std::string cgioutput) {
+	this->cgi_output = cgioutput;
+	return *this;
+}
+Connection& Connection::setCGItime(const std::time_t time) {
+	this->cgi_time = time;
 	return *this;
 }
