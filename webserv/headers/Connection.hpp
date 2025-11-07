@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 11:36:23 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 13:29:59 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 #define FILE_CHUNK_SIZE 65536
 #define FILE_WRITE_SIZE 8192
+#define TIMEOUT_SECONDS 5
 
 enum State {
 	READING_METHOD = 1,
@@ -58,7 +59,9 @@ class Connection {
 		int				fdout;
 		int				requestType;
 		Operation		operation;
-
+		pid_t			pid;
+		std::string		cgi_output;
+		std::time_t		cgi_time;
 
 	public:
 		std::string		buffer;
@@ -84,6 +87,9 @@ class Connection {
 		int				getFDOUT() const;
 		int				getRequestType() const;
 		Operation		getOperation() const;
+		pid_t			getPid() const;
+		std::string		get_CgiOutput() const;
+		std::time_t		get_CgiTime() const;
 
 		Connection&		setState(const State state);
 		Connection&		setServer(const RequestServer& server);
@@ -97,7 +103,11 @@ class Connection {
 		Connection&		setFDOUT(const int fdout);
 		Connection&		setRequestType(const int requestType);
 		Connection&		setOperation(const Operation operation);
+		Connection&		setPid(const pid_t pid);
+		Connection&		appendCGIoutput(const char *buffer, long size);
+		Connection&		setCGItime(const std::time_t time);
 
+		Connection&		setCGIoutput(const std::string cgioutput);
 		Connection&		minusOffset(long size);
 		Connection&		plusOffset(long size);
 		Connection&		clear();

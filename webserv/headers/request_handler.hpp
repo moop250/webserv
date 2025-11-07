@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 11:29:49 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 13:08:37 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,10 @@ int			post_directory(Connection& connection);
 int			delete_directory(Connection& connection);
 int			CGI_handler(Connection& connection);
 int			file_handler_remake(Connection& connection);
+int			CGI_handler_remake(Connection& connection);
+void		child_launch_CGI(Connection& connection, int in[2], int out[2], char **env);
+void		set_env(Connection& connection, std::vector<std::string>& env);
+char		**build_env(std::vector<std::string>& env, std::vector<char*>& pointer);
 
 std::string	size_to_string(size_t size);
 std::string	trim(const std::string &str);

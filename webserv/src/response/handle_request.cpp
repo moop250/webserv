@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 11:49:48 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/07 14:50:43 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -342,9 +342,47 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 	return 0;
 }
 
-int open_CGI_FD(Connection& connection, std::string& method) {
-	(void)connection;
-	(void)method;
+int open_CGI_PIPE_FORK(Connection& connection, std::string& method) {
+	std::vector<std::string>	env_string;
+	std::vector<char*>			env_pointer;
+	char						**env;
+	int							in[2];
+	int							out[2];
+
+	set_env(connection, env_string);
+	env = build_env(env_string, env_pointer);
+	if (pipe(in) < 0) { 
+		error_response(connection, INTERNAL_ERROR);
+		return -1;
+	}
+	if (pipe(out) < 0) {
+		close(in[0]);
+		close(in[1]);
+		error_response(connection, INTERNAL_ERROR);
+		return -1;
+	}
+	connection.setPid(fork());
+	switch(connection.getPid()) {
+		case -1:
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		case 0:
+			child_launch_CGI(connection, in, out, env);
+			return 0;
+		default:
+			connection.setCGItime(std::time(NULL));
+			close(in[0]);
+			close(out[1]);
+			connection.setFDOUT(in[1]);
+    		connection.setFDIN(out[0]);
+			connection.setState(IO_OPERATION);
+			if (method == "POST") {
+				connection.setOperation(Out);
+			} else if (method == "GET") {
+				connection.setOperation(In);
+			}
+			return 0;
+	}
 	return 0;
 }
 
@@ -379,7 +417,7 @@ int parse_type_fd(Connection& connection) {
 	connection.setRequestType(requestType);
 	method = connection.getRequest().getMethod();
 	if (requestType == CGI && (method == "GET" || method == "POST")) {
-		return open_CGI_FD(connection, method);
+		return open_CGI_PIPE_FORK(connection, method);
 	}
 	if (requestType == Directory && (method == "GET" || method == "POST")) {
 		return open_DIR_FD(connection, method);
@@ -395,8 +433,8 @@ int handle_request_remake(Connection& connection) {
 	int	requestType;
 
 	requestType = connection.getRequestType();
-	// if (requestType == CGI)
-	// 	return CGI_handler_remake(connection);
+	if (requestType == CGI)
+		return CGI_handler_remake(connection);
 	if (requestType == Directory)
 		return directory_handler(connection);
 	if (requestType == File)
