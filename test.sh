@@ -66,6 +66,19 @@ stress_test() {
 
 	kill $pid1
 	kill $pid2
+
+	clear
+
+	dif=$(diff foo1.log foo2.log)
+	if (( $(echo $dif | wc -l) == 0 )) ; then
+		echo No diff between the two logs
+		cat foo1.log | grep getted
+	else
+		echo dif : 
+		echo $dif
+	fi
+	rm foo1.log && rm foo2.log
+
 }
 
 echo Do a stress-test and quit ? Y/n

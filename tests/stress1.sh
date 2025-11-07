@@ -6,5 +6,5 @@ do
 	iter=$i
 	sleep 0.1
 	curl 127.0.0.1:8001/html/accueil.html >> foo1.log
-	echo Page getted : $iter >> foo1.log
+	echo Page getted : $iter times > foo1.log
 done
