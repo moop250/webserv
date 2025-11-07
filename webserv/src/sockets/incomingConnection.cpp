@@ -155,14 +155,24 @@ static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> 
 	if (parse_request(*connect, *conf) == CONTINUE_READ)
 		return CONTINUE_READ;
 
-	if (parse_type_fd(*connect) < 0) {
+	
+	int status = parse_type_fd(*connect);
+	std::cout << "status: " << status << std::endl;
+	if (status) {
 		return PARSE_TYPE_FDERROR;
 	}
 
-	if (connect->getFDIN() < 0)
+	std::cout << "parse type fd succeeded" << std::endl;
+
+	if (connect->getFDIN() < 0) {
 		addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
-	if (connect->getFDOUT() < 0)
+		std::cout << "added " << connect->getFDIN() << " to genfd" << std::endl;
+	}
+	if (connect->getFDOUT() < 0) {
 		addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
+		std::cout << "added " << connect->getFDOUT() << " to genfd" << std::endl;
+
+	}
 
 	return EXITPARSING;
 };
