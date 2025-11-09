@@ -5,6 +5,7 @@
 #include "../../headers/GenFD.hpp"
 #include <cerrno>
 #include <climits>
+#include <cstddef>
 #include <cstring>
 #include <fcntl.h>
 #include <map>
@@ -157,21 +158,15 @@ static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> 
 
 	
 	int status = parse_type_fd(*connect);
-	std::cout << "status: " << status << std::endl;
-	if (status) {
+	if (status < 0) {
 		return PARSE_TYPE_FDERROR;
 	}
 
-	std::cout << "parse type fd succeeded" << std::endl;
-
-	if (connect->getFDIN() < 0) {
+	if (connect->getFDIN() > 0) {
 		addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
-		std::cout << "added " << connect->getFDIN() << " to genfd" << std::endl;
 	}
-	if (connect->getFDOUT() < 0) {
+	if (connect->getFDOUT() > 0) {
 		addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
-		std::cout << "added " << connect->getFDOUT() << " to genfd" << std::endl;
-
 	}
 
 	return EXITPARSING;
@@ -212,7 +207,9 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					return -1;
 				case PARSE_TYPE_FDERROR:
-					// IDK what to do here
+					setPOLLOUT(fd, &fdInfo->fds);
+					fdInfo->fdStatus.at(fd) = CLIENTERROR;
+					connectMap->at(fd).setState(SENDING_RESPONSE);
 					return -1;
 				case CONTINUE_READ:
 					return 1;
@@ -266,7 +263,16 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 }
 
 int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap) {
-	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
+/* 	std::cout << "fd list:" << std::endl;
+	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
+		std::cout << fdInfo->fds.at(i).fd << " pollevents: " << fdInfo->fds.at(i).events << " pollrevents: " << fdInfo->fds.at(i).revents << " and type: " << fdInfo->fdTypes.at(fdInfo->fds.at(i).fd) <<  std::endl;
+	}
+	static int count = 0;
+	if (count > 5)
+		exit (1);
+	++count;
+ */
+	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
 
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
@@ -278,15 +284,22 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
 			} else {
-				// how to handle in case of error?
+				// If error just set to internal server error?
+				std::cout << "error before in" << std::endl;
 				handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+				std::cout << "error after in" << std::endl;
 			}
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
+			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
+				if (connectMap->at(fd).getState() == MAKING_RESPONSE || connectMap->at(fd).getState() == IO_OPERATION) {
+					// If error just set to internal server error?
+					std::cout << "error before out" << std::endl;
+					handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+					std::cout << "error after out" << std::endl;
+				}
 
-			if (connectMap->at(fd).getState() == MAKING_RESPONSE || connectMap->at(fd).getState() == IO_OPERATION) {
-				// how to handle in case of error?
-				handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+				continue;
 			}
 
 			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
