@@ -266,42 +266,64 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 /* 	std::cout << "fd list:" << std::endl;
 	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		std::cout << fdInfo->fds.at(i).fd << " pollevents: " << fdInfo->fds.at(i).events << " pollrevents: " << fdInfo->fds.at(i).revents << " and type: " << fdInfo->fdTypes.at(fdInfo->fds.at(i).fd) <<  std::endl;
-	}
-	static int count = 0;
+	} */
+/* 	static int count = 0;
 	if (count > 5)
 		exit (1);
 	++count;
  */
+ 
 	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
 
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
 			close(fd);
+			if (connectMap->at(fd).getFDIN() < 0) {
+				removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
+				connectMap->at(fd).setFDIN(-1);
+			}
+			if (connectMap->at(fd).getFDOUT() < 0) {
+				removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
+				connectMap->at(fd).setFDOUT(-1);
+			}
 			removeFromPollfd(fdInfo, fd, sockets, connectMap);
 			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLIN) {
+			std::cout << RED << "FDtypes: " << fdInfo->fdTypes.size() << std::endl;
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
 			} else {
-				// If error just set to internal server error?
-				handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+				int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+				if (status < 0) {
+					// If error just set to internal server error?
+					int tmpfd = fdInfo->ioFdMap.at(fd);
+					fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
+					connectMap->at(tmpfd).setState(SENDING_RESPONSE);
+					removeFromGenfd(fdInfo, fd);
+				}
 			}
+			continue;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
 				if (connectMap->at(fd).getState() == MAKING_RESPONSE || connectMap->at(fd).getState() == IO_OPERATION) {
-					// If error just set to internal server error?
-					handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+					int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+					if (status < 0) {
+						// If error just set to internal server error?
+						int tmpfd = fdInfo->ioFdMap.at(fd);
+						fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
+						connectMap->at(tmpfd).setState(SENDING_RESPONSE);
+						removeFromGenfd(fdInfo, fd);
+					}
 				}
-
 				continue;
 			}
 
 			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				continue;
 			}
-
+			// std::cout << "Socket : " << fd << " has FDIN of : " << connectMap->at(fd).getFDIN() << " and FDOUT of : " << connectMap->at(fd).getFDOUT() << std::endl;
 			if (connectMap->at(fd).getFDIN() < 0) {
 				removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
 				connectMap->at(fd).setFDIN(-1);
@@ -322,7 +344,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					std::cout << YELLOW << "[WARNING]	: " << RESET << "POLLOUT: non fatal error on socket: " << fd << "... closing" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
-					break ;
+					continue;
 				case 3:
 					fdInfo->timeout[fd] = time(NULL);
 					std::cout <<   CYAN << "[INFO]		: " << RESET << "Keep-alive timer started" << std::endl;
