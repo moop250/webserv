@@ -276,6 +276,20 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
 
+		if (fdInfo->fds.at(i).revents == POLLNVAL) {
+			std::cout << RED << "[ERROR]		: " << WHITE << "Invalid FD caught by poll, removing from pollfd" << RESET << std::endl;
+			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
+				removeFromPollfd(fdInfo, fd, sockets, connectMap);
+			}
+			else {
+				int tmpfd = fdInfo->ioFdMap.at(fd);
+				fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
+				connectMap->at(tmpfd).setState(SENDING_RESPONSE);
+				removeFromGenfd(fdInfo, fd);
+			}
+			continue;
+		}
+
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
 			close(fd);
 			if (connectMap->at(fd).getFDIN() < 0) {
@@ -290,13 +304,13 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLIN) {
-			std::cout << RED << "FDtypes: " << fdInfo->fdTypes.size() << std::endl;
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
 			} else {
 				int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
 				if (status < 0) {
 					// If error just set to internal server error?
+					std::cout << RED << "[ERROR]		: " << WHITE << "Request handler returned error for fd: " << fd << RESET << std::endl;
 					int tmpfd = fdInfo->ioFdMap.at(fd);
 					fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
 					connectMap->at(tmpfd).setState(SENDING_RESPONSE);
@@ -311,6 +325,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
 					if (status < 0) {
 						// If error just set to internal server error?
+						std::cout << RED << "[ERROR]		: " << WHITE << "Request handler returned error for fd: " << fd << RESET << std::endl;
 						int tmpfd = fdInfo->ioFdMap.at(fd);
 						fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
 						connectMap->at(tmpfd).setState(SENDING_RESPONSE);
