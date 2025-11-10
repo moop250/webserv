@@ -285,18 +285,14 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
 			} else {
 				// If error just set to internal server error?
-				std::cout << "error before in" << std::endl;
 				handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
-				std::cout << "error after in" << std::endl;
 			}
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
 				if (connectMap->at(fd).getState() == MAKING_RESPONSE || connectMap->at(fd).getState() == IO_OPERATION) {
 					// If error just set to internal server error?
-					std::cout << "error before out" << std::endl;
 					handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
-					std::cout << "error after out" << std::endl;
 				}
 
 				continue;
