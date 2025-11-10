@@ -277,7 +277,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 		int fd = fdInfo->fds.at(i).fd;
 
 		if (fdInfo->fds.at(i).revents == POLLNVAL) {
-			std::cout << RED << "[ERROR]		: " << WHITE << "Invalid FD caught by poll, removing from pollfd" << RESET << std::endl;
+			std::cout << RED << "[ERROR]		: " << WHITE << "poll: Invalid FD: " << fd << " caught, removing from pollfd" << RESET << std::endl;
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				removeFromPollfd(fdInfo, fd, sockets, connectMap);
 			}
@@ -310,7 +310,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
 				if (status < 0) {
 					// If error just set to internal server error?
-					std::cout << RED << "[ERROR]		: " << WHITE << "Request handler returned error for fd: " << fd << RESET << std::endl;
+					std::cout << RED << "[ERROR]		: " << WHITE << "request_handler: Error on fd: " << fd << RESET << std::endl;
 					int tmpfd = fdInfo->ioFdMap.at(fd);
 					fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
 					connectMap->at(tmpfd).setState(SENDING_RESPONSE);
@@ -325,7 +325,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
 					if (status < 0) {
 						// If error just set to internal server error?
-						std::cout << RED << "[ERROR]		: " << WHITE << "Request handler returned error for fd: " << fd << RESET << std::endl;
+						std::cout << RED << "[ERROR]		: " << WHITE << "request_handler: Error on fd: " << fd << RESET << std::endl;
 						int tmpfd = fdInfo->ioFdMap.at(fd);
 						fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
 						connectMap->at(tmpfd).setState(SENDING_RESPONSE);
