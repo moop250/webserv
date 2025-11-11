@@ -292,11 +292,11 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 		} */
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
 			close(fd);
-			if (connectMap->at(fd).getFDIN() < 0) {
+			if (connectMap->at(fd).getFDIN() > 0) {
 				removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
 				connectMap->at(fd).setFDIN(-1);
 			}
-			if (connectMap->at(fd).getFDOUT() < 0) {
+			if (connectMap->at(fd).getFDOUT() > 0) {
 				removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
 				connectMap->at(fd).setFDOUT(-1);
 			}
