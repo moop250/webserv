@@ -258,6 +258,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		return 4;
 	else if (connect.getRequest().getKeepAlive() == "keep-alive")
 		return 3;
+	// [INFO] replace the 3 with a 4 to disable keep alive
 	// 400 Bad request with post happens after 0 is returned
 	return 0;
 }
@@ -276,7 +277,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
 
-		if (fdInfo->fds.at(i).revents == POLLNVAL) {
+		/* if (fdInfo->fds.at(i).revents == POLLNVAL) {
 			std::cout << RED << "[ERROR]		: " << WHITE << "poll: Invalid FD: " << fd << " caught, removing from pollfd" << RESET << std::endl;
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				removeFromPollfd(fdInfo, fd, sockets, connectMap);
@@ -288,8 +289,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				removeFromGenfd(fdInfo, fd);
 			}
 			continue;
-		}
-
+		} */
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
 			close(fd);
 			if (connectMap->at(fd).getFDIN() < 0) {
@@ -309,11 +309,12 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			} else {
 				int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
 				if (status < 0) {
-					// If error just set to internal server error?
 					std::cout << RED << "[ERROR]		: " << WHITE << "request_handler: Error on fd: " << fd << RESET << std::endl;
 					int tmpfd = fdInfo->ioFdMap.at(fd);
 					fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
 					connectMap->at(tmpfd).setState(SENDING_RESPONSE);
+					removeFromGenfd(fdInfo, fd);
+				} else if (connectMap->at(fdInfo->ioFdMap.at(fd)).getFDIN() == -1) {
 					removeFromGenfd(fdInfo, fd);
 				}
 			}
@@ -324,11 +325,12 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				if (connectMap->at(fd).getState() == MAKING_RESPONSE || connectMap->at(fd).getState() == IO_OPERATION) {
 					int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
 					if (status < 0) {
-						// If error just set to internal server error?
 						std::cout << RED << "[ERROR]		: " << WHITE << "request_handler: Error on fd: " << fd << RESET << std::endl;
 						int tmpfd = fdInfo->ioFdMap.at(fd);
 						fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
 						connectMap->at(tmpfd).setState(SENDING_RESPONSE);
+						removeFromGenfd(fdInfo, fd);
+					} else if (connectMap->at(fdInfo->ioFdMap.at(fd)).getFDOUT() == -1) {
 						removeFromGenfd(fdInfo, fd);
 					}
 				}
@@ -338,12 +340,12 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
 				continue;
 			}
-			// std::cout << "Socket : " << fd << " has FDIN of : " << connectMap->at(fd).getFDIN() << " and FDOUT of : " << connectMap->at(fd).getFDOUT() << std::endl;
-			if (connectMap->at(fd).getFDIN() < 0) {
+
+			if (connectMap->at(fd).getFDIN() > 0) {
 				removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
 				connectMap->at(fd).setFDIN(-1);
 			}
-			if (connectMap->at(fd).getFDOUT() < 0) {
+			if (connectMap->at(fd).getFDOUT() > 0) {
 				removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
 				connectMap->at(fd).setFDOUT(-1);
 			}
