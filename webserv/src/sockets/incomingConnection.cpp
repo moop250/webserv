@@ -66,6 +66,9 @@ void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<
 			break;
 		}
 	}
+	if (fcntl(fd, F_GETFD) != -1) {
+		close(fd);
+	}
 	connectMap->erase(fd);
 	fdInfo->fdTypes.erase(fd);
 	fdInfo->fdStatus.erase(fd);
@@ -257,7 +260,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 	if (connect.getClose())
 		return 4;
 	else if (connect.getRequest().getKeepAlive() == "keep-alive")
-		return 3;
+		return 4;
 	// [INFO] replace the 3 with a 4 to disable keep alive
 	// 400 Bad request with post happens after 0 is returned
 	return 0;

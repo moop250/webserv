@@ -4,6 +4,7 @@
 #include "../../headers/request_handler.hpp"
 #include "../../headers/GenFD.hpp"
 #include <cstdio>
+#include <fcntl.h>
 #include <string>
 
 int handleFDIn(int fd, Connection *connect) {
@@ -93,6 +94,9 @@ void removeFromGenfd(t_fdInfo *fdInfo, int fd) {
 			fds->erase(it);
 			break;
 		}
+	}
+	if (fcntl(fd, F_GETFD) != -1) {
+		close(fd);
 	}
 	fdInfo->ioFdMap.erase(fd);
 	fdInfo->fdTypes.erase(fd);
