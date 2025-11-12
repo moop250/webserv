@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 13:28:33 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/11 22:00:48 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,7 @@ Connection& Connection::clear() {
 	this->operation = No;
 	this->pid = -1;
 	this->cgi_output.clear();
+	this->cgi_time = 0;
 	return *this;
 }
 

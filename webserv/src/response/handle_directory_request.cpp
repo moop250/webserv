@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 11:43:47 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/12 09:17:32 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,47 +15,6 @@
 #include "Connection.hpp"
 #include "Config.hpp"
 #include "request_handler.hpp"
-
-// stuffs to do
-// Blocking
-int case_index(Connection& connection, std::string& index) {
-	int			fd;
-	char		buffer[4096];
-	long		n;
-	std::string	body;
-	
-	index = connection.getRequest().getPath() + index;
-	fd = open(index.c_str(), O_RDONLY);
-	if (fd < 0) {
-		return -1;
-	}
-	
-	while (true) {
-		// Blocking here
-		n = read(fd, buffer, sizeof(buffer));
-		if (n > 0) {
-			body.append(buffer, n);
-		}
-		if (n == 0) {
-			break;
-		}
-		if (n < 0) {
-			close(fd);
-			return -1;
-		}
-	}
-	connection.getResponse().setBody(body);
-	connection.getResponse().setCode(200);
-	connection.getResponse().setCodeMessage("OK");
-	connection.getResponse().setHeader("Content-Length", size_to_string(body.size()));
-	connection.getResponse().setHeader("Content-Type", "text/html");
-	if (connection.getRequest().getKeepAlive() == "keep-alive")
-		connection.getResponse().setHeader("Connection", "keep-alive");
-	connection.getResponse().constructResponse();
-	connection.setState(SENDING_RESPONSE);
-	// std::cout << connection.getResponse() << std::endl;
-	return 0;
-}
 
 // MOOP -> case index remake
 int case_index_remake(Connection& connection) {
@@ -177,10 +136,8 @@ int get_directory(Connection& connection) {
 	if (!index.empty()) {
 		if (index[0] == '/')
 			index.erase(0, 1);
-		if (case_index(connection, index) == 0)
+		if (case_index_remake(connection) == 0)
 			return 0;
-		// if (case_index_remake(connection) == 0)
-		// 	return 0;
 	}
 	if (autoindex == true) {
 		if (case_autoindex(connection) == 0)
