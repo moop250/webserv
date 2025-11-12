@@ -280,16 +280,13 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		std::cout << fdInfo->fds.at(i).fd << " pollevents: " << fdInfo->fds.at(i).events << " pollrevents: " << fdInfo->fds.at(i).revents << " and type: " << fdInfo->fdTypes.at(fdInfo->fds.at(i).fd) <<  std::endl;
 	} */
-/* 	static int count = 0;
-	if (count > 5)
-		exit (1);
-	++count;
- */
  
 	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
 
-		/* if (fdInfo->fds.at(i).revents == POLLNVAL) {
+		// std::cout << "I am on fd: " << fd << std::endl;
+
+		/* if (fdInfo->fds.at(i).revents & POLLNVAL) {
 			std::cout << RED << "[ERROR]		: " << WHITE << "poll: Invalid FD: " << fd << " caught, removing from pollfd" << RESET << std::endl;
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				removeFromPollfd(fdInfo, fd, sockets, connectMap);
@@ -303,34 +300,28 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			continue;
 		} */
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
-            close(fd);
-            if (fdInfo->fdTypes.at(fd) == CLIENT || fdInfo->fdTypes.at(fd) == SERVER) {
-                if (connectMap->at(fd).getFDIN() > 0) {
-                    removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
-                    connectMap->at(fd).setFDIN(-1);
-                }
-                if (connectMap->at(fd).getFDOUT() > 0) {
-                    removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
-                    connectMap->at(fd).setFDOUT(-1);
-                }
-                removeFromPollfd(fdInfo, fd, sockets, connectMap);
-            } else {
-                removeFromGenfd(fdInfo, fd);
-            }
-            std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
-        }
+			close(fd);
+			if (fdInfo->fdTypes.at(fd) == CLIENT || fdInfo->fdTypes.at(fd) == SERVER) {
+				if (connectMap->at(fd).getFDIN() > 0) {
+					removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
+					connectMap->at(fd).setFDIN(-1);
+				}
+				if (connectMap->at(fd).getFDOUT() > 0) {
+					removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
+					connectMap->at(fd).setFDOUT(-1);
+				}
+				removeFromPollfd(fdInfo, fd, sockets, connectMap);
+			} else {
+				removeFromGenfd(fdInfo, fd);
+			}
+			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
+		}
 		else if (fdInfo->fds.at(i).revents & POLLIN) {
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
 			} else {
-				int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
-				if (status < 0) {
-					std::cout << RED << "[ERROR]		: " << WHITE << "request_handler: Error on fd: " << fd << RESET << std::endl;
-					int tmpfd = fdInfo->ioFdMap.at(fd);
-					fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
-					connectMap->at(tmpfd).setState(SENDING_RESPONSE);
-					removeFromGenfd(fdInfo, fd);
-				} else if (connectMap->at(fdInfo->ioFdMap.at(fd)).getFDIN() == -1) {
+				handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+				if (connectMap->at(fdInfo->ioFdMap.at(fd)).getFDIN() == -1) {
 					removeFromGenfd(fdInfo, fd);
 				}
 			}
@@ -338,19 +329,10 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
-				/* fd is an IO fd (file/pipe). The related Connection is stored under the origin client fd
-				which is mapped in fdInfo->ioFdMap. Use that origin fd when accessing connectMap
-				to avoid std::out_of_range exceptions from map::at. */
 				int originFd = fdInfo->ioFdMap.at(fd);
 				if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {
-					int status = handle_request_remake(connectMap->at(originFd));
-					if (status < 0) {
-						std::cout << RED << "[ERROR]            : " << WHITE << "request_handler: Error on fd: " << fd << RESET << std::endl;
-						int tmpfd = originFd;
-						fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
-						connectMap->at(tmpfd).setState(SENDING_RESPONSE);
-						removeFromGenfd(fdInfo, fd);
-					} else if (connectMap->at(originFd).getFDOUT() == -1) {
+					handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+					if (connectMap->at(originFd).getFDOUT() == -1) {
 						removeFromGenfd(fdInfo, fd);
 					}
 				}
