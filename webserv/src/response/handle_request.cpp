@@ -365,10 +365,10 @@ int parse_type_fd(Connection& connection) {
 	if (requestType == CGI && (method == "GET" || method == "POST")) {
 		return open_CGI_PIPE_FORK(connection, method);
 	}
-	if (requestType == Directory && (method == "GET" || method == "POST")) {
+	if (requestType == Directory && (method == "GET" || method == "POST" || method == "DELETE")) {
 		return open_DIR_FD(connection, method);
 	}
-	if (requestType == File && (method == "GET" || method == "POST")) {
+	if (requestType == File && (method == "GET" || method == "POST" || method == "DELETE")) {
 		return open_FILE_FD(connection, method);
 	}
 	return 0;

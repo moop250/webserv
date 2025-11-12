@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/12 09:24:19 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/12 09:39:29 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,8 @@ int delete_file(Connection& connection) {
 	std::string	path;
 	std::string parent_directory;
 
+	std::cout << "Deleting file..." << std::endl;
 	path = connection.getRequest().getPath();
-	if (path[0] == '/')
-		path.erase(0, 1);
 	if (std::remove(path.c_str()) != 0) {
 		switch (errno) {
 			case EACCES:
@@ -163,7 +162,9 @@ int file_handler_remake(Connection& connection) {
 		return get_file_remake(connection);
 	else if (method == "POST")
 		return post_file_remake(connection);
-	else if (method == "DELETE")
+	else if (method == "DELETE") {
+		std::cout << "Handling file request remake..." << std::endl;
 		return delete_file(connection);
+	}
 	return -1;
 }

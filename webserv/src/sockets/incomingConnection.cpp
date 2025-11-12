@@ -172,6 +172,12 @@ static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> 
 		addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
 	}
 
+	// If no FDs were opened (e.g., DELETE requests), set state to MAKING_RESPONSE
+	// so that handle_request_remake() is called to process the request
+	if (connect->getFDIN() <= 0 && connect->getFDOUT() <= 0) {
+		connect->setState(MAKING_RESPONSE);
+	}
+
 	return EXITPARSING;
 };
 
