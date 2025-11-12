@@ -278,6 +278,7 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 
 	if (method == "GET") {
 		index = connection.getServer().index();
+		index = connection.getRequest().getPath() + index;
 		if (!index.empty()) {
 			if (index[0] == '/')
 				index.erase(0, 1);

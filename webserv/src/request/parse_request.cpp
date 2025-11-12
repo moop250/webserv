@@ -117,6 +117,9 @@ int parse_request(Connection& connection, Config& config) {
 
 	code = -1;
 	switch (static_cast<int>(connection.getState())) {
+		case WAITING_REQUEST:
+			connection.setState(READING_METHOD);
+			return parse_request(connection, config);
 		case READING_METHOD:
 			code = parse_method(connection);
 			switch (code) {
