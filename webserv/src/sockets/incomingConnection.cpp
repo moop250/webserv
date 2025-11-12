@@ -160,16 +160,19 @@ static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> 
 		return CONTINUE_READ;
 
 	
-	int status = parse_type_fd(*connect);
-	if (status < 0) {
-		return PARSE_TYPE_FDERROR;
-	}
+	parse_type_fd(*connect);
 
 	if (connect->getFDIN() > 0) {
 		addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
 	}
 	if (connect->getFDOUT() > 0) {
 		addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
+	}
+
+	// If no FDs were opened (e.g., DELETE requests), set state to MAKING_RESPONSE
+	// so that handle_request_remake() is called to process the request
+	if (connect->getFDIN() <= 0 && connect->getFDOUT() <= 0) {
+		connect->setState(MAKING_RESPONSE);
 	}
 
 	return EXITPARSING;
@@ -226,6 +229,12 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 
 static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo *fdInfo) {
 	Connection &connect = connectMap->at(fd);
+
+	// If state is MAKING_RESPONSE but response hasn't been built yet
+	// Need to call handle_request_remake to actually build the response
+	if (connect.getState() == MAKING_RESPONSE) {
+		handle_request_remake(connect);
+	}
 
 	if (fdInfo->fdStatus.at(fd) == CLIENTERROR && connect.getResponse().getCode() != 500) {
 		connect.clear();
@@ -325,22 +334,22 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
-				if (connectMap->at(fdInfo->ioFdMap.at(fd)).getState() == MAKING_RESPONSE || connectMap->at(fdInfo->ioFdMap.at(fd)).getState() == IO_OPERATION) {
+				int originFd = fdInfo->ioFdMap.at(fd);
+				if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {
 					int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
 					if (status < 0) {
-						std::cout << RED << "[ERROR]		: " << WHITE << "request_handler: Error on fd: " << fd << RESET << std::endl;
-						int tmpfd = fdInfo->ioFdMap.at(fd);
+						std::cout << RED << "[ERROR]            : " << WHITE << "request_handler: Error on fd: " << fd << RESET << std::endl;
+						int tmpfd = originFd;
 						fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
 						connectMap->at(tmpfd).setState(SENDING_RESPONSE);
 						removeFromGenfd(fdInfo, fd);
-					} else if (connectMap->at(fdInfo->ioFdMap.at(fd)).getFDOUT() == -1) {
+					} else if (connectMap->at(originFd).getFDOUT() == -1) {
 						removeFromGenfd(fdInfo, fd);
 					}
 				}
 				continue;
 			}
-
-			if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
+			if (connectMap->at(fd).getState() != SENDING_RESPONSE && connectMap->at(fd).getState() != MAKING_RESPONSE) {
 				continue;
 			}
 
