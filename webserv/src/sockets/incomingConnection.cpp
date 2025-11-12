@@ -236,12 +236,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 	// If state is MAKING_RESPONSE but response hasn't been built yet
 	// Need to call handle_request_remake to actually build the response
 	if (connect.getState() == MAKING_RESPONSE) {
-		int result = handle_request_remake(connect);
-		if (result < 0) {
-			error_response(connect, INTERNAL_ERROR);
-			connect.getResponse().constructResponse();
-			connect.setState(SENDING_RESPONSE);
-		}
+		handle_request_remake(connect);
 	}
 
 	if (fdInfo->fdStatus.at(fd) == CLIENTERROR && connect.getResponse().getCode() != 500) {

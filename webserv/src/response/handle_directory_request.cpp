@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/12 09:48:38 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/12 13:24:34 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,7 +275,7 @@ int post_directory_remake(Connection& connection) {
 // Reject with 403 Fobidden if Delete request targets directory
 int delete_directory(Connection& connection) {
 	error_response(connection, FORBIDDEN);
-	return 0;
+	return -1;
 }
 
 int directory_handler(Connection& connection) {
