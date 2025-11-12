@@ -162,11 +162,18 @@ static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> 
 	
 	parse_type_fd(*connect);
 
-	if (connect->getFDIN() > 0) {
-		addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
+	if (connect->getRequestType() == CGI && connect->getRequest().getMethod() == "POST") {
+		if (connect->getFDOUT() > 0) {
+			addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
+		}
 	}
-	if (connect->getFDOUT() > 0) {
-		addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
+	else {
+		if (connect->getFDIN() > 0) {
+			addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
+		}
+		if (connect->getFDOUT() > 0) {
+			addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
+		}
 	}
 
 	// If no FDs were opened (e.g., DELETE requests), set state to MAKING_RESPONSE
@@ -320,7 +327,8 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
 			} else {
-				handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+				int fdin = fdInfo->ioFdMap.at(fd);
+				handle_request_remake(connectMap->at(fdin));
 				if (connectMap->at(fdInfo->ioFdMap.at(fd)).getFDIN() == -1) {
 					removeFromGenfd(fdInfo, fd);
 				}
@@ -331,7 +339,15 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
 				int originFd = fdInfo->ioFdMap.at(fd);
 				if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {
-					handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
+					handle_request_remake(connectMap->at(originFd));
+					if (connectMap->at(originFd).getRequestType() == CGI && 
+						connectMap->at(originFd).getRequest().getMethod() == "POST" && 
+						connectMap->at(originFd).getOperation() == In &&
+						connectMap->at(originFd).getFDIN() > 0 &&
+						connectMap->at(originFd).getFirst() == 0) {
+						addToGenFD(fdInfo, connectMap->at(originFd).getFDIN(), originFd, SYS_FD_IN);
+						connectMap->at(originFd).setFirst(1);
+					}
 					if (connectMap->at(originFd).getFDOUT() == -1) {
 						removeFromGenfd(fdInfo, fd);
 					}

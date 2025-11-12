@@ -101,63 +101,6 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 	exit(-1);
 }
 
-int parent_reap_output_remake(Connection& connection) {
-	std::string	body;
-	int			fdin;
-	int			fdout;
-	long		written;
-	size_t		to_write;
-	char		buffer[FILE_CHUNK_SIZE];
-	long		n;
-	int			status;
-
-	status = 0;
-	fdin = connection.getFDIN();
-	if (connection.getOperation() == Out) {
-		body = connection.getRequest().getBody();
-		fdout = connection.getFDOUT();
-		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
-		written = write(fdout, body.c_str(), to_write);
-		std::cout << "writing to CGI\n";
-		// if (written < 0) {
-		// 	close(fdout);
-		// 	close(fdin);
-		// 	connection.setFDOUT(-1);
-		// 	connection.setFDIN(-1);
-		// 	connection.setOperation(No);
-		// 	error_response(connection, INTERNAL_ERROR);
-		// 	return -1;
-		// }
-		if (written > 0) {
-			std::cout << "written: " << written << std::endl;
-			connection.getRequest().removeBody(0, written);
-			body.erase(0, written);
-			if (!body.empty())
-				return 0;
-			close(fdout);
-			connection.setFDOUT(-1);
-			connection.setOperation(In);
-			return 0;
-		}
-	}
-	if (connection.getOperation() == In) {
-		n = read(fdin, buffer, sizeof(buffer));
-		if (n > 0) {
-			connection.appendCGIoutput(buffer, n);
-			return 0;
-		}
-		if (n == 0) {
-			close(fdin);
-			connection.setFDIN(-1);
-			connection.setState(MAKING_RESPONSE);
-			connection.setOperation(No);
-			waitpid(connection.getPid(), &status, 0);
-		}
-		return -1;
-	}
-	return 0;
-}
-
 int parse_cgi_output_remake(Connection& connection) {
 	std::string::size_type	end_pos;
 	std::string::size_type	colon_pos;
@@ -169,6 +112,7 @@ int parse_cgi_output_remake(Connection& connection) {
 	std::string				output;
 
 	output = connection.get_CgiOutput();
+	std::cout << "CGI OUTPUT BEFORE PARSE: " << output << std::endl;
 	while (true) {
 		end_pos = output.find("\r\n");
 		if (end_pos == std::string::npos) {
@@ -228,6 +172,77 @@ int parse_cgi_output_remake(Connection& connection) {
 		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
+	std::cout << "CGI output parsed successfully: " << connection.getResponse().getResponseComplete() << std::endl;
+	return 0;
+}
+
+int parent_reap_output_remake(Connection& connection) {
+	std::string	body;
+	int			fdin;
+	int			fdout;
+	long		written;
+	size_t		to_write;
+	char		buffer[FILE_CHUNK_SIZE];
+	long		n;
+	int			status;
+
+	status = 0;
+	fdin = connection.getFDIN();
+	if (connection.getOperation() == Out) {
+		body = connection.getRequest().getBody();
+		fdout = connection.getFDOUT();
+		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
+		written = write(fdout, body.c_str(), to_write);
+		// if (written < 0) {
+		// 	std::cout << "error writing to cgi\n";
+		// 	close(fdout);
+		// 	close(fdin);
+		// 	connection.setFDOUT(-1);
+		// 	connection.setFDIN(-1);
+		// 	connection.setOperation(No);
+		// 	error_response(connection, INTERNAL_ERROR);
+		// 	return -1;
+		// }
+		if (written > 0) {
+			connection.getRequest().removeBody(0, written);
+			return 0;
+		}
+		if (connection.getRequest().getBody().empty()) {
+			close(fdout);
+			connection.setFDOUT(-1);
+			connection.setOperation(In);
+			return 0;
+		}
+	}
+	if (connection.getOperation() == In) {
+		if (connection.getOperation() != In)
+			return 0;
+		n = read(fdin, buffer, sizeof(buffer));
+		std::cout << "Read " << n << " bytes from CGI In\n";
+		if (n > 0) {
+			connection.appendCGIoutput(buffer, n);
+			return 0;
+		}
+		if (n == 0) {
+			std::cout << "CGI finished In output\n";
+			close(fdin);
+			connection.setFDIN(-1);
+			connection.setState(MAKING_RESPONSE);
+			connection.setOperation(No);
+			waitpid(connection.getPid(), &status, WNOHANG);
+			return parse_cgi_output_remake(connection);
+		}
+		if (n < 0) {
+			pid_t result = waitpid(connection.getPid(), &status, WNOHANG);
+			if (result > 0) {
+				close(fdin);
+				connection.setFDIN(-1);
+				connection.setState(MAKING_RESPONSE);
+				connection.setOperation(No);
+				return parse_cgi_output_remake(connection);
+			}
+		}
+	}
 	return 0;
 }
 
@@ -254,8 +269,8 @@ int CGI_timeout(Connection& connection) {
 
 int CGI_handler_remake(Connection& connection) {
 	if (connection.getState() == IO_OPERATION) {
-		if (CGI_timeout(connection) == -1)
-			return -1;
+		// if (CGI_timeout(connection) == -1)
+		// 	return -1;
 		parent_reap_output_remake(connection);
 	}
 	if (connection.getState() == MAKING_RESPONSE) {

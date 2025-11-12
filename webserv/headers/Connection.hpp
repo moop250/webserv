@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 13:29:59 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/12 18:06:35 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ class Connection {
 		std::string		ip;
 		int				fdin;
 		int				fdout;
+		int				first;
 		int				requestType;
 		Operation		operation;
 		pid_t			pid;
@@ -85,6 +86,7 @@ class Connection {
 		std::string		getIP() const;
 		int				getFDIN() const;
 		int				getFDOUT() const;
+		int				getFirst() const;
 		int				getRequestType() const;
 		Operation		getOperation() const;
 		pid_t			getPid() const;
@@ -101,6 +103,7 @@ class Connection {
 		Connection&		setIP(const std::string ip);
 		Connection&		setFDIN(const int fdin);
 		Connection&		setFDOUT(const int fdout);
+		Connection&		setFirst(const int first);
 		Connection&		setRequestType(const int requestType);
 		Connection&		setOperation(const Operation operation);
 		Connection&		setPid(const pid_t pid);

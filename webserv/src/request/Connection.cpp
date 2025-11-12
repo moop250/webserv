@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/11 22:00:48 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/12 18:07:42 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ Connection::Connection() {
 	this->server = getDefaultServer();
 	this->fdin = -1;
 	this->fdout = -1;
+	this->first = 0;
 	this->requestType = None;
 	this->operation = No;
 	this->pid = -1;
@@ -47,6 +48,7 @@ Connection& Connection::operator =(const Connection& assign) {
 		this->ip = assign.ip;
 		this->fdin = assign.fdin;
 		this->fdout = assign.fdout;
+		this->first = assign.first;
 		this->requestType = assign.requestType;
 		this->operation = assign.operation;
 		this->pid = assign.pid;
@@ -88,6 +90,7 @@ Connection& Connection::clear() {
 	// Port and IP not reset!
 	this->fdin = -1;
 	this->fdout = -1;
+	this->first = 0;
 	this->requestType = None;
 	this->operation = No;
 	this->pid = -1;
@@ -135,6 +138,9 @@ int Connection::getFDIN() const {
 }
 int Connection::getFDOUT() const {
 	return this->fdout;
+}
+int Connection::getFirst() const {
+	return this->first;
 }
 int Connection::getRequestType() const {
 	return this->requestType;
@@ -200,6 +206,10 @@ Connection& Connection::setFDIN(const int fdin) {
 }
 Connection& Connection::setFDOUT(const int fdout) {
 	this->fdout = fdout;
+	return *this;
+}
+Connection& Connection::setFirst(const int first) {
+	this->first = first;
 	return *this;
 }
 Connection& Connection::setRequestType(const int requestType) {

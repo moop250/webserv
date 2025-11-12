@@ -42,6 +42,7 @@ void send_response(char* input, char *body) {
 	printf("<p>Before: %s</p>\n", input);
 	printf("<p>After: %s</p>\n", body);
 	printf("</body></html>");
+	fflush(stdout);
 }
 
 char *get_input(char *input) {
