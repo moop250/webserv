@@ -160,10 +160,7 @@ static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> 
 		return CONTINUE_READ;
 
 	
-	int status = parse_type_fd(*connect);
-	if (status < 0) {
-		return PARSE_TYPE_FDERROR;
-	}
+	parse_type_fd(*connect);
 
 	if (connect->getFDIN() > 0) {
 		addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);

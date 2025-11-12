@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/12 09:24:27 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/12 14:28:54 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -342,20 +342,14 @@ int parse_type_fd(Connection& connection) {
 	std::cout << "1\n";
 	if (location == "/cgi" || location == "/cgi/") {
 		if (connection.getRequest().getMethod() == "DELETE") {
-			std::cout << "1\n";
-
 			error_response(connection, METHOD_NOT_ALLOWED);
 			return -1;
 		}
 		if (path_merge_cgi(connection) == -1) {
-			std::cout << "1\n";
-
 			return -1;
 		}
 	} else {
 		path_merge_non_cgi(connection);
-		std::cout << "1\n";
-
 		if (parse_request_type(connection) == -1)
 			return -1;
 	}
