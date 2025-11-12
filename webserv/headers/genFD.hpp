@@ -11,6 +11,7 @@
 int		handleFDIn(int fd, Connection *connect);
 int		handleFDOut(int fd, Connection *connect);
 void	addToGenFD(t_fdInfo *fdInfo, int newFD, int originFD, int fdType);
-int removeFromGenfd(t_fdInfo *fdInfo, int fd);
+int		removeFromGenfd(t_fdInfo *fdInfo, int fd);
+bool	isFdOpen(int fd);
 
 #endif

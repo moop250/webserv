@@ -86,6 +86,12 @@ void addToGenFD(t_fdInfo *fdInfo, int newFD, int originFD, int fdType) {
 	fdInfo->fdTypes.insert(std::make_pair(newFD, fdType));
 }
 
+bool isFdOpen(int fd) {
+	if (fcntl(fd, F_GETFD) != -1)
+		return true;
+	return false;
+}
+
 void removeFromGenfd(t_fdInfo *fdInfo, int fd) {
 	std::vector<pollfd> *fds = &fdInfo->fds;
 	std::vector<pollfd>::iterator it = fds->begin();
@@ -95,7 +101,7 @@ void removeFromGenfd(t_fdInfo *fdInfo, int fd) {
 			break;
 		}
 	}
-	if (fcntl(fd, F_GETFD) != -1) {
+	if (!isFdOpen(fd)) {
 		close(fd);
 	}
 	fdInfo->ioFdMap.erase(fd);
