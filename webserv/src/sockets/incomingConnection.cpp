@@ -260,7 +260,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 	if (connect.getClose())
 		return 4;
 	else if (connect.getRequest().getKeepAlive() == "keep-alive")
-		return 3;
+		return 4;
 	// [INFO] replace the 3 with a 4 to disable keep alive
 	// 400 Bad request with post happens after 0 is returned
 	return 0;
@@ -325,7 +325,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
-				if (connectMap->at(fd).getState() == MAKING_RESPONSE || connectMap->at(fd).getState() == IO_OPERATION) {
+				if (connectMap->at(fdInfo->ioFdMap.at(fd)).getState() == MAKING_RESPONSE || connectMap->at(fdInfo->ioFdMap.at(fd)).getState() == IO_OPERATION) {
 					int status = handle_request_remake(connectMap->at(fdInfo->ioFdMap.at(fd)));
 					if (status < 0) {
 						std::cout << RED << "[ERROR]		: " << WHITE << "request_handler: Error on fd: " << fd << RESET << std::endl;
