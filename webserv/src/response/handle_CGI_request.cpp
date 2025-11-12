@@ -118,6 +118,7 @@ int parent_reap_output_remake(Connection& connection) {
 		fdout = connection.getFDOUT();
 		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
 		written = write(fdout, body.c_str(), to_write);
+		std::cout << "writing to CGI\n";
 		// if (written < 0) {
 		// 	close(fdout);
 		// 	close(fdin);
@@ -128,6 +129,7 @@ int parent_reap_output_remake(Connection& connection) {
 		// 	return -1;
 		// }
 		if (written > 0) {
+			std::cout << "written: " << written << std::endl;
 			connection.getRequest().removeBody(0, written);
 			body.erase(0, written);
 			if (!body.empty())
@@ -151,17 +153,7 @@ int parent_reap_output_remake(Connection& connection) {
 			connection.setOperation(No);
 			waitpid(connection.getPid(), &status, 0);
 		}
-		// if (n < 0) {
-		// 	close(fdin);
-		// 	connection.setFDIN(-1);
-		// 	if (connection.getFDOUT() != -1) {
-		// 		close(connection.getFDOUT());
-		// 		connection.setFDOUT(-1);
-		// 	}
-		// 	connection.setOperation(No);
-		// 	error_response(connection, INTERNAL_ERROR);
-		// 	return -1;
-		// }
+		return -1;
 	}
 	return 0;
 }

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/12 14:28:54 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/12 15:28:42 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -339,7 +339,6 @@ int parse_type_fd(Connection& connection) {
 	std::string	location;
 
 	location = connection.getServer().getLocation();
-	std::cout << "1\n";
 	if (location == "/cgi" || location == "/cgi/") {
 		if (connection.getRequest().getMethod() == "DELETE") {
 			error_response(connection, METHOD_NOT_ALLOWED);

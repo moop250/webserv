@@ -303,18 +303,22 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			continue;
 		} */
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
-			close(fd);
-			if (connectMap->at(fd).getFDIN() > 0) {
-				removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
-				connectMap->at(fd).setFDIN(-1);
-			}
-			if (connectMap->at(fd).getFDOUT() > 0) {
-				removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
-				connectMap->at(fd).setFDOUT(-1);
-			}
-			removeFromPollfd(fdInfo, fd, sockets, connectMap);
-			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
-		}
+            close(fd);
+            if (fdInfo->fdTypes.at(fd) == CLIENT || fdInfo->fdTypes.at(fd) == SERVER) {
+                if (connectMap->at(fd).getFDIN() > 0) {
+                    removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
+                    connectMap->at(fd).setFDIN(-1);
+                }
+                if (connectMap->at(fd).getFDOUT() > 0) {
+                    removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
+                    connectMap->at(fd).setFDOUT(-1);
+                }
+                removeFromPollfd(fdInfo, fd, sockets, connectMap);
+            } else {
+                removeFromGenfd(fdInfo, fd);
+            }
+            std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
+        }
 		else if (fdInfo->fds.at(i).revents & POLLIN) {
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
