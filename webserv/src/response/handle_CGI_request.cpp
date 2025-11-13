@@ -62,10 +62,8 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 	std::string			cgi_path;
 	std::string			fileType;
 
-//	std::cout << "CGI launch\n";
 	path = connection.getRequest().getPath();
 	fileType = connection.getRequest().getFileType();
-	std::cout << "path is : " << path << std::endl;
 	if (fileType == ".java") {
 		cgi_path = path;
 		av.push_back(const_cast<char*>("/bin/java"));
@@ -112,7 +110,6 @@ int parse_cgi_output_remake(Connection& connection) {
 	std::string				output;
 
 	output = connection.get_CgiOutput();
-	std::cout << "CGI OUTPUT BEFORE PARSE: " << output << std::endl;
 	while (true) {
 		end_pos = output.find("\r\n");
 		if (end_pos == std::string::npos) {
@@ -172,7 +169,6 @@ int parse_cgi_output_remake(Connection& connection) {
 		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	std::cout << "CGI output parsed successfully: " << connection.getResponse().getResponseComplete() << std::endl;
 	return 0;
 }
 
