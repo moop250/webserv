@@ -193,16 +193,6 @@ int parent_reap_output_remake(Connection& connection) {
 		fdout = connection.getFDOUT();
 		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
 		written = write(fdout, body.c_str(), to_write);
-		// if (written < 0) {
-		// 	std::cout << "error writing to cgi\n";
-		// 	close(fdout);
-		// 	close(fdin);
-		// 	connection.setFDOUT(-1);
-		// 	connection.setFDIN(-1);
-		// 	connection.setOperation(No);
-		// 	error_response(connection, INTERNAL_ERROR);
-		// 	return -1;
-		// }
 		if (written > 0) {
 			connection.getRequest().removeBody(0, written);
 			return 0;
@@ -218,13 +208,11 @@ int parent_reap_output_remake(Connection& connection) {
 		if (connection.getOperation() != In)
 			return 0;
 		n = read(fdin, buffer, sizeof(buffer));
-		std::cout << "Read " << n << " bytes from CGI In\n";
 		if (n > 0) {
 			connection.appendCGIoutput(buffer, n);
 			return 0;
 		}
 		if (n == 0) {
-			std::cout << "CGI finished In output\n";
 			close(fdin);
 			connection.setFDIN(-1);
 			connection.setState(MAKING_RESPONSE);

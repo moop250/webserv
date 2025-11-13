@@ -162,22 +162,13 @@ static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> 
 	
 	parse_type_fd(*connect);
 
-	if (connect->getRequestType() == CGI && connect->getRequest().getMethod() == "POST") {
-		if (connect->getFDOUT() > 0) {
-			addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
-		}
-	}
-	else {
-		if (connect->getFDIN() > 0) {
+	if (connect->getFDIN() > 0) {
 			addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
 		}
-		if (connect->getFDOUT() > 0) {
-			addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
-		}
+	if (connect->getFDOUT() > 0) {
+		addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
 	}
-
-	// If no FDs were opened (e.g., DELETE requests), set state to MAKING_RESPONSE
-	// so that handle_request_remake() is called to process the request
+	
 	if (connect->getFDIN() <= 0 && connect->getFDOUT() <= 0) {
 		connect->setState(MAKING_RESPONSE);
 	}
@@ -236,9 +227,6 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 
 static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo *fdInfo) {
 	Connection &connect = connectMap->at(fd);
-
-	// If state is MAKING_RESPONSE but response hasn't been built yet
-	// Need to call handle_request_remake to actually build the response
 	if (connect.getState() == MAKING_RESPONSE) {
 		handle_request_remake(connect);
 	}
@@ -283,30 +271,14 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 }
 
 int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap) {
-/* 	std::cout << "fd list:" << std::endl;
-	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
-		std::cout << fdInfo->fds.at(i).fd << " pollevents: " << fdInfo->fds.at(i).events << " pollrevents: " << fdInfo->fds.at(i).revents << " and type: " << fdInfo->fdTypes.at(fdInfo->fds.at(i).fd) <<  std::endl;
-	} */
- 
 	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
 
-		// std::cout << "I am on fd: " << fd << std::endl;
-
-		/* if (fdInfo->fds.at(i).revents & POLLNVAL) {
-			std::cout << RED << "[ERROR]		: " << WHITE << "poll: Invalid FD: " << fd << " caught, removing from pollfd" << RESET << std::endl;
-			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
-				removeFromPollfd(fdInfo, fd, sockets, connectMap);
-			}
-			else {
-				int tmpfd = fdInfo->ioFdMap.at(fd);
-				fdInfo->fdStatus.at(tmpfd) = CLIENTERROR;
-				connectMap->at(tmpfd).setState(SENDING_RESPONSE);
-				removeFromGenfd(fdInfo, fd);
-			}
-			continue;
-		} */
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
+			int originFd = fdInfo->ioFdMap.at(fd);
+			if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {
+				handle_request_remake(connectMap->at(originFd));
+			}
 			close(fd);
 			if (fdInfo->fdTypes.at(fd) == CLIENT || fdInfo->fdTypes.at(fd) == SERVER) {
 				if (connectMap->at(fd).getFDIN() > 0) {
@@ -324,6 +296,12 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLIN) {
+			if (fdInfo->fdTypes.at(fd) == SYS_FD_IN || fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
+				int originFD = fdInfo->ioFdMap.at(fd);
+				std::cout << CYAN << "[INFO] : Poll in triggered on CGI FD " << fd
+						<< " (origin client FD " << originFD << ")" << RESET << std::endl;
+			}
+
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
 			} else {
@@ -336,18 +314,16 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 			continue;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
+			if (fdInfo->fdTypes.at(fd) == SYS_FD_IN || fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
+				int originFD = fdInfo->ioFdMap.at(fd);
+				std::cout << CYAN << "[INFO] : Poll out triggered on CGI FD " << fd
+						<< " (origin client FD " << originFD << ")" << RESET << std::endl;
+			}
+
 			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
 				int originFd = fdInfo->ioFdMap.at(fd);
 				if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {
 					handle_request_remake(connectMap->at(originFd));
-					if (connectMap->at(originFd).getRequestType() == CGI && 
-						connectMap->at(originFd).getRequest().getMethod() == "POST" && 
-						connectMap->at(originFd).getOperation() == In &&
-						connectMap->at(originFd).getFDIN() > 0 &&
-						connectMap->at(originFd).getFirst() == 0) {
-						addToGenFD(fdInfo, connectMap->at(originFd).getFDIN(), originFd, SYS_FD_IN);
-						connectMap->at(originFd).setFirst(1);
-					}
 					if (connectMap->at(originFd).getFDOUT() == -1) {
 						removeFromGenfd(fdInfo, fd);
 					}
