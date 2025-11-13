@@ -253,8 +253,6 @@ int CGI_timeout(Connection& connection) {
 
 int CGI_handler_remake(Connection& connection) {
 	if (connection.getState() == IO_OPERATION) {
-		// if (CGI_timeout(connection) == -1)
-		// 	return -1;
 		parent_reap_output_remake(connection);
 	}
 	if (connection.getState() == MAKING_RESPONSE) {

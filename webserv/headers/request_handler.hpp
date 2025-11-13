@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/12 23:10:15 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/13 18:40:05 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ char		**build_env(std::vector<std::string>& env, std::vector<char*>& pointer);
 int         parse_type_fd(Connection& connection);
 int         handle_request_remake(Connection& connection);
 int			parse_cgi_output_remake(Connection& connection);
+int			CGI_timeout(Connection& connection);
 
 std::string	size_to_string(size_t size);
 std::string	trim(const std::string &str);
