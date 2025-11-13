@@ -274,6 +274,13 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 	for (int i = fdInfo->fds.size() - 1; i >= 0; --i) {
 		int fd = fdInfo->fds.at(i).fd;
 
+		if (fdInfo->fdTypes.at(fd) == CLIENT) {
+			Connection &connect = connectMap->at(fd);
+			if (connect.getState() == IO_OPERATION && connect.getRequestType() == CGI) {
+				CGI_timeout(connect);
+			}
+		}
+
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
 			int originFd = fdInfo->ioFdMap.at(fd);
 			if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {

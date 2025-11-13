@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 14:47:55 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/13 18:33:19 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,5 +136,5 @@ void error_response(Connection& connection, int code) {
 	connection.getResponse().setBody(body);
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	// std::cout << connection.getResponse() << std::endl;
+	std::cout << connection.getResponse() << std::endl;
 }
