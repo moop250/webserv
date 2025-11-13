@@ -101,54 +101,7 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 	exit(-1);
 }
 
-// stuffs to do
-// update pollfd here
-// timeout should be managed by poll()
-int parent_reap_output(Connection& connection, int in[2], int out[2], std::string& output) {
-	std::string	body;
-	char		buffer[4096];
-	long		n;
-	size_t		total;
-	long		written;
-
-	total = 0;
-	if (connection.getOperation() == Out) {
-		body = connection.getRequest().getBody();
-		while (total < body.size()) {
-			// Blocking here
-			written = write(in[1], body.c_str(), body.size() - total);
-			if (written < 0) {
-				close(in[1]);
-				error_response(connection, INTERNAL_ERROR);
-				return -1;
-			}
-			if (written == 0)
-				break;
-			total += written;
-		}
-	}
-	close(in[1]);
-
-	// move to poll
-	while (true) {
-		// Blocking here
-		n = read(out[0], buffer, sizeof(buffer));
-		if (n > 0)
-			output.append(buffer, n);
-		if (n == 0) {
-			break;
-		}
-		if (n < 0) {
-			close(out[0]);
-			error_response(connection, INTERNAL_ERROR);
-			return -1;
-		}
-	}
-	close(out[0]);
-	return 0;
-}
-
-int parse_cgi_output(Connection& connection, std::string& output) {
+int parse_cgi_output_remake(Connection& connection) {
 	std::string::size_type	end_pos;
 	std::string::size_type	colon_pos;
 	std::string				header;
@@ -156,7 +109,10 @@ int parse_cgi_output(Connection& connection, std::string& output) {
 	std::string				value;
 	std::string::size_type	space_pos;
 	int						code;
+	std::string				output;
 
+	output = connection.get_CgiOutput();
+	std::cout << "CGI OUTPUT BEFORE PARSE: " << output << std::endl;
 	while (true) {
 		end_pos = output.find("\r\n");
 		if (end_pos == std::string::npos) {
@@ -216,47 +172,7 @@ int parse_cgi_output(Connection& connection, std::string& output) {
 		connection.getResponse().setHeader("Connection", "keep-alive");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	return 0;
-}
-
-// stuffs to do
-// timeout should be managed by poll()
-int CGI_handler(Connection& connection) {
-	std::vector<std::string>	env_string;
-	std::vector<char*>			env_pointer;
-	char						**env;
-	pid_t						pid;
-	int							in[2];
-	int							out[2];
-	std::string					output;
-	int							status;
-	
-	set_env(connection, env_string);
-	env = build_env(env_string, env_pointer);
-	if (pipe(in) < 0) { 
-		error_response(connection, INTERNAL_ERROR);
-		return -1;
-	}
-	if (pipe(out) < 0) {
-		close(in[0]);
-		close(in[1]);
-		error_response(connection, INTERNAL_ERROR);
-		return -1;
-	}
-	status = 0;
-	pid = fork();
-	switch (pid) {
-		case -1:
-			error_response(connection, INTERNAL_ERROR);
-			return -1;
-		case 0:
-			child_launch_CGI(connection, in, out, env);
-			break ;
-		default:
-			parent_reap_output(connection, in, out, output);
-			waitpid(pid, &status, 0);
-			return parse_cgi_output(connection, output);
-	}
+	std::cout << "CGI output parsed successfully: " << connection.getResponse().getResponseComplete() << std::endl;
 	return 0;
 }
 
@@ -277,25 +193,20 @@ int parent_reap_output_remake(Connection& connection) {
 		fdout = connection.getFDOUT();
 		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
 		written = write(fdout, body.c_str(), to_write);
-		if (written < 0) {
-			close(fdout);
-			close(fdin);
-			connection.setFDOUT(-1);
-			connection.setOperation(No);
-			error_response(connection, INTERNAL_ERROR);
-			return -1;
-		}
 		if (written > 0) {
 			connection.getRequest().removeBody(0, written);
-			body.erase(0, written);
-			if (!body.empty())
-				return 0;
+			return 0;
 		}
-		close(fdout);
-		connection.setFDOUT(-1);
-		connection.setOperation(In);
+		if (connection.getRequest().getBody().empty()) {
+			close(fdout);
+			connection.setFDOUT(-1);
+			connection.setOperation(In);
+			return 0;
+		}
 	}
 	if (connection.getOperation() == In) {
+		if (connection.getOperation() != In)
+			return 0;
 		n = read(fdin, buffer, sizeof(buffer));
 		if (n > 0) {
 			connection.appendCGIoutput(buffer, n);
@@ -306,89 +217,20 @@ int parent_reap_output_remake(Connection& connection) {
 			connection.setFDIN(-1);
 			connection.setState(MAKING_RESPONSE);
 			connection.setOperation(No);
-			waitpid(connection.getPid(), &status, 0);
+			waitpid(connection.getPid(), &status, WNOHANG);
+			return parse_cgi_output_remake(connection);
 		}
 		if (n < 0) {
-			close(fdin);
-			connection.setFDIN(-1);
-			connection.setOperation(No);
-			error_response(connection, INTERNAL_ERROR);
-			return -1;
-		}
-	}
-	return 0;
-}
-
-int parse_cgi_output_remake(Connection& connection) {
-	std::string::size_type	end_pos;
-	std::string::size_type	colon_pos;
-	std::string				header;
-	std::string				key;
-	std::string				value;
-	std::string::size_type	space_pos;
-	int						code;
-	std::string				output;
-
-	output = connection.get_CgiOutput();
-	while (true) {
-		end_pos = output.find("\r\n");
-		if (end_pos == std::string::npos) {
-			error_response(connection, INTERNAL_ERROR);
-			return -1;
-		}
-		if (end_pos == 0) {
-			output.erase(0, 2);
-			break;
-		}
-		header = output.substr(0, end_pos);
-		colon_pos = header.find(":");
-		if (colon_pos == std::string::npos) {
-			error_response(connection, INTERNAL_ERROR);
-			return -1;
-		}
-		key = output.substr(0, colon_pos);
-		size_t start = colon_pos + 1;
-		while (start < header.size() && (header[start] == ' ' || header[start] == '\t'))
-			start++;
-		value = header.substr(start);
-		if (key == "Content-Type") {
-			connection.getResponse().setHeader("Content-Type", value);
-			connection.getResponse().setContentType(value);
-		}
-		if (key == "Content-Length") {
-			connection.getResponse().setHeader("Content-Length", value);
-			connection.getResponse().setContentLength(std::atoi(value.c_str()));
-		}
-		if (key == "Status") {
-			space_pos = value.find(" ");
-			if (space_pos == std::string::npos) {
-				code = std::atoi(value.c_str());
-			} else {
-				code = std::atoi(value.substr(0, space_pos).c_str());
+			pid_t result = waitpid(connection.getPid(), &status, WNOHANG);
+			if (result > 0) {
+				close(fdin);
+				connection.setFDIN(-1);
+				connection.setState(MAKING_RESPONSE);
+				connection.setOperation(No);
+				return parse_cgi_output_remake(connection);
 			}
-			connection.getResponse().setCode(code);
-			connection.getResponse().setCodeMessage(error_message(code));
 		}
-		output.erase(0, end_pos + 2);
 	}
-	if (output.empty()) {
-		error_response(connection, INTERNAL_ERROR);
-		return -1;
-	}
-	connection.getResponse().setBody(output);
-	if (connection.getResponse().getCode() == -1) {
-		code = 200;
-		connection.getResponse().setCode(code);
-		connection.getResponse().setCodeMessage(error_message(code));
-	}
-	if (connection.getResponse().getContentLength() == 0)
-		connection.getResponse().setHeader("Content-Length", size_to_string(output.size()));
-	if (connection.getResponse().getContentType().empty())
-		connection.getResponse().setHeader("Content-Type", "text/plain");
-	if (connection.getRequest().getKeepAlive() == "keep-alive")
-		connection.getResponse().setHeader("Connection", "keep-alive");
-	connection.getResponse().constructResponse();
-	connection.setState(SENDING_RESPONSE);
 	return 0;
 }
 
@@ -415,8 +257,8 @@ int CGI_timeout(Connection& connection) {
 
 int CGI_handler_remake(Connection& connection) {
 	if (connection.getState() == IO_OPERATION) {
-		if (CGI_timeout(connection) == -1)
-			return -1;
+		// if (CGI_timeout(connection) == -1)
+		// 	return -1;
 		parent_reap_output_remake(connection);
 	}
 	if (connection.getState() == MAKING_RESPONSE) {

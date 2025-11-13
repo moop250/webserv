@@ -2,8 +2,10 @@
 #include "../../headers/Sockets.hpp"
 #include "../../headers/Connection.hpp"
 #include "../../headers/request_handler.hpp"
+#include "../../headers/GenFD.hpp"
 #include <cerrno>
 #include <climits>
+#include <cstddef>
 #include <cstring>
 #include <fcntl.h>
 #include <map>
@@ -63,6 +65,9 @@ void removeFromPollfd(t_fdInfo *fdInfo, int fd, ServerSocket *sockets, std::map<
 			fds->erase(it);
 			break;
 		}
+	}
+	if (fcntl(fd, F_GETFD) != -1) {
+		close(fd);
 	}
 	connectMap->erase(fd);
 	fdInfo->fdTypes.erase(fd);
@@ -138,21 +143,35 @@ static int handleConnection(ServerSocket *sockets, t_fdInfo *fdInfo, int fd, std
 	return remoteFD;
 };
 
-static int handleClientData(int fd, std::map<int, Connection> *connectMap, Config *conf) {
+static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> *connectMap, Config *conf) {
 	Connection *connect = &connectMap->at(fd);
-		std::string buf(8192, '\0');
+	std::string buf(8192, '\0');
 
-		int nbytes = recv(fd, &buf[0], buf.size(), 0);
-		if (nbytes < 0) {
-			return RECVERROR;
-		} else if (nbytes == 0)
-			return HUNGUP;
+	int nbytes = recv(fd, &buf[0], buf.size(), 0);
+	if (nbytes < 0) {
+		return RECVERROR;
+	} else if (nbytes == 0)
+		return HUNGUP;
 
-		buf.resize(nbytes);
+	buf.resize(nbytes);
 
-		connect->buffer.append(buf);
-		if (parse_request(*connect, *conf) == CONTINUE_READ)
-			return CONTINUE_READ;
+	connect->buffer.append(buf);
+	if (parse_request(*connect, *conf) == CONTINUE_READ)
+		return CONTINUE_READ;
+
+	
+	parse_type_fd(*connect);
+
+	if (connect->getFDIN() > 0) {
+			addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
+		}
+	if (connect->getFDOUT() > 0) {
+		addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
+	}
+	
+	if (connect->getFDIN() <= 0 && connect->getFDOUT() <= 0) {
+		connect->setState(MAKING_RESPONSE);
+	}
 
 	return EXITPARSING;
 };
@@ -177,7 +196,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			if (fdInfo->timeout.count(fd) > 0) {
 				fdInfo->timeout.erase(fd);
 			}
-			switch(handleClientData(fd, connectMap, conf))
+			switch(handleClientData(fdInfo, fd, connectMap, conf))
 			{
 				case EXITPARSING:
 					setPOLLOUT(fd, &fdInfo->fds);
@@ -191,18 +210,15 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					return -1;
+				case PARSE_TYPE_FDERROR:
+					setPOLLOUT(fd, &fdInfo->fds);
+					fdInfo->fdStatus.at(fd) = CLIENTERROR;
+					connectMap->at(fd).setState(SENDING_RESPONSE);
+					return -1;
 				case CONTINUE_READ:
 					return 1;
 			}
 			break ;
-		} case SYS_FD_IN: {
-			// handle receiving data to the system
-
-			return 1;
-		} case CGI_FD_IN: {
-			// handle reciving data to the CGI
-
-			return 1;
 		} default:
 			std::cout << RED << "[ERROR]	: " << WHITE << "Unknown POLLIN type" << RESET << std::endl;
 	}
@@ -211,6 +227,9 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 
 static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo *fdInfo) {
 	Connection &connect = connectMap->at(fd);
+	if (connect.getState() == MAKING_RESPONSE) {
+		handle_request_remake(connect);
+	}
 
 	if (fdInfo->fdStatus.at(fd) == CLIENTERROR && connect.getResponse().getCode() != 500) {
 		connect.clear();
@@ -245,34 +264,83 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 	if (connect.getClose())
 		return 4;
 	else if (connect.getRequest().getKeepAlive() == "keep-alive")
-		return 3;
+		return 4;
+	// [INFO] replace the 3 with a 4 to disable keep alive
 	// 400 Bad request with post happens after 0 is returned
 	return 0;
 }
 
 int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap) {
-	for (int i = 0; i < sockets->getTotalSocketCount(); ++i) {
+	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
 
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
+			int originFd = fdInfo->ioFdMap.at(fd);
+			if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {
+				handle_request_remake(connectMap->at(originFd));
+			}
 			close(fd);
-			removeFromPollfd(fdInfo, fd, sockets, connectMap);
+			if (fdInfo->fdTypes.at(fd) == CLIENT || fdInfo->fdTypes.at(fd) == SERVER) {
+				if (connectMap->at(fd).getFDIN() > 0) {
+					removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
+					connectMap->at(fd).setFDIN(-1);
+				}
+				if (connectMap->at(fd).getFDOUT() > 0) {
+					removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
+					connectMap->at(fd).setFDOUT(-1);
+				}
+				removeFromPollfd(fdInfo, fd, sockets, connectMap);
+			} else {
+				removeFromGenfd(fdInfo, fd);
+			}
 			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLIN) {
-			handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
+			if (fdInfo->fdTypes.at(fd) == SYS_FD_IN || fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
+				int originFD = fdInfo->ioFdMap.at(fd);
+				std::cout << CYAN << "[INFO] : Poll in triggered on CGI FD " << fd
+						<< " (origin client FD " << originFD << ")" << RESET << std::endl;
+			}
+
+			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
+				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
+			} else {
+				int fdin = fdInfo->ioFdMap.at(fd);
+				handle_request_remake(connectMap->at(fdin));
+				if (connectMap->at(fdInfo->ioFdMap.at(fd)).getFDIN() == -1) {
+					removeFromGenfd(fdInfo, fd);
+				}
+			}
+			continue;
 		}
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
-			if (fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
-				// parse incoming system data probably in chunks
-				// Only accept a certain amount of data at a time
-				// when all data has been parsed, change the flag
+			if (fdInfo->fdTypes.at(fd) == SYS_FD_IN || fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
+				int originFD = fdInfo->ioFdMap.at(fd);
+				std::cout << CYAN << "[INFO] : Poll out triggered on CGI FD " << fd
+						<< " (origin client FD " << originFD << ")" << RESET << std::endl;
+			}
 
+			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
+				int originFd = fdInfo->ioFdMap.at(fd);
+				if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {
+					handle_request_remake(connectMap->at(originFd));
+					if (connectMap->at(originFd).getFDOUT() == -1) {
+						removeFromGenfd(fdInfo, fd);
+					}
+				}
 				continue;
 			}
-			// make sure connection isnt awaiting a cgi connection
-			else if (connectMap->at(fd).getState() != SENDING_RESPONSE) {
-				handle_request(connectMap->at(fd));
+			if (connectMap->at(fd).getState() != SENDING_RESPONSE && connectMap->at(fd).getState() != MAKING_RESPONSE) {
+				continue;
+			}
+
+			if (connectMap->at(fd).getFDIN() > 0) {
+				removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
+				connectMap->at(fd).setFDIN(-1);
+			}
+			if (connectMap->at(fd).getFDOUT() > 0) {
+				removeFromGenfd(fdInfo, connectMap->at(fd).getFDOUT());
+				connectMap->at(fd).setFDOUT(-1);
 			}
 
 			switch (handlePOLLOUT(fd, connectMap, fdInfo)) {
@@ -286,7 +354,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					std::cout << YELLOW << "[WARNING]	: " << RESET << "POLLOUT: non fatal error on socket: " << fd << "... closing" << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
-					break ;
+					continue;
 				case 3:
 					fdInfo->timeout[fd] = time(NULL);
 					std::cout <<   CYAN << "[INFO]		: " << RESET << "Keep-alive timer started" << std::endl;

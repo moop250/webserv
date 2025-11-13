@@ -60,7 +60,8 @@ SRCS        = src/main.cpp \
 		  src/response/handle_CGI_request.cpp \
 	      src/sockets/SocketClass.cpp \
 	      src/sockets/serverInitialization.cpp \
-		  src/sockets/incomingConnection.cpp
+		  src/sockets/incomingConnection.cpp \
+		  src/sockets/genfd.cpp
 
 OBJS        = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
