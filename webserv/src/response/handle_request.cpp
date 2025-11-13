@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/12 23:24:17 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/13 18:19:44 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,6 +270,7 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 		std::string	file_name;
 		std::string	path;
 		std::string	root;
+		int			fd;
 
 		if (connection.getServer().storage().empty())
 			path = connection.getRequest().getPath();
@@ -282,8 +283,27 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 		}
 		if (path[0] == '/')
 			path.erase(0, 1);
-		connection.setState(MAKING_RESPONSE);
-		connection.setOperation(No);
+		file_name = parseMultiPartForm(connection);
+		if (file_name.empty())
+			return -1;
+		if (path[path.size() - 1] != '/')
+			path += '/';
+		path += file_name;
+		fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (fd < 0) {
+			switch (errno) {
+				case EACCES:
+					error_response(connection, FORBIDDEN);
+					break ;
+				default:
+					error_response(connection, INTERNAL_ERROR);
+					break;
+			}
+			return -1;
+		}
+		connection.setFDOUT(fd);
+		connection.setState(IO_OPERATION);
+		connection.setOperation(Out);
 	}
 	return 0;
 }

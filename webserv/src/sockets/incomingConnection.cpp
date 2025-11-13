@@ -271,7 +271,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 }
 
 int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap) {
-	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
+	for (int i = fdInfo->fds.size() - 1; i >= 0; --i) {
 		int fd = fdInfo->fds.at(i).fd;
 
 		if (fdInfo->fds.at(i).revents & POLLHUP) {

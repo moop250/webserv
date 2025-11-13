@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/12 13:24:34 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/13 18:16:28 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,83 +147,6 @@ int get_directory(Connection& connection) {
 	return -1;
 }
 
-// Upload a file with request body as content.
-// stuffs to do
-// Blocking
-int post_directory(Connection& connection) {
-	std::string		file_name;
-	std::string		path;
-	std::string		extension;
-	std::string		root;
-	int				fd;
-	size_t			total;
-	long			written;
-	std::string		body;
-	std::string		response_body;
-
-	if (connection.getServer().storage().empty())
-		path = connection.getRequest().getPath();
-	else {
-		root = connection.getServer().root();
-		if (root[root.size() - 1] == '/')
-			root.erase(root.size() - 1);
-		path = connection.getServer().storage();
-		path = root + path;
-	}
-	if (path[0] == '/')
-		path.erase(0, 1);
-	
-	file_name = parseMultiPartForm(connection);
-	if (file_name.empty())
-		return -1;
-
-	if (path[path.size() - 1] != '/')
-		path += '/';
-	path += file_name;
-	fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd < 0) {
-		switch (errno) {
-			case EACCES:
-				error_response(connection, FORBIDDEN);
-				break ;
-			default:
-				error_response(connection, INTERNAL_ERROR);
-				break;
-		}
-		return -1;
-	}
-	// add fd to pollfd
-	
-	// Move this to poll
-	total = 0;
-	body = connection.getRequest().getBody();
-	while (total < body.size()) {
-		// Blocking here
-		written = write(fd, body.c_str() + total, body.size() - total);
-		if (written < 0) {
-			close(fd);
-			error_response(connection, INTERNAL_ERROR);
-			return -1;
-		}
-		if (written == 0)
-			break;
-		total += written;
-	}
-	close(fd);
-	connection.getResponse().setCode(200);
-	connection.getResponse().setCodeMessage("OK");
-	if (connection.getRequest().getKeepAlive() == "keep-alive")
-		connection.getResponse().setHeader("Connection", "keep-alive");
-	connection.getResponse().setHeader("Content-Type", "text/html");
-	response_body = "<!doctype html>\n\n<html><body><h1>Upload successful!</h1><p>Your file has been received.</p></body></html>";
-	connection.getResponse().setHeader("Content-Length", size_to_string(response_body.size()));
-	connection.getResponse().setBody(response_body);
-	connection.getResponse().constructResponse();
-	connection.setState(SENDING_RESPONSE);
-	// std::cout << connection.getResponse() << std::endl;
-	return 0;  
-}
-
 // MOOP -> post directory remake
 int post_directory_remake(Connection& connection) {
 	std::string		extension;
@@ -284,10 +207,10 @@ int directory_handler(Connection& connection) {
 	method = connection.getRequest().getMethod();
 	if (method == "GET")
 		return get_directory(connection);
-	else if (method == "POST")
-		return post_directory(connection);
 	// else if (method == "POST")
-	// 	return post_directory_remake(connection);
+	// 	return post_directory(connection);
+	else if (method == "POST")
+		return post_directory_remake(connection);
 	else if (method == "DELETE")
 		return delete_directory(connection);
 	return -1;
