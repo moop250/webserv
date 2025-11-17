@@ -271,9 +271,9 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 }
 
 int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap) {
-	for (int i = fdInfo->fds.size() - 1; i >= 0; --i) {
+	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
-
+		
 		if (fdInfo->fdTypes.at(fd) == CLIENT) {
 			Connection &connect = connectMap->at(fd);
 			if (connect.getState() == IO_OPERATION && connect.getRequestType() == CGI) {
@@ -282,11 +282,6 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 		}
 
 		if (fdInfo->fds.at(i).revents & POLLHUP) {
-			int originFd = fdInfo->ioFdMap.at(fd);
-			if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {
-				handle_request_remake(connectMap->at(originFd));
-			}
-			close(fd);
 			if (fdInfo->fdTypes.at(fd) == CLIENT || fdInfo->fdTypes.at(fd) == SERVER) {
 				if (connectMap->at(fd).getFDIN() > 0) {
 					removeFromGenfd(fdInfo, connectMap->at(fd).getFDIN());
@@ -298,6 +293,10 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 				}
 				removeFromPollfd(fdInfo, fd, sockets, connectMap);
 			} else {
+				int originFd = fdInfo->ioFdMap.at(fd);
+				if (connectMap->at(originFd).getState() == MAKING_RESPONSE || connectMap->at(originFd).getState() == IO_OPERATION) {
+					handle_request_remake(connectMap->at(originFd));
+				}
 				removeFromGenfd(fdInfo, fd);
 			}
 			std::cout << YELLOW << "poll: socket " << fd << " hung up" << RESET << std::endl;
