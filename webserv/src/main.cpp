@@ -75,7 +75,7 @@ static void close_all(int sig)
             i->fd = -1;
         }
     }
-	remove("Debug.log");
+	// remove("Debug.log");
     std::cerr << CYAN << "\n[INFO]	: " << RESET << "SIGQUIT reçu, sockets fermés" << std::endl;
 }
 
