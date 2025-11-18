@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/13 18:33:19 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/18 18:46:12 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,6 @@ void error_response(Connection& connection, int code) {
 	std::string	codeMessage;
 
 	codeMessage = error_message(code);
-	std::cout << "IN ERROR RESPONSET\n";
 	std::cout << ROSE << "[DEBUG]		: " << RESET << "Error message is " << YELLOW << codeMessage << std::endl;
 	if (codeMessage.empty()) {
 		code = 500;
@@ -120,10 +119,11 @@ void error_response(Connection& connection, int code) {
 				"</html>\n";
 	} else {
 		body = connection.getServer().errorPages().content(code);
-		if (code == 301 || code == 302) {
-			// Check later to return URI path instead of system path
-			connection.getResponse().setHeader("Location", connection.getRequest().getRedirect());
-		}
+		// if (code == 301 || code == 302) {
+		// 	// Check later to return URI path instead of system path
+		// 	// Actually screw it lmao
+		// 	connection.getResponse().setHeader("Location", connection.getRequest().getRedirect());
+		// }
 	}
 	connection.getResponse().setCode(code); 
 	connection.getResponse().setCodeMessage(codeMessage);
@@ -136,5 +136,5 @@ void error_response(Connection& connection, int code) {
 	connection.getResponse().setBody(body);
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
-	std::cout << connection.getResponse() << std::endl;
+	// std::cout << connection.getResponse() << std::endl;
 }

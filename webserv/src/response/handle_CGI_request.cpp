@@ -246,6 +246,7 @@ int CGI_timeout(Connection& connection) {
 		close(connection.getFDOUT());
 		connection.setOperation(No);
 		error_response(connection, GATEWAY_TIMEOUT);
+		// error_response(connection, FORBIDDEN);
 		return -1;
 	}
 	return 0;

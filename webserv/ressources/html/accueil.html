@@ -175,10 +175,30 @@
             <h3>POST</h3>
             <p>Use POST method to append a file</p>
           </div>
-          <form method="POST" action="/test/test.txt" enctype="text/plain">
             <textarea name="content"></textarea>
-            <button type="submit">Append to /test/test.txt</button>
-          </form>
+            <button type="button" onclick="postfile()">Append to /test/test.txt</button>
+            <script>
+              function postfile() {
+                const content = document.querySelector('textarea[name="content"]').value;
+                fetch('/test/test.txt', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'text/plain',
+                  },
+                  body: content
+                })
+                .then(res => {
+                  if (res.status === 204) {
+                    alert('Successfully append to /test/test.txt');
+                  } else {
+                    alert('Response: ' + res.status);
+                  }
+                })
+                .catch(err => {
+                  alert('Error: ' + err.message);
+                })
+              }
+            </script>
         </div>
 
         <div class="card-file">
@@ -227,7 +247,7 @@
           </div>
           <form method="POST" action="/upload/" enctype="multipart/form-data">
             <input type="file" name="file"/>
-            <button type="submit">Seem to work!</button>
+            <button type="submit">Upload</button>
           </form>
         </div>
 
