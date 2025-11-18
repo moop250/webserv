@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:52:38 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/13 18:42:19 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/18 18:42:34 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 #include "Config.hpp"
 #include "RequestServer.hpp"
 
-#define FILE_CHUNK_SIZE 65536
-#define FILE_WRITE_SIZE 8192
-#define TIMEOUT_SECONDS 5
+#define FILE_CHUNK_SIZE 65000
+#define FILE_WRITE_SIZE 65000
+#define TIMEOUT_SECONDS 3
 
 enum State {
 	READING_METHOD = 1,

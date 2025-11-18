@@ -7,7 +7,7 @@ ErrorPages::ErrorPages()
     std::string root = "ressources/html/error/";
     int         errors[] = {
         301, 302, 400, 403, 404, 405, 411, 413,
-        415, 500, 501, 505
+        415, 500, 501, 504, 505
 
     };
 
