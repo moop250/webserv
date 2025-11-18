@@ -260,7 +260,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 		return 2;
 	}
 
-	connect.setOffset(-2);
+	connect.setOffset(0);
 	if (connect.getClose())
 		return 4;
 	else if (connect.getRequest().getKeepAlive() == "keep-alive")
