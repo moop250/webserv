@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/13 15:50:14 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/18 21:35:10 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,21 +113,16 @@ int get_file_remake(Connection& connection) {
 
 	connection.getResponse().setContentType(getMIMEType(connection.getRequest().getFileType()));
 	fdin = connection.getFDIN();
-	// if data left to read
 	if (connection.getState() == IO_OPERATION) {
 		n = read(fdin, buffer, sizeof(buffer));
 		if (n > 0) {
 			connection.getResponse().appendBody(buffer, n);
 			return 0;
 		}
-		// No data left
 		if (n == 0) {
 			close(fdin);
-			// set fdin to -1
 			connection.setFDIN(-1);
-			// state to MAKING_RESPONSE
 			connection.setState(MAKING_RESPONSE);
-			// operation to No
 			connection.setOperation(No);
 		}
 		if (n < 0) {
