@@ -174,7 +174,7 @@ int main(void) {
 	int		code;
 
 	code = 0;
-	while(1) {}
+	// while(1) {}
 	method = getenv("REQUEST_METHOD");
 	if (method == NULL) {
 		send_error("Error: No request method", "error");

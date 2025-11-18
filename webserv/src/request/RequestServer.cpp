@@ -395,10 +395,6 @@ std::ostream    &operator<<(std::ostream &stream, const RequestServer &rs)
        for (std::map<std::string, std::string>::const_iterator j = mprint.begin(); j != mprint.end(); j++)
           stream << "\textension :" << j->first << " <==> path : " << j->second << '\n';
     stream << "Nb error pages       : " << rs.errorPages().getNbPages();
-    
-  //  for (int j = 0; j < OTHER; j++)
-        //stream <<  rs.errorPages().content(static_cast<RequestError>(j));
-         //  stream << "\t\t" << j->first << " <==> " << j->second << '\n';
     stream << '\n';
     return (stream);
 }

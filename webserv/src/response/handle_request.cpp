@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/13 18:19:44 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/18 18:10:26 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -345,6 +345,8 @@ int open_CGI_PIPE_FORK(Connection& connection, std::string& method) {
 			if (method == "POST") {
 				connection.setOperation(Out);
 			} else if (method == "GET") {
+				close(in[1]);
+				connection.setFDOUT(-1);
 				connection.setOperation(In);
 			}
 			return 0;

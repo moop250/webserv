@@ -273,6 +273,7 @@ static int handlePOLLOUT(int fd, std::map<int, Connection> *connectMap, t_fdInfo
 int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, std::map<int, Connection> *connectMap) {
 	for (size_t i = 0; i < fdInfo->fds.size(); ++i) {
 		int fd = fdInfo->fds.at(i).fd;
+		// std::cout << "current fd: " << fd << std::endl;
 		
 		if (fdInfo->fdTypes.at(fd) == CLIENT) {
 			Connection &connect = connectMap->at(fd);
@@ -310,10 +311,11 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
-			} else {
+			}
+			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
 				int fdin = fdInfo->ioFdMap.at(fd);
 				handle_request_remake(connectMap->at(fdin));
-				if (connectMap->at(fdInfo->ioFdMap.at(fd)).getFDIN() == -1) {
+				if (connectMap->at(fdin).getFDIN() == -1) {
 					removeFromGenfd(fdInfo, fd);
 				}
 			}

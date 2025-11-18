@@ -186,6 +186,7 @@ int ErrorPages::error(int member) const {
     for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++)
         if (!member)
             return i->first;
+    std::cout << ROSE << "[DEBUG]       : "<< WHITE << "Error attribut not found in curent server\n";
     return 0;
 }
 
@@ -193,6 +194,7 @@ std::string ErrorPages::path(int member) const {
     for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++)
         if (!member)
             return i->second;
+    std::cout << ROSE << "[DEBUG]       : "<< WHITE << "Error page path not found\n";
     return "";
 }
 
@@ -201,6 +203,7 @@ std::string ErrorPages::content(int member) const {
     for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, index++)
         if (member == i->first)
             return _html_content.at(index);
+    std::cout << ROSE << "[DEBUG]       : "<< WHITE << "Error page content not found\n";
     return ("");
 }
 
@@ -227,6 +230,7 @@ std::string ErrorPages::path(RequestError error) const
     for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++)
         if (i->first == fmtError)
             return i->second;
+    std::cout << ROSE << "[DEBUG]       : "<< WHITE << "Error page path not found\n";
     return "";
 }
 
@@ -235,7 +239,7 @@ std::string ErrorPages::content(RequestError error) const
     int index = find(error);
     if (index == -1 ||  static_cast<size_t>(index) >= _html_content.size())
     {
-        std::cerr << "Content not found\n";
+        std::cout << ROSE << "[DEBUG]       : "<< WHITE << "Error page content not found\n";
         return ("");
     }
     return _html_content.at(index);
@@ -266,6 +270,8 @@ int     ErrorPages::macrosLinkRequest(RequestError error) const
             return 500;
         case REQUEST_ERROR_NOT_IMPLEMENTED:
             return 501;
+        case REQUEST_ERROR_GATEWAY_TIMEOUT:
+            return 504;
         case REQUEST_ERROR_HTTP_VERSION_MISMATCH:
             return 505;
         case REQUEST_ERROR_OTHER:
@@ -284,7 +290,7 @@ bool    ErrorPages::has(int error) {
     return false;
 }
 
-bool ErrorPages::has(RequestError error)
+bool    ErrorPages::has(RequestError error)
 {
     int fmtError = macrosLinkRequest(error);
     for (std::map<int, std::string>::iterator i = _data.begin(); i != _data.end(); i++)
@@ -293,27 +299,50 @@ bool ErrorPages::has(RequestError error)
     return (0);
 }
 
-int ErrorPages::find(RequestError error) const
-{
-    int fmtError = macrosLinkRequest(error);
-    return this->find(fmtError);
-   // for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, member++)
-   //     if (i->first == fmtError)
-   //         return member;
-   // return (-1);
-}
 
-int ErrorPages::find(int error) const
+int     ErrorPages::find(int error) const
 {
-    int member = 0;
-    for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, member++)
+    int index = 0;
+    for (std::map<int, std::string>::const_iterator it = _data.begin();
+         it != _data.end(); ++it, ++index)
     {
-        if (i->first == error)
-            return member;
-//        std::cout << "I->first : " << i->first << " and error is  : " << error << std::endl;
+        if (it->first == error)
+            return index;
     }
     return -1;
 }
+
+// int ErrorPages::find(RequestError error) const
+// {
+//     int fmtError = macrosLinkRequest(error);
+//     return this->find(fmtError);
+//    // for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, member++)
+//    //     if (i->first == fmtError)
+//    //         return member;
+//    // return (-1);
+// }
+
+int ErrorPages::find(RequestError error) const
+{
+    int fmtError = macrosLinkRequest(error);
+
+    if (fmtError == 0)            // cas REQUEST_ERROR_OTHER ou erreur
+        return -1;
+
+    return find(fmtError);
+}
+
+// int ErrorPages::find(int error) const
+// {
+//     int member = 0;
+//     for (std::map<int, std::string>::const_iterator i = _data.begin(); i != _data.end(); i++, member++)
+//     {
+//         if (i->first == error)
+//             return member;
+// //        std::cout << "I->first : " << i->first << " and error is  : " << error << std::endl;
+//     }
+//     return -1;
+// }
 
 //std::ostream    &operator<<(std::ostream &stream, const ErrorPages &p)
 //{
