@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/06 17:22:03 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/19 09:43:42 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ Request& Request::operator =(const Request& assign) {
 	if (this != &assign) {
 		this->method = assign.method;
 		this->path = assign.path;
+		this->basePath = assign.basePath;
 		this->query = assign.query;
 		this->httpVersion = assign.httpVersion;
 		this->headers = assign.headers;
@@ -60,6 +61,7 @@ Request& Request::appendBody(const std::string& line) {
 Request& Request::clear() {
 	this->method.clear();
 	this->path.clear();
+	this->basePath.clear();
 	this->query.clear();
 	this->httpVersion.clear();
 	this->headers.clear();
@@ -85,6 +87,9 @@ std::string Request::getMethod() const {
 }
 std::string Request::getPath() const {
 		return this->path;
+}
+std::string Request::getBasePath() const {
+		return this->basePath;
 }
 std::string Request::getQuery() const {
 		return this->query;
@@ -147,6 +152,10 @@ Request& Request::setMethod(const std::string& method) {
 }
 Request& Request::setPath(const std::string& path) {
 	this->path = path;
+	return *this;
+}
+Request& Request::setBasePath(const std::string& basePath) {
+	this->basePath = basePath;
 	return *this;
 }
 Request& Request::setQuery(const std::string& query) {

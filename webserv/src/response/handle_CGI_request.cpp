@@ -199,6 +199,16 @@ int parent_reap_output_remake(Connection& connection) {
 			connection.setOperation(In);
 			return 0;
 		}
+		if (written < 0) {
+			close(fdout);
+			close(fdin);
+			kill(connection.getPid(), SIGTERM); 
+			connection.setFDOUT(-1);
+			connection.setFDIN(-1);
+			connection.setOperation(No);
+			error_response(connection, INTERNAL_ERROR);
+			return -1;
+		}
 	}
 	if (connection.getOperation() == In) {
 		if (connection.getOperation() != In)

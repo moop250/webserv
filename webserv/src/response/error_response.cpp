@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/18 18:46:12 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/19 09:52:36 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,12 +125,17 @@ void error_response(Connection& connection, int code) {
 		// 	connection.getResponse().setHeader("Location", connection.getRequest().getRedirect());
 		// }
 	}
+
+	// std::string path = connection.getRequest().getPath();
+	// std::cout << "PATH: " << path << std::endl;
+
 	connection.getResponse().setCode(code); 
 	connection.getResponse().setCodeMessage(codeMessage);
-	if (connection.getClose() == true)
-		connection.getResponse().setHeader("Connection", "close");
-	else
-		connection.getResponse().setHeader("Connection", "keep-alive");
+	// if (connection.getClose() == true)
+	// 	connection.getResponse().setHeader("Connection", "close");
+	// else
+	// 	connection.getResponse().setHeader("Connection", "keep-alive");
+	connection.getResponse().setHeader("Connection", "close");
 	connection.getResponse().setHeader("Content-Type", "text/html");
 	connection.getResponse().setHeader("Content-Length", size_to_string(body.size()));
 	connection.getResponse().setBody(body);

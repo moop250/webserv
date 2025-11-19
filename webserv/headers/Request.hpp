@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 14:44:00 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/19 09:43:24 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ class Request {
 	private:
 		std::string							method;
 		std::string							path;
+		std::string							basePath;
 		std::string							query;
 		std::string							httpVersion;
 		std::map<std::string, std::string>	headers;
@@ -97,6 +98,7 @@ class Request {
 		
 		std::string	getMethod() const;
 		std::string	getPath() const;
+		std::string	getBasePath() const;
 		std::string	getQuery() const;
 		std::string	getHttpVersion() const;
 		std::string	getHeader(const std::string& key) const;
@@ -115,6 +117,7 @@ class Request {
 
 		Request&	setMethod(const std::string& method);
 		Request&	setPath(const std::string& path);
+		Request&	setBasePath(const std::string& basePath);
 		Request&	setQuery(const std::string& query);
 		Request&	setHttpVersion(const std::string& version);
 		void		setHeader(const std::string& key, const std::string& value);
