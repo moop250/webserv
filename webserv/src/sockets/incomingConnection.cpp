@@ -312,8 +312,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 
 			if (fdInfo->fdTypes.at(fd) == SERVER || fdInfo->fdTypes.at(fd) == CLIENT) {
 				handlePOLLIN(fd, sockets, fdInfo, connectMap, config);
-			}
-			if (fdInfo->fdTypes.at(fd) != CLIENT && fdInfo->fdTypes.at(fd) != SERVER) {
+			} else {
 				int fdin = fdInfo->ioFdMap.at(fd);
 				handle_request_remake(connectMap->at(fdin));
 				if (connectMap->at(fdin).getFDIN() == -1) {
