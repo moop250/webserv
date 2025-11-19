@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/19 10:00:39 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/19 21:20:58 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,6 +234,7 @@ std::string parseMultiPartForm(Connection& connection) {
 int open_DIR_FD(Connection& connection, std::string& method) {
 	std::string	index;
 	bool		autoindex;
+	int			fdin;
 
 	if (method == "GET") {
 		index = connection.getServer().index();
@@ -243,23 +244,13 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 			return -1;
 		}
 		if (!index.empty()) {
-			index = connection.getRequest().getPath() + index;
 			if (index[0] == '/')
 				index.erase(0, 1);
-			connection.setFDIN(open(index.c_str(), O_RDONLY));
-			if (connection.getFDIN() < 0) {
-				switch (errno) {
-					case ENOENT:
-						// fallthrough
-					case EACCES:
-						error_response(connection, FORBIDDEN);
-						break ;
-					default:
-						error_response(connection, INTERNAL_ERROR);
-						break ;
-				}
-				return -1;
+			fdin = open(index.c_str(), O_RDONLY);
+			if (fdin < 0) {
+				return 0;
 			}
+			connection.setFDIN(fdin);
 			connection.setState(IO_OPERATION);
 			connection.setOperation(In);
 		}

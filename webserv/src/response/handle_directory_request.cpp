@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/19 09:52:27 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/19 21:19:21 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include "Config.hpp"
 #include "request_handler.hpp"
 
-// MOOP -> case index remake
 int case_index_remake(Connection& connection) {
 	int			fdin;
 	char		buffer[FILE_CHUNK_SIZE];
@@ -24,6 +23,8 @@ int case_index_remake(Connection& connection) {
 	int			size;
 	
 	fdin = connection.getFDIN();
+	if (fdin == -1)
+		return -1;
 	if (connection.getState() == IO_OPERATION) {
 		n = read(fdin, buffer, sizeof(buffer));
 		if (n > 0) {
@@ -152,7 +153,6 @@ int get_directory(Connection& connection) {
 	return -1;
 }
 
-// MOOP -> post directory remake
 int post_directory_remake(Connection& connection) {
 	std::string		extension;
 	int				fdout;
