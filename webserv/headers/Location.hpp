@@ -25,7 +25,7 @@ class Location
         Location(t_Location loc);
         Location(t_ServerData serv);
         Location(const Location &);
-        ~Location();
+        virtual ~Location();
 
         Location    &operator=(const Location &);
     
