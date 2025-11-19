@@ -158,6 +158,7 @@ void    RequestServer::setToken(t_ServerData serv, e_TokenType type)
             break ;
         case AUTOINDEX:
             _autoindex = serv.autoindex;
+            // _autoindex = false;
             break ;
         case ERROR_PAGE:
             for (std::map<int, std::string>::iterator i = serv.error_pages.begin(); i != serv.error_pages.end(); i++)

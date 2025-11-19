@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/13 18:16:28 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/19 09:52:27 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,8 @@ int case_index_remake(Connection& connection) {
 		}
 		if (n == 0) {
 			close(fdin);
-			// set fdin to -1
 			connection.setFDIN(-1);
-			// state to MAKING_RESPONSE
 			connection.setState(MAKING_RESPONSE);
-			// operation to No
 			connection.setOperation(No);
 		}
 		if (n < 0) {
@@ -69,16 +66,25 @@ int case_autoindex(Connection& connection) {
 	struct dirent	*ent;
 	std::string		list;
 	std::string		buffer;
+	std::string		base_path;
+	std::string		location;
 
+	base_path = connection.getRequest().getBasePath();
+	if (base_path[0] == '/')
+		base_path.erase(0, 1);
+	if (base_path[base_path.size() - 1] != '/')
+		base_path += "/";
+	location = connection.getServer().getLocation();
+	base_path.erase(0, location.size() - 1);
 	path = connection.getRequest().getPath();
 	if (path[0] == '/')
 		path.erase(0, 1);
+	if (path[path.size() - 1] != '/')
+		path += "/";
 	dir = opendir(path.c_str());
 	if (dir == NULL) {
 		return -1;
 	}
-	if (path[path.size() - 1] != '/')
-		path += "/";
 	while (true) {
 		ent = readdir(dir);
 		if (ent == NULL)
@@ -87,6 +93,7 @@ int case_autoindex(Connection& connection) {
 		if (file_name == "." || file_name == "..")
 			continue;
 		list = list + "      <li><a href="
+					+ base_path
 					+ file_name
 					+ ">"
 					+ file_name
@@ -134,8 +141,6 @@ int get_directory(Connection& connection) {
 		return -1;
 	}
 	if (!index.empty()) {
-		if (index[0] == '/')
-			index.erase(0, 1);
 		if (case_index_remake(connection) == 0)
 			return 0;
 	}
@@ -207,8 +212,6 @@ int directory_handler(Connection& connection) {
 	method = connection.getRequest().getMethod();
 	if (method == "GET")
 		return get_directory(connection);
-	// else if (method == "POST")
-	// 	return post_directory(connection);
 	else if (method == "POST")
 		return post_directory_remake(connection);
 	else if (method == "DELETE")

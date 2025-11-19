@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/18 18:10:26 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/19 09:53:36 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ void path_merge_non_cgi(Connection& connection) {
 	path = connection.getRequest().getPath();
 	root = connection.getServer().root();
 	location = connection.getServer().getLocation();
+	connection.getRequest().setBasePath(path);
 	if (root.empty())
 		return;
 	if (root[root.size() - 1] == '/')
@@ -128,7 +129,6 @@ int open_FILE_FD(Connection& connection, std::string& method) {
 
 	path = connection.getRequest().getPath();
 	if (method == "GET") {
-		// set fdin
 		connection.setFDIN(open(path.c_str(), O_RDONLY));
 		if (connection.getFDIN() < 0) {
 			switch (errno) {
@@ -141,13 +141,9 @@ int open_FILE_FD(Connection& connection, std::string& method) {
 			}
 			return -1;
 		}
-		// set state to IO_OPERATION
 		connection.setState(IO_OPERATION);
-		// fdout is -1 by default
-		// set operation to in
 		connection.setOperation(In);
 	} else if (method == "POST") {
-		// set fdout
 		connection.setFDOUT(open(path.c_str(), O_WRONLY | O_APPEND, 0644));
 		if (connection.getFDOUT() < 0) {
 			switch (errno) {
@@ -160,10 +156,7 @@ int open_FILE_FD(Connection& connection, std::string& method) {
 			}
 			return -1;
 		}
-		// set state to IO_OPERATION
 		connection.setState(IO_OPERATION);
-		// fdin is -1 by default
-		// set operation to in
 		connection.setOperation(Out);
 	}
 	return 0;
@@ -238,19 +231,26 @@ std::string parseMultiPartForm(Connection& connection) {
 }
 
 // MOOP -> open new fd for directory
-// not opening any fd for POST here yet, to remake
 int open_DIR_FD(Connection& connection, std::string& method) {
 	std::string	index;
+	bool		autoindex;
 
 	if (method == "GET") {
 		index = connection.getServer().index();
-		index = connection.getRequest().getPath() + index;
+		autoindex = connection.getServer().autoindex();
+		if (index.empty() && autoindex == false) {
+			error_response(connection, FORBIDDEN);
+			return -1;
+		}
 		if (!index.empty()) {
+			index = connection.getRequest().getPath() + index;
 			if (index[0] == '/')
 				index.erase(0, 1);
 			connection.setFDIN(open(index.c_str(), O_RDONLY));
 			if (connection.getFDIN() < 0) {
 				switch (errno) {
+					case ENOENT:
+						// fallthrough
 					case EACCES:
 						error_response(connection, FORBIDDEN);
 						break ;
@@ -260,10 +260,7 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 				}
 				return -1;
 			}
-			// set state to IO_OPERATION
 			connection.setState(IO_OPERATION);
-			// fdout is -1 by default
-			// set operation to in
 			connection.setOperation(In);
 		}
 	} else if (method == "POST") {
