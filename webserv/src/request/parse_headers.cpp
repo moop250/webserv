@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/18 16:50:16 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/19 19:56:08 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,8 +129,8 @@ int parse_body_chunked(Connection& connection) {
 	std::string::size_type	end_pos;
 	std::string				line;
 
-	// if (connection.buffer.size() > connection.getServer().clientSize())
-	// 		return CONTENT_TOO_LARGE;
+	if (connection.buffer.size() > connection.getServer().clientSize())
+			return CONTENT_TOO_LARGE;
 	while(true) {
 		if (connection.getChunkedSize() == -1) {
 			end_pos = connection.buffer.find("\r\n");
@@ -142,8 +142,6 @@ int parse_body_chunked(Connection& connection) {
 			if (connection.getChunkedSize() < 0) {
 				return BAD_REQUEST;
 			}
-			// if (connection.getChunkedSize() > connection.getServer().client_max_body_size)
-			// 	return CONTENT_TOO_LARGE;
 			if (connection.getChunkedSize() == 0) {
 				connection.buffer.erase(0, end_pos + 4);
 				connection.setState(MAKING_RESPONSE);
@@ -199,14 +197,29 @@ int content_length_check(Connection& connection) {
 		return NOT_IMPLEMENTED;
 }
 
+bool isNum(std::string s) {
+	if (s.size() == 0)
+		return false;
+	for(size_t i = 0; i < s.size(); i++) {
+		if ((s[i] >= '0' && s[i] <= '9') == false) {
+			return false;
+		}
+	}
+	return true;
+}
+
 int parse_redirect(Connection& connection, std::string& redirect) {
 	std::string				code;
 	std::string				redirect_path;
 	std::string::size_type	space_pos;
 
 	space_pos = redirect.find(" ");
-	if (space_pos == std::string::npos)
+	if (space_pos == std::string::npos) {
 		code = redirect;
+		if (isNum(code) == false) {
+			return INTERNAL_ERROR;
+		}
+	}
 	else
 		code = redirect.substr(0, space_pos);
 	if (code == "403") {
@@ -242,8 +255,9 @@ int headers_content_check(Connection& connection, Config& config) {
 	if (connection.getReconnect() == false)
 		matching_server(connection, config);
 	redirect = connection.getServer().redirect();
-	if (!redirect.empty())
+	if (!redirect.empty()) {
 		return parse_redirect(connection, redirect);
+	}
 	if (method_check(connection) == METHOD_NOT_ALLOWED)
 		return METHOD_NOT_ALLOWED;
 	keepAlive = connection.getRequest().getHeader("connection");

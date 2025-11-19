@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/19 14:08:44 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/19 19:51:39 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,15 +120,10 @@ void error_response(Connection& connection, int code) {
 	} else {
 		body = connection.getServer().errorPages().content(code);
 		if (code == 301 || code == 302) {
-			// Check later to return URI path instead of system path
-			// Actually screw it lmao
-			connection.getResponse().setHeader("Location", connection.getRequest().getRedirect());
+			std::string redirect = connection.getRequest().getRedirect();
+			connection.getResponse().setHeader("Location", redirect);
 		}
 	}
-
-	std::string path = connection.getRequest().getPath();
-	std::cout << "PATH: " << path << std::endl;
-
 	connection.getResponse().setCode(code); 
 	connection.getResponse().setCodeMessage(codeMessage);
 	// if (connection.getClose() == true)
