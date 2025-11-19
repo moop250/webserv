@@ -169,7 +169,7 @@ bool    ConfigError::checkTokens()
 
 bool    ConfigError::checkLine()
 {
-    size_t          endTok;
+    size_t          endTok = 0;
     std::string     pseudoToken;
 
     switch (_line)

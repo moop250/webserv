@@ -156,10 +156,11 @@ static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> 
 	buf.resize(nbytes);
 
 	connect->buffer.append(buf);
-	if (parse_request(*connect, *conf) == CONTINUE_READ)
+	int state = parse_request(*connect, *conf);
+	if (state == CONTINUE_READ)
 		return CONTINUE_READ;
-
-	
+	if (state == -1)
+		return EXITPARSING;
 	parse_type_fd(*connect);
 
 	if (connect->getFDIN() > 0) {
