@@ -2,11 +2,11 @@
 
 void    sanitizeLine(std::string &line)
 {
-    int to_remove = 0;
+    size_t	to_remove = 0;
 
-    while (!isspace(line[to_remove]))
+    while ((!isspace(line[to_remove])) && (to_remove < line.size()))
         to_remove++;
-    while (isspace(line[to_remove]))
+    while ((isspace(line[to_remove])) && (to_remove < line.size()))
         to_remove++;
     line.erase(0, to_remove);
     return ;
