@@ -1,5 +1,12 @@
 Petit rappel : Tout element de votre serveur devra se situer dans ressources
 
+install siege:
+```https://github.com/kube/42homebrew```
+new terminal:
+```brew install siege```
+test get blank page:
+```siege -b http://127.0.0.1:8003/```
+
 # CONFIGURATION LOGIC UNIT EXPLAINED #
 
 
