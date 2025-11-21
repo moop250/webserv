@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 04:59:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/13 18:42:48 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 10:06:23 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,6 @@ std::time_t Connection::get_CgiTime() const {
 #include <stdio.h>
 
 RequestServer	Connection::getDefaultServer() const {
-	std::cout << "Giving default configuration\n";
 	return RequestServer(1);
 }
 

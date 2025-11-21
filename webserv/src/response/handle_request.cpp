@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/19 21:20:58 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 09:08:01 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,6 @@ int path_merge_cgi(Connection& connection) {
 	}
 }
 
-// MOOP -> open new fd for file
 int open_FILE_FD(Connection& connection, std::string& method) {
 	std::string	path;
 
@@ -230,7 +229,6 @@ std::string parseMultiPartForm(Connection& connection) {
 	return file_name;
 }
 
-// MOOP -> open new fd for directory
 int open_DIR_FD(Connection& connection, std::string& method) {
 	std::string	index;
 	bool		autoindex;
@@ -244,6 +242,7 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 			return -1;
 		}
 		if (!index.empty()) {
+			index = connection.getRequest().getPath() + index;
 			if (index[0] == '/')
 				index.erase(0, 1);
 			fdin = open(index.c_str(), O_RDONLY);
@@ -342,7 +341,6 @@ int open_CGI_PIPE_FORK(Connection& connection, std::string& method) {
 	return 0;
 }
 
-// MOOP -> Parse_request_type qui vient apres parse_request()
 int parse_type_fd(Connection& connection) {
 	int			requestType;
 	std::string	method;

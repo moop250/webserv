@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/19 19:56:08 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 10:04:57 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,10 +118,8 @@ void matching_server(Connection& connection, Config& config) {
 	ip = connection.getIP();
 	RequestServer server(config, port, ip, server_name, path);
 	if (server.isValid() == true) {
-		std::cout << "\nA SERVER IS MATCHED\n";
 		connection.setServer(server);
 	} else {
-		std::cout << "\nNO SERVER MATCHED, USING DEFAULT\n";
 	}
 }
 

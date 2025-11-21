@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/07 13:21:54 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 10:03:25 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,30 +80,12 @@ std::string Response::constructResponse() {
 						.append(this->codeMessage)
 						.append("\r\n")
 						.append(headers)
-						.append("\r\n")
-						.append(this->body);
-	// std::cout << responseComplete << std::endl;
+						.append("\r\n");
+	this->responseNoBody = "\n\n[RESPONSE:----------]\n";
+	this->responseNoBody.append(responseComplete)
+						.append("Not showing body, existed or not\n\n");
+	responseComplete.append(this->body);
 	return this->responseComplete;
-}
-
-// Untested, likely to be remake to communicate with poll() and support chunked encoding
-int Response::sendResponse(int fd_client) {
-	const char*	response;
-	int			sent_total;
-	int			bytes_left;
-	int			sent;
-
-	response = this->constructResponse().c_str();
-	bytes_left = this->constructResponse().size();
-	sent_total = 0;
-	while (sent_total < bytes_left) {
-		sent = send(fd_client, response, bytes_left, 0);
-		if (sent == -1)
-			break;
-		sent_total += sent;
-		bytes_left -= sent;
-	}
-	return sent;
 }
 
 Response& Response::clear() {
@@ -171,8 +153,9 @@ std::string Response::getContentType() const {
 std::string Response::getResponseComplete() const {
 	return this->responseComplete;
 }
-
-
+std::string Response::getResponseNoBody() const {
+	return this->responseNoBody;
+}
 
 
 // ----------------- SETTERS ----------------------

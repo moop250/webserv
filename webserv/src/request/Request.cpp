@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:35 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/19 09:43:42 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 10:03:24 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,33 @@ Request& Request::clear() {
 	this->keepAliveMax = -1;
 	this->redirect.clear();
 	return *this;
+}
+
+void Request::printHeader(std::ostream& o) {
+	std::map<std::string, std::string>::iterator	start;
+
+	start = this->headers.begin();
+	while (start != this->headers.end()) {
+		o << start->first << ": " << start->second << "\r\n";
+		start++;
+	}
+}
+
+std::ostream& operator<<(std::ostream& o, Request& request) {
+	std::string	query;
+
+	query = request.getQuery();
+	if (!query.empty())
+		query.insert(0, "?");
+	o	<< "\n\n[REQUEST]:----------\n"
+		<< request.getMethod() << " "
+		<< request.getPath()
+		<< request.getQuery() << " "
+		<< request.getHttpVersion() << "\r\n";
+	request.printHeader(o);
+	o 	<< "\r\n"
+		<< "Not showing body, existed or not\n\n";
+	return o;
 }
 
 // ----------------- GETTERS ----------------------

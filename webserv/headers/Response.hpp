@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 22:18:51 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/06 16:54:32 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 09:51:14 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class Response {
 		size_t												contentLength;
 		std::string											contentType;
 		std::string											responseComplete;
+		std::string											responseNoBody;
 	
 	public:
 		Response();
@@ -48,6 +49,7 @@ class Response {
 		size_t		getContentLength() const;
 		std::string	getContentType() const;
 		std::string	getResponseComplete() const;
+		std::string	getResponseNoBody() const;
 
 		Response&	setHttpVersion(const std::string& version);
 		Response&	setCode(const int code);

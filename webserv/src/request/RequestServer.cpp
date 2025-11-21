@@ -91,7 +91,6 @@ static size_t   findLocation(std::string path, t_ServerData server)
             return id;
         id++;
     }
-    std::cout <<   CYAN << "[INFO]          : " << RESET <<  "Path doesn't match any location\n" << RESET;
     return std::string::npos;
 }
 

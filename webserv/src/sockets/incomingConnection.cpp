@@ -162,13 +162,13 @@ static int handleClientData(t_fdInfo *fdInfo, int fd, std::map<int, Connection> 
 	int state = parse_request(*connect, *conf);
 	if (state == CONTINUE_READ)
 		return CONTINUE_READ;
-	if (state == -1)
+	else if (state == -1)
 		return EXITPARSING;
 	parse_type_fd(*connect);
 
 	if (connect->getFDIN() > 0) {
-			addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
-		}
+		addToGenFD(fdInfo, connect->getFDIN(), fd, SYS_FD_IN);
+	}
 	if (connect->getFDOUT() > 0) {
 		addToGenFD(fdInfo, connect->getFDOUT(), fd, SYS_FD_OUT);
 	}
@@ -204,6 +204,7 @@ static int handlePOLLIN(int fd, ServerSocket *sockets, t_fdInfo *fdInfo, std::ma
 			{
 				case EXITPARSING:
 					setPOLLOUT(fd, &fdInfo->fds);
+					std::cout << ROSE << connectMap->at(fd).getRequest() << RESET << std::endl;
 					return 1;
 				case HUNGUP:
 					std::cout << YELLOW << "[WARNING]	: " << WHITE << "Recv: socket " << fd << " hung up... removing from POLLFD" << RESET << std::endl;
@@ -302,7 +303,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 		else if (fdInfo->fds.at(i).revents & POLLIN) {
 			if (fdInfo->fdTypes.at(fd) == SYS_FD_IN || fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
 				int originFD = fdInfo->ioFdMap.at(fd);
-				std::cout << CYAN << "[INFO]		:" << WHITE << " Poll in triggered on CGI FD " << fd
+				std::cout << CYAN << "[INFO]		:" << WHITE << " Poll in triggered on FD " << fd
 						<< " (origin client FD " << originFD << ")" << RESET << std::endl;
 			}
 
@@ -320,7 +321,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 		else if (fdInfo->fds.at(i).revents & POLLOUT) {
 			if (fdInfo->fdTypes.at(fd) == SYS_FD_IN || fdInfo->fdTypes.at(fd) == SYS_FD_OUT) {
 				int	originFD = fdInfo->ioFdMap.at(fd);
-				std::cout << CYAN << "[INFO]		:" << WHITE << " Poll out triggered on CGI FD " << fd
+				std::cout << CYAN << "[INFO]		:" << WHITE << " Poll out triggered on FD " << fd
 						<< " (origin client FD " << originFD << ")" << RESET << std::endl;
 			}
 
@@ -367,6 +368,7 @@ int incomingConnection(ServerSocket *sockets, t_fdInfo *fdInfo, Config *config, 
 					continue;
 				case 4:
 					std::cout << YELLOW << "[WARNING]	: " << WHITE << "POLLOUT: close flag on socket: " << fd << "... closing" << RESET << std::endl;
+					std::cout << GREEN << connectMap->at(fd).getResponse().getResponseNoBody() << RESET << std::endl;
 					close(fd);
 					removeFromPollfd(fdInfo, fd, sockets, connectMap);
 					continue;

@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:49:45 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/19 09:43:24 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 09:38:15 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,47 +96,50 @@ class Request {
 		Request& operator =(const Request& assign);
 		~Request();
 		
-		std::string	getMethod() const;
-		std::string	getPath() const;
-		std::string	getBasePath() const;
-		std::string	getQuery() const;
-		std::string	getHttpVersion() const;
-		std::string	getHeader(const std::string& key) const;
-		std::string	getCookie(const std::string& key) const;
-		std::string	getFileType() const;
-		int			getRequestType() const;
-		std::string	getBody() const;
-		size_t		getContentLength() const;
-		std::string	getContentType() const;
-		std::string	getKeepAlive() const;
-		int			getKeepAliveTimeout() const;
-		int			getKeepAliveMax() const;
-		std::string	getHost() const;
-		std::string	getPort() const;
-		std::string getRedirect() const;
+		std::string		getMethod() const;
+		std::string		getPath() const;
+		std::string		getBasePath() const;
+		std::string		getQuery() const;
+		std::string		getHttpVersion() const;
+		std::string		getHeader(const std::string& key) const;
+		std::string		getCookie(const std::string& key) const;
+		std::string		getFileType() const;
+		int				getRequestType() const;
+		std::string		getBody() const;
+		size_t			getContentLength() const;
+		std::string		getContentType() const;
+		std::string		getKeepAlive() const;
+		int				getKeepAliveTimeout() const;
+		int				getKeepAliveMax() const;
+		std::string		getHost() const;
+		std::string		getPort() const;
+		std::string 	getRedirect() const;
 
-		Request&	setMethod(const std::string& method);
-		Request&	setPath(const std::string& path);
-		Request&	setBasePath(const std::string& basePath);
-		Request&	setQuery(const std::string& query);
-		Request&	setHttpVersion(const std::string& version);
-		void		setHeader(const std::string& key, const std::string& value);
-		void		setCookie(const std::string& key, const std::string& value);
-		Request&	setFileType(const std::string& fileType);
-		Request&	setRequestType(const int type);
-		Request&	setBody(const std::string& body);
-		void		removeBody(const int pos1, const int pos2);
-		Request&	setContentLength(const size_t len);
-		Request&	setContentType(const std::string& type);
-		Request&	setKeepAlive(const std::string& config);
-		Request&	setKeepAliveTimeout(const int time);
-		Request&	setKeepAliveMax(const int time);
-		Request&	setHost(const std::string& host);
-		Request&	setPort(const std::string& port);
-		Request&	setRedirect(const std::string& redirect);
+		Request&		setMethod(const std::string& method);
+		Request&		setPath(const std::string& path);
+		Request&		setBasePath(const std::string& basePath);
+		Request&		setQuery(const std::string& query);
+		Request&		setHttpVersion(const std::string& version);
+		void			setHeader(const std::string& key, const std::string& value);
+		void			setCookie(const std::string& key, const std::string& value);
+		Request&		setFileType(const std::string& fileType);
+		Request&		setRequestType(const int type);
+		Request&		setBody(const std::string& body);
+		void			removeBody(const int pos1, const int pos2);
+		Request&		setContentLength(const size_t len);
+		Request&		setContentType(const std::string& type);
+		Request&		setKeepAlive(const std::string& config);
+		Request&		setKeepAliveTimeout(const int time);
+		Request&		setKeepAliveMax(const int time);
+		Request&		setHost(const std::string& host);
+		Request&		setPort(const std::string& port);
+		Request&		setRedirect(const std::string& redirect);
 
-		Request&	appendBody(const std::string& line);
-		Request&	clear();
+		Request&		appendBody(const std::string& line);
+		Request&		clear();
+		void			printHeader(std::ostream& o);
 };
+
+std::ostream&	operator<<(std::ostream& o, Request& request);
 
 #endif
