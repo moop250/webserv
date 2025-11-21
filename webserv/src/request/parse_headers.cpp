@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 11:19:49 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/21 10:04:57 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 12:13:07 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,11 +240,45 @@ int parse_redirect(Connection& connection, std::string& redirect) {
 	return INTERNAL_ERROR;
 }
 
+void parse_cookie(Connection& connection, std::string& cookies) {
+	std::string::size_type	semicol_pos;
+	std::string::size_type	equal_pos;
+	std::string				pair;
+	std::string				key;
+	std::string				value;
+	
+	while (1) {
+		semicol_pos = cookies.find(";");
+		if (semicol_pos == std::string::npos) {
+			equal_pos = cookies.find("=");
+			if (equal_pos == std::string::npos)
+				return;
+			key = trim(cookies.substr(0, equal_pos));
+			if (key.empty())
+				return;
+			value = trim(cookies.substr(equal_pos + 1));
+			connection.getRequest().setCookie(key, value);
+			return;
+		}
+		pair = cookies.substr(0, semicol_pos);
+		cookies.erase(0, semicol_pos + 1);
+		equal_pos = pair.find("=");
+		if (equal_pos == std::string::npos)
+			return;
+		key = trim(pair.substr(0, equal_pos));
+		if (key.empty())
+			return;
+		value = trim(pair.substr(equal_pos + 1));
+		connection.getRequest().setCookie(key, value);
+	}
+}
+
 int headers_content_check(Connection& connection, Config& config) {
 	std::string	host;
 	std::string keepAlive;
 	std::string	contentType;
 	std::string	redirect;
+	std::string	cookies;
 
 	host = connection.getRequest().getHeader("host");
 	if (host.empty())
@@ -278,6 +312,9 @@ int headers_content_check(Connection& connection, Config& config) {
 		contentType = "application/octet-stream";
 	}
 	connection.getRequest().setContentType(contentType);
+	cookies = connection.getRequest().getHeader("cookie");
+	if (!cookies.empty())
+		parse_cookie(connection, cookies);
 	return content_length_check(connection);
 }
 

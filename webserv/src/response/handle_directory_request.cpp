@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 16:54:29 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/19 21:19:21 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 12:07:24 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,8 @@ int case_index_remake(Connection& connection) {
 		connection.getResponse().setCodeMessage("OK");
 		connection.getResponse().setHeader("Content-Length", size_to_string(size));
 		connection.getResponse().setHeader("Content-Type", "text/html");
-		if (connection.getRequest().getKeepAlive() == "keep-alive")
-			connection.getResponse().setHeader("Connection", "keep-alive");
+		// if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "close");
 		connection.getResponse().constructResponse();
 		connection.setState(SENDING_RESPONSE);
 		// std::cout << connection.getResponse() << std::endl;
@@ -120,8 +120,8 @@ int case_autoindex(Connection& connection) {
 	connection.getResponse().setCodeMessage("OK");
 	connection.getResponse().setHeader("Content-Length", size_to_string(buffer.size()));
 	connection.getResponse().setHeader("Content-Type", "text/html");
-	if (connection.getRequest().getKeepAlive() == "keep-alive")
-		connection.getResponse().setHeader("Connection", "keep-alive");
+	// if (connection.getRequest().getKeepAlive() == "keep-alive")
+	connection.getResponse().setHeader("Connection", "close");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	// std::cout << connection.getResponse() << std::endl;
@@ -187,8 +187,8 @@ int post_directory_remake(Connection& connection) {
 	if (connection.getState() == MAKING_RESPONSE) {
 		connection.getResponse().setCode(200);
 		connection.getResponse().setCodeMessage("OK");
-		if (connection.getRequest().getKeepAlive() == "keep-alive")
-			connection.getResponse().setHeader("Connection", "keep-alive");
+		// if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "close");
 		connection.getResponse().setHeader("Content-Type", "text/html");
 		response_body = "<!doctype html>\n\n<html><body><h1>Upload successful!</h1><p>Your file has been received.</p></body></html>";
 		connection.getResponse().setHeader("Content-Length", size_to_string(response_body.size()));

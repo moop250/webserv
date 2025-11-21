@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:35:36 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/13 18:40:05 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 12:01:24 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ int			parse_request(Connection& connection, Config& config);
 std::string	parseMultiPartForm(Connection& connection);
 
 int			handle_request(Connection& connection);
-int			file_handler(Connection& connection);
 int			get_file(Connection& connection);
 int			post_file(Connection& connection);
 int			delete_file(Connection& connection);
@@ -37,9 +36,10 @@ int			directory_handler(Connection& connection);
 int			get_directory(Connection& connection);
 int			post_directory(Connection& connection);
 int			delete_directory(Connection& connection);
-int			CGI_handler(Connection& connection);
 int			file_handler_remake(Connection& connection);
 int			CGI_handler_remake(Connection& connection);
+int			login_handler(Connection& connection);
+int			logout_handler(Connection& connection);
 void		child_launch_CGI(Connection& connection, int in[2], int out[2], char **env);
 void		set_env(Connection& connection, std::vector<std::string>& env);
 char		**build_env(std::vector<std::string>& env, std::vector<char*>& pointer);

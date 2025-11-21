@@ -165,8 +165,8 @@ int parse_cgi_output_remake(Connection& connection) {
 		connection.getResponse().setHeader("Content-Length", size_to_string(output.size()));
 	if (connection.getResponse().getContentType().empty())
 		connection.getResponse().setHeader("Content-Type", "text/plain");
-	if (connection.getRequest().getKeepAlive() == "keep-alive")
-		connection.getResponse().setHeader("Connection", "keep-alive");
+	// if (connection.getRequest().getKeepAlive() == "keep-alive")
+	connection.getResponse().setHeader("Connection", "close");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	return 0;

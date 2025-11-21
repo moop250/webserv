@@ -6,7 +6,7 @@
 #    By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/03 16:51:54 by hlibine           #+#    #+#              #
-#    Updated: 2025/09/07 12:31:52 by hoannguy         ###   ########.fr        #
+#    Updated: 2025/11/21 12:02:38 by hoannguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,6 +54,7 @@ SRCS        = src/main.cpp \
 		  src/request/Connection.cpp \
 	      src/response/handle_request.cpp \
 	      src/response/error_response.cpp \
+		  src/response/cookie.cpp \
 	      src/response/Response.cpp \
 		  src/response/handle_file_request.cpp \
 		  src/response/handle_directory_request.cpp \

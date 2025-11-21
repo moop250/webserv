@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/21 09:08:01 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 13:13:50 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -347,7 +347,13 @@ int parse_type_fd(Connection& connection) {
 	std::string	location;
 
 	location = connection.getServer().getLocation();
-	if (location == "/cgi" || location == "/cgi/") {
+	if (location == "/login" || location == "/login/") {
+		connection.setRequestType(Login);
+		return 0;
+	} else if (location == "/logout" || location == "/logout/") {
+		connection.setRequestType(Logout);
+		return 0;
+	} else if (location == "/cgi" || location == "/cgi/") {
 		if (connection.getRequest().getMethod() == "DELETE") {
 			error_response(connection, METHOD_NOT_ALLOWED);
 			return -1;
@@ -366,10 +372,10 @@ int parse_type_fd(Connection& connection) {
 	if (requestType == CGI && (method == "GET" || method == "POST")) {
 		return open_CGI_PIPE_FORK(connection, method);
 	}
-	if (requestType == Directory && (method == "GET" || method == "POST" || method == "DELETE")) {
+	if (requestType == Directory && (method == "GET" || method == "POST")) {
 		return open_DIR_FD(connection, method);
 	}
-	if (requestType == File && (method == "GET" || method == "POST" || method == "DELETE")) {
+	if (requestType == File && (method == "GET" || method == "POST")) {
 		return open_FILE_FD(connection, method);
 	}
 	return 0;
@@ -380,6 +386,10 @@ int handle_request_remake(Connection& connection) {
 	int	requestType;
 
 	requestType = connection.getRequestType();
+	if (requestType == Login)
+		return login_handler(connection);
+	if (requestType == Logout)
+		return logout_handler(connection);
 	if (requestType == CGI)
 		return CGI_handler_remake(connection);
 	if (requestType == Directory)

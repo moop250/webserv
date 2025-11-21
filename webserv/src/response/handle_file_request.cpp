@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/18 21:35:10 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/21 12:30:06 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,8 @@ int delete_file(Connection& connection) {
 	}
 	connection.getResponse().setCode(204);
 	connection.getResponse().setCodeMessage("No Content");
-	if (connection.getRequest().getKeepAlive() == "keep-alive")
-		connection.getResponse().setHeader("Connection", "keep-alive");
+	// if (connection.getRequest().getKeepAlive() == "keep-alive")
+	connection.getResponse().setHeader("Connection", "close");
 	connection.getResponse().constructResponse();
 	connection.setState(SENDING_RESPONSE);
 	// std::cout << connection.getResponse() << std::endl;
@@ -95,8 +95,8 @@ int post_file_remake(Connection& connection) {
 	if (connection.getState() == MAKING_RESPONSE) {
 		connection.getResponse().setCode(204);
 		connection.getResponse().setCodeMessage("No Content");
-		if (connection.getRequest().getKeepAlive() == "keep-alive")
-			connection.getResponse().setHeader("Connection", "keep-alive");
+		// if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "close");
 		connection.getResponse().constructResponse();
 		connection.setState(SENDING_RESPONSE);
 		// std::cout << connection.getResponse() << std::endl;
@@ -140,8 +140,8 @@ int get_file_remake(Connection& connection) {
 		connection.getResponse().setCodeMessage("OK");
 		connection.getResponse().setHeader("Content-Length", size_to_string(size));
 		connection.getResponse().setHeader("Content-Type", connection.getResponse().getContentType());
-		if (connection.getRequest().getKeepAlive() == "keep-alive")
-			connection.getResponse().setHeader("Connection", "keep-alive");
+		// if (connection.getRequest().getKeepAlive() == "keep-alive")
+		connection.getResponse().setHeader("Connection", "close");
 		connection.getResponse().constructResponse();
 		connection.setState(SENDING_RESPONSE);
 		// std::cout << connection.getResponse() << std::endl;

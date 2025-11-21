@@ -68,9 +68,120 @@
 				border: 2px solid #5858587f;
 				box-shadow: 10px 10px 0 0 #e219197f;
 			}
+			.log {
+				position: fixed;
+				bottom: 0;
+				right: 0;
+				width: 400px;
+				border: 3px solid #73AD21;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 10px;
+				padding-top: 20px;
+				padding-bottom: 20px;
+				background-color: white;
+			}
+			#back-section {
+				text-align: center;
+				margin: 150px 0;
+			}
 		</style>
 	</head>
 	<body>
+		 <div class="log">
+			<h3 id="greet"></h3>
+			<div id="log-section">
+				<input id="user-input" name="user"></input>
+				<button id="login" type="button" onclick="postLogin()">Login</button>
+				<button id="logout" type="button" onclick="getLogout()">Logout</button>
+			</div>
+			<div id="cookie-section">
+				<button id="show">Show cookies</button>
+				<button id="clear">Hide cookies</button>
+			</div>
+			<div id="output"></div>
+			<script>
+				const showButton = document.getElementById("show");
+				const output = document.getElementById("output");
+				const clearButton = document.getElementById("clear");
+				const loginButton = document.getElementById("login");
+				const logoutButton = document.getElementById("logout");
+				const loginInput = document.getElementById("user-input");
+				const cookie = document.cookie;
+
+				showButton.addEventListener("click", () => {
+				if (cookie)
+					output.textContent = `Cookie: ${document.cookie}`;
+				else
+					output.textContent = `No cookie! You are not logged in`;
+				});
+					clearButton.addEventListener("click", () => {
+					output.textContent = "";
+				});
+
+				const welcome = document.getElementById("greet");
+				if (cookie) {
+					const user = cookie.split('; ')
+							.find(r => r.startsWith('user='))
+							?.split('=')[1];
+					welcome.innerText = `Welcome ${user}`;
+				}
+				else
+					welcome.innerText = "Welcome guest";
+
+				if (cookie) {
+					loginInput.style.display = "none";
+					loginButton.style.display = "none";
+					logoutButton.style.display = "inline-block";
+				} else {
+					logoutButton.style.display = "none";
+					loginButton.style.display = "inline-block";
+					loginInput.style.display = "inline-block";
+				}
+
+				function getLogout() {
+				fetch('/logout', {
+					method: 'GET'
+				})
+				.then(res => {
+					if (res.status == 204) {
+						if (alert('You have logged out')) {
+						} else {
+							window.location.reload();
+						} 
+					} else {
+						alert('Response: ' + res.status);
+					}
+				})
+				.catch(err => {
+					alert('Error: ' + err.message);
+				})
+				}
+
+				function postLogin() {
+				const content = document.querySelector('input[name="user"]').value;
+				fetch('/login/', {
+					method: 'POST',
+					body: content
+				})
+				.then(res => {
+					if (res.status === 204) {
+						if (alert('Successfully logged in. Session persist for 10 seconds')) {
+						} else {
+							window.location.reload();
+						}
+					} else {
+						alert('Response: ' + res.status);
+					}
+				})
+				.catch(err => {
+					alert('Error: ' + err.message);
+				})
+				}
+			</script>
+		</div>
+
 		<div id="header">
 			<h1>Use CGI with GET method</h1>
 		</div>
@@ -97,6 +208,9 @@
 				<input type="text" name="field"/>
 				<button type="submit">Transform</button>
 			</form>
+		</div>
+		<div id="back-section">
+			<a id="back-button" href="/"><button type="button"> back to home</button></a>
 		</div>
 	</body>
 </html>
