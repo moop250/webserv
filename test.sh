@@ -58,16 +58,26 @@ stress_test() {
 
 	./tests/stress1.sh &
 	pid1=$!
-	./tests/stress2.sh &
+	./tests/stress2.sh & 
 	pid2=$!
-	
-	
+		
 	sleep 5
 
 	kill $pid1
 	kill $pid2
+
+	foo2=$(cat foo2.log | grep iteration)
+	foo1=$(cat foo1.log | grep iteration)
+	d=$(diff foo1.log foo2.log)
+	rm foo1.log
+	rm foo2.log
+	echo 1 iterations : $foo1
+	echo 2 iterations : $foo2
+	echo diff : $d
 }
 
+stress_test
+exit
 if ! [[ -f "logs" ]] ; then
 	mkdir -p logs
 else
