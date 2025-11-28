@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/28 21:23:48 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/28 22:11:09 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,13 @@ int parse_request_type(Connection& connection) {
 		return -1;
 	}
 	if (S_ISDIR(file_stat.st_mode)) {
+		if (path[path.size() - 1] != '/') {
+			path = connection.getRequest().getBasePath();
+			path += '/';
+			connection.getRequest().setRedirect(path);
+			error_response(connection, 301);
+			return -1;
+		}
 		connection.getRequest().setRequestType(Directory);
 	} else if (S_ISREG(file_stat.st_mode)) {
 		size_t	pos = path.rfind('.');

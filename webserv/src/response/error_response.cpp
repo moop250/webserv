@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 16:22:50 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/19 19:51:39 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/28 21:48:56 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,6 +124,7 @@ void error_response(Connection& connection, int code) {
 			connection.getResponse().setHeader("Location", redirect);
 		}
 	}
+	std::string path = connection.getRequest().getPath();
 	connection.getResponse().setCode(code); 
 	connection.getResponse().setCodeMessage(codeMessage);
 	// if (connection.getClose() == true)
