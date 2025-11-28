@@ -59,6 +59,11 @@ int delete_file(Connection& connection) {
 }
 
 // MOOP -> new post file
+template <typename x>
+static x    min(const x &a, const x &b)
+{
+    return a < b ? a : b;
+}
 int post_file_remake(Connection& connection) {
 	int				fdout;
 	long			written;
@@ -72,7 +77,7 @@ int post_file_remake(Connection& connection) {
 		connection.getRequest().removeBody(0, 8);
 	}
 	if (connection.getState() == IO_OPERATION) {
-		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
+		to_write = min((size_t)FILE_WRITE_SIZE, body.size());
 		written = write(fdout, body.c_str(), to_write);
 		if (written < 0) {
 			close(fdout);

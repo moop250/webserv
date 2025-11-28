@@ -17,6 +17,12 @@
 #include "request_handler.hpp"
 #include "support_file.hpp"
 
+template <typename x>
+static x    min(const x &a, const x &b)
+{
+    return a < b ? a : b;
+}
+
 void set_env(Connection& connection, std::vector<std::string>& env) {\
 	std::string	body;
 
@@ -187,7 +193,7 @@ int parent_reap_output_remake(Connection& connection) {
 	if (connection.getOperation() == Out) {
 		body = connection.getRequest().getBody();
 		fdout = connection.getFDOUT();
-		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
+		to_write = min((size_t)FILE_WRITE_SIZE, body.size());
 		written = write(fdout, body.c_str(), to_write);
 		if (written > 0) {
 			connection.getRequest().removeBody(0, written);

@@ -153,6 +153,12 @@ int get_directory(Connection& connection) {
 	return -1;
 }
 
+template <typename x>
+static x    min(const x &a, const x &b)
+{
+    return a < b ? a : b;
+}
+
 int post_directory_remake(Connection& connection) {
 	std::string		extension;
 	int				fdout;
@@ -164,7 +170,7 @@ int post_directory_remake(Connection& connection) {
 	body = connection.getRequest().getBody();
 	fdout = connection.getFDOUT();
 	if (connection.getState() == IO_OPERATION) {
-		to_write = std::min((size_t)FILE_WRITE_SIZE, body.size());
+		to_write = min((size_t)FILE_WRITE_SIZE, body.size());
 		written = write(fdout, body.c_str(), to_write);
 		if (written < 0) {
 			close(fdout);
