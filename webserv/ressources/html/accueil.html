@@ -320,10 +320,10 @@
               method: 'DELETE'
             })
             .then(res => {
-              if (res.ok) {
+              if (res.status === 204) {
                 alert('File deleted successfully');
               } else {
-                alert('Failed to delete file, file does not exist');
+                alert('Failed to delete file. Response: ' + res.status);
               }
             });
           }

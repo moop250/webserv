@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/21 13:13:50 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/28 21:23:48 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,9 @@ int parse_request_type(Connection& connection) {
 	code = stat(path.c_str(), &file_stat);
 	if (code == -1) {
 		switch (errno) {
+			case EACCES:
+				error_response(connection, FORBIDDEN);
+				break;
 			case ENOENT:									// Not exist
 				error_response(connection, NOT_FOUND);
 				break;
@@ -128,6 +131,10 @@ int open_FILE_FD(Connection& connection, std::string& method) {
 
 	path = connection.getRequest().getPath();
 	if (method == "GET") {
+		if (access(path.c_str(), R_OK) != 0) {
+			error_response(connection, FORBIDDEN);
+			return -1;
+		}
 		connection.setFDIN(open(path.c_str(), O_RDONLY));
 		if (connection.getFDIN() < 0) {
 			switch (errno) {
@@ -143,6 +150,10 @@ int open_FILE_FD(Connection& connection, std::string& method) {
 		connection.setState(IO_OPERATION);
 		connection.setOperation(In);
 	} else if (method == "POST") {
+		if (access(path.c_str(), W_OK) != 0) {
+			error_response(connection, FORBIDDEN);
+			return -1;
+		}
 		connection.setFDOUT(open(path.c_str(), O_WRONLY | O_APPEND, 0644));
 		if (connection.getFDOUT() < 0) {
 			switch (errno) {
@@ -245,9 +256,14 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 			index = connection.getRequest().getPath() + index;
 			if (index[0] == '/')
 				index.erase(0, 1);
+			if (access(index.c_str(), R_OK) != 0) {
+				error_response(connection, FORBIDDEN);
+				return -1;
+			}
 			fdin = open(index.c_str(), O_RDONLY);
 			if (fdin < 0) {
-				return 0;
+				error_response(connection, FORBIDDEN);
+				return -1;
 			}
 			connection.setFDIN(fdin);
 			connection.setState(IO_OPERATION);
@@ -276,6 +292,10 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 		if (path[path.size() - 1] != '/')
 			path += '/';
 		path += file_name;
+		if (access(path.c_str(), W_OK) != 0) {
+			error_response(connection, FORBIDDEN);
+			return -1;
+		}
 		fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (fd < 0) {
 			switch (errno) {

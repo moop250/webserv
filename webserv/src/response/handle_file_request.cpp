@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/21 12:30:06 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/11/28 21:33:50 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,31 @@ std::string size_to_string(size_t size) {
 	return str;
 }
 
-// Just delete the file if have permission
+// Just delete the file if have parent permission
 int delete_file(Connection& connection) {
-	std::string	path;
-	std::string parent_directory;
+	std::string				path;
+	std::string				parent_path;
+	std::string::size_type	slash_pos;
+	struct stat				st;
 
-	std::cout << "Deleting file..." << std::endl;
 	path = connection.getRequest().getPath();
+	if (stat(path.c_str(), &st) != 0) {
+		error_response(connection, NOT_FOUND);
+		return -1;
+	}
+	if (access(path.c_str(), W_OK | X_OK) != 0) {
+		error_response(connection, FORBIDDEN);
+		return -1;
+	}
+	slash_pos = path.find_last_of('/');
+	if (slash_pos == std::string::npos)
+		parent_path = '.';
+	else
+		parent_path = path.substr(0, slash_pos);
+	if (access(parent_path.c_str(), W_OK | X_OK) != 0) {
+		error_response(connection, FORBIDDEN);
+		return -1;
+	}
 	if (std::remove(path.c_str()) != 0) {
 		switch (errno) {
 			case EACCES:
@@ -58,7 +76,6 @@ int delete_file(Connection& connection) {
 	return 0;
 }
 
-// MOOP -> new post file
 template <typename x>
 static x    min(const x &a, const x &b)
 {
@@ -109,7 +126,6 @@ int post_file_remake(Connection& connection) {
 	return 0;
 }
 
-// MOOP -> new get file
 int get_file_remake(Connection& connection) {
 	int			fdin;
 	char		buffer[FILE_CHUNK_SIZE];

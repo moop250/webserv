@@ -40,8 +40,6 @@ void set_env(Connection& connection, std::vector<std::string>& env) {\
 		env.push_back("CONTENT_LENGTH=" + size_to_string(body.size()));
 		env.push_back("CONTENT_TYPE=" + connection.getRequest().getContentType());
 	}
-	// HTTP_COOKIE	bonus?
-	// PATH_INFO	Maybe?
 }
 
 char **build_env(std::vector<std::string>& env, std::vector<char*>& pointer) {
@@ -72,12 +70,16 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 	fileType = connection.getRequest().getFileType();
 	if (fileType == ".java") {
 		cgi_path = path;
+		if (access(cgi_path.c_str(), R_OK) != 0)
+			exit(-1);
 		av.push_back(const_cast<char*>("/bin/java"));
 		av.push_back(const_cast<char*>("-cp"));
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 		av.push_back(const_cast<char*>("CGI"));
 	} else if (fileType == ".cpp") {
 		cgi_path = path + "RPN";
+		if (access(cgi_path.c_str(), X_OK) != 0)
+			exit(-1);
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 	} else if (fileType == ".py") {
 		if (path.find(".py") == std::string::npos) {
@@ -89,6 +91,8 @@ void child_launch_CGI(Connection& connection, int in[2], int out[2], char **env)
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 	} else if (fileType == ".c") {
 		cgi_path = path + "calculator";
+		if (access(cgi_path.c_str(), X_OK) != 0)
+			exit(-1);
 		av.push_back(const_cast<char*>(cgi_path.c_str()));
 	} else {
 		exit(-1);
