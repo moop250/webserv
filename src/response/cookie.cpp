@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:57:17 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/28 12:05:39 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/12/05 09:25:19 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int login_handler(Connection& connection) {
 	std::string	cookie;
 
 	user = connection.getRequest().getBody();
-	cookie = "user=" + user + "; Path=/; Max-Age=10";
+	cookie = "user=" + user + "; Path=/; Max-Age=30";
 	connection.getResponse().setCode(204);
 	connection.getResponse().setCodeMessage("No Content");
 	connection.getResponse().setHeader("Connection", "close");
