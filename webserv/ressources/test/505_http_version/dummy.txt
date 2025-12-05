@@ -1,2 +1,0 @@
-Should return 505 if client uses unsupported HTTP version (HTTP/2). 
-

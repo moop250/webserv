@@ -1,2 +1,0 @@
-If you send a body larger than client_max_body_size, server must return 413.
-

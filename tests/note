@@ -1,8 +1,0 @@
-for cgi post
--> use --data -> example:
-	curl -X POST http://127.0.0.1:8001/cgi/a.cpp -H "Content-Type: text/plain" --data "content=3 4 +"
-
-for upload
--> work for only 1 file
--> use -F -> example:
-	curl -F "file=@dance_cat.gif" http://127.0.0.1:8001/upload/
