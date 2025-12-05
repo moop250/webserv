@@ -1,0 +1,193 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Response.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/18 22:31:54 by hoannguy          #+#    #+#             */
+/*   Updated: 2025/11/21 10:03:25 by hoannguy         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "Response.hpp"
+
+// -------- CONSTRUCTORS/DESTRUCTORS --------------
+
+Response::Response() {
+	this->httpVersion = "HTTP/1.1";
+	this->setHeader("Date", getCurrentHttpTime());
+	this->setHeader("Server", "42_Webserv/1.0.0");
+	this->setHeader("Authors", "hoannguy, hlibine, aseite");
+	this->setHeader("Cache-Control", "no-cache");
+	this->code = -1;
+	this->contentLength = 0;
+}
+Response::Response(const Response& copy) {
+	*this = copy;
+}
+Response& Response::operator =(const Response& assign) {
+	if (this != &assign) {
+		this->httpVersion = assign.httpVersion;
+		this->code = assign.code;
+		this->codeMessage = assign.codeMessage;
+		this->headers = assign.headers;
+		this->body = assign.body;
+		this->contentLength = assign.contentLength;
+		this->contentType = assign.contentType;
+		this->responseComplete = assign.responseComplete;
+	}
+	return *this;
+}
+Response::~Response() {
+	
+}
+
+
+
+// ----------------- METHODS ----------------------
+
+
+
+// ----------------- METHODS ----------------------
+
+std::string Response::headersToString() {
+	std::string header;
+	for (size_t i = 0; i < this->headers.size(); i++) {
+		header.append(this->headers[i].first)
+			.append(": ")
+			.append(this->headers[i].second)
+			.append("\r\n");
+	}
+	return header;
+}
+
+// Likely to be remake to support chunked encoding
+std::string Response::constructResponse() {
+	std::string headers;
+	std::string code;
+	std::ostringstream temp;
+	
+	if (this->httpVersion == "" || this->code == -1 || this->codeMessage == "")
+		return "";
+	headers = this->headersToString();
+	temp << this->code;
+	code = temp.str();
+	this->responseComplete = this->httpVersion;
+	this->responseComplete.append(" ")
+						.append(code)
+						.append(" ")
+						.append(this->codeMessage)
+						.append("\r\n")
+						.append(headers)
+						.append("\r\n");
+	this->responseNoBody = "\n\n[RESPONSE:----------]\n";
+	this->responseNoBody.append(responseComplete)
+						.append("Not showing body, existed or not\n\n");
+	responseComplete.append(this->body);
+	return this->responseComplete;
+}
+
+Response& Response::clear() {
+	this->code = -1;
+	this->codeMessage.clear();
+	this->headers.clear();
+	this->setHeader("Date", getCurrentHttpTime());
+	this->setHeader("Server", "42_Webserv/1.0.0");
+	this->setHeader("Authors", "hoannguy, hlibine, aseite");
+	this->setHeader("Cache-Control", "no-cache");
+	this->body.clear();
+	this->contentLength = 0;
+	this->contentType.clear();
+	this->responseComplete.clear();
+	return *this;
+}
+
+std::ostream& operator <<(std::ostream& o, Response& response) {
+	o << response.constructResponse() << std::endl;
+	return o;
+}
+
+std::string getCurrentHttpTime() {
+	std::time_t			t;
+	std::tm				*tm;
+	char				time[100];
+	
+	t = std::time(NULL);
+	tm = std::gmtime(&t);
+    if (std::strftime(time, sizeof(time), "%a, %d %b %Y %H:%M:%S GMT", tm)) {
+        return std::string(time);
+    }
+	return "";
+}
+
+
+
+// ----------------- GETTERS ----------------------
+
+std::string Response::getHttpVersion() const {
+	return this->httpVersion;
+}
+int Response::getCode() const {
+	return this->code;
+}
+std::string Response::getCodeMessage() const {
+	return this->codeMessage;
+}
+std::string Response::getHeader(const std::string& key) const {
+	for (size_t i = 0; i < this->headers.size(); i++) {
+		if (this->headers[i].first == key)
+			return this->headers[i].second;
+	}
+	return "";
+}
+std::string Response::getBody() const {
+	return this->body;
+}
+size_t Response::getContentLength() const {
+	return this->contentLength;
+}
+std::string Response::getContentType() const {
+	return this->contentType;
+}
+std::string Response::getResponseComplete() const {
+	return this->responseComplete;
+}
+std::string Response::getResponseNoBody() const {
+	return this->responseNoBody;
+}
+
+
+// ----------------- SETTERS ----------------------
+
+Response& Response::setHttpVersion(const std::string& version) {
+	this->httpVersion = version;
+	return *this;
+}
+Response& Response::setCode(const int code) {
+	this->code = code;
+	return *this;
+}
+Response& Response::setCodeMessage(const std::string& message) {
+	this->codeMessage = message;
+	return *this;
+}
+void Response::setHeader(const std::string& key, const std::string& value) {
+	this->headers.push_back(std::make_pair(key, value));
+}
+Response& Response::setBody(const std::string& body) {
+	this->body = body;
+	return *this;
+}
+void Response::appendBody(const char *buffer, long size) {
+	this->body.append(buffer, size);
+}
+Response& Response::setContentLength(const size_t len) {
+	this->contentLength = len;
+	return *this;
+}
+Response& Response::setContentType(const std::string& type) {
+	this->contentType = type;
+	return *this;
+}
+

@@ -1,0 +1,216 @@
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Get cgi - 42 Webserv</title>
+		<style>
+			body {
+				font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+				margin-left: 75px;
+				margin-right: 75px;
+				margin-top: 20px;
+			}
+			h1 {
+				font-size: 4rem;
+				margin: 0;
+				padding: 0;
+			}
+			h2 {
+				font-size: 2.5rem;
+				margin: 0;
+				padding: 0;
+			}
+			h3 {
+				margin: 0;
+				padding: 0;
+				font-size: 1.5rem;
+			}
+			p {
+				margin: 0;
+				padding: 0;
+				font-size: 1rem;
+			}
+			#header {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+			}
+			#c-section {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				padding: 40px 60px 40px 60px;
+				margin-top: 100px;
+				margin-bottom: 100px;
+				gap: 40px;
+				border: 2px solid #5858587f;
+				box-shadow: 10px 10px 0 0 #191ce27f;
+			}
+			#cpp-section {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				padding: 40px 60px 40px 60px;
+				margin-top: 100px;
+				margin-bottom: 100px;
+				gap: 40px;
+				border: 2px solid #5858587f;
+				box-shadow: 10px 10px 0 0 #19e2737f;
+			}
+			#java-section {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				padding: 40px 60px 40px 60px;
+				margin-top: 100px;
+				margin-bottom: 100px;
+				gap: 40px;
+				border: 2px solid #5858587f;
+				box-shadow: 10px 10px 0 0 #e219197f;
+			}
+			.log {
+				position: fixed;
+				bottom: 0;
+				right: 0;
+				width: 400px;
+				border: 3px solid #73AD21;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 10px;
+				padding-top: 20px;
+				padding-bottom: 20px;
+				background-color: white;
+			}
+			#back-section {
+				text-align: center;
+				margin: 150px 0;
+			}
+		</style>
+	</head>
+	<body>
+		 <div class="log">
+			<h3 id="greet"></h3>
+			<div id="log-section">
+				<input id="user-input" name="user"></input>
+				<button id="login" type="button" onclick="postLogin()">Login</button>
+				<button id="logout" type="button" onclick="getLogout()">Logout</button>
+			</div>
+			<div id="cookie-section">
+				<button id="show">Show cookies</button>
+				<button id="clear">Hide cookies</button>
+			</div>
+			<div id="output"></div>
+			<script>
+				const showButton = document.getElementById("show");
+				const output = document.getElementById("output");
+				const clearButton = document.getElementById("clear");
+				const loginButton = document.getElementById("login");
+				const logoutButton = document.getElementById("logout");
+				const loginInput = document.getElementById("user-input");
+				const cookie = document.cookie;
+
+				showButton.addEventListener("click", () => {
+				if (cookie)
+					output.textContent = `Cookie: ${document.cookie}`;
+				else
+					output.textContent = `No cookie! You are not logged in`;
+				});
+					clearButton.addEventListener("click", () => {
+					output.textContent = "";
+				});
+
+				const welcome = document.getElementById("greet");
+				if (cookie) {
+					const user = cookie.split('; ')
+							.find(r => r.startsWith('user='))
+							?.split('=')[1];
+					welcome.innerText = `Welcome ${user}`;
+				}
+				else
+					welcome.innerText = "Welcome guest";
+
+				if (cookie) {
+					loginInput.style.display = "none";
+					loginButton.style.display = "none";
+					logoutButton.style.display = "inline-block";
+				} else {
+					logoutButton.style.display = "none";
+					loginButton.style.display = "inline-block";
+					loginInput.style.display = "inline-block";
+				}
+
+				function getLogout() {
+				fetch('/logout', {
+					method: 'GET'
+				})
+				.then(res => {
+					if (res.status == 204) {
+						if (alert('You have logged out')) {
+						} else {
+							window.location.reload();
+						} 
+					} else {
+						alert('Response: ' + res.status);
+					}
+				})
+				.catch(err => {
+					alert('Error: ' + err.message);
+				})
+				}
+
+				function postLogin() {
+				const content = document.querySelector('input[name="user"]').value;
+				fetch('/login/', {
+					method: 'POST',
+					body: content
+				})
+				.then(res => {
+					if (res.status === 204) {
+						if (alert('Successfully logged in. Session persist for 10 seconds')) {
+						} else {
+							window.location.reload();
+						}
+					} else {
+						alert('Response: ' + res.status);
+					}
+				})
+				.catch(err => {
+					alert('Error: ' + err.message);
+				})
+				}
+			</script>
+		</div>
+
+		<div id="header">
+			<h1>Use CGI with GET method</h1>
+		</div>
+		<div id="c-section">
+			<h2>CGI using C</h2>
+			<p>A simple calculator using tinyexpr library</p>
+			<form method="GET" action="/cgi/a.c" enctype="multipart/form-data">
+				<input type="text" name="field"/>
+				<button type="submit">Calculate</button>
+			</form>
+		</div>
+		<div id="cpp-section">
+			<h2>CGI using CPP</h2>
+			<p>A simple RPN calculator from cpp09</p>
+			<form method="GET" action="/cgi/a.cpp" enctype="multipart/form-data">
+				<input type="text" name="field"/>
+				<button type="submit">Calculate</button>
+			</form>
+		</div>
+		<div id="java-section">
+			<h2>CGI using Java</h2>
+			<p>A very simple string manipulation: it replaces all 2 to 4 and lowercase to uppercase</p>
+			<form method="GET" action="/cgi/a.java" enctype="multipart/form-data">
+				<input type="text" name="field"/>
+				<button type="submit">Transform</button>
+			</form>
+		</div>
+		<div id="back-section">
+			<a id="back-button" href="/"><button type="button"> back to home</button></a>
+		</div>
+	</body>
+</html>
