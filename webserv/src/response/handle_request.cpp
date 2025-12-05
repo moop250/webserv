@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 23:19:26 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/28 22:11:09 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/12/05 09:09:27 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,17 +293,19 @@ int open_DIR_FD(Connection& connection, std::string& method) {
 		}
 		if (path[0] == '/')
 			path.erase(0, 1);
-		file_name = parseMultiPartForm(connection);
-		if (file_name.empty())
-			return -1;
-		if (path[path.size() - 1] != '/')
-			path += '/';
-		path += file_name;
 		if (access(path.c_str(), W_OK) != 0) {
 			error_response(connection, FORBIDDEN);
 			return -1;
 		}
-		fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		file_name = parseMultiPartForm(connection);
+		if (file_name.empty()) {
+			error_response(connection, BAD_REQUEST);
+			return -1;
+		}
+		if (path[path.size() - 1] != '/')
+			path += '/';
+		path += file_name;
+		fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0755);
 		if (fd < 0) {
 			switch (errno) {
 				case EACCES:

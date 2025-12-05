@@ -6,7 +6,7 @@
 /*   By: hoannguy <hoannguy@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 10:01:34 by hoannguy          #+#    #+#             */
-/*   Updated: 2025/11/28 21:33:50 by hoannguy         ###   ########.fr       */
+/*   Updated: 2025/12/05 09:03:09 by hoannguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,10 @@ int delete_file(Connection& connection) {
 		error_response(connection, NOT_FOUND);
 		return -1;
 	}
-	if (access(path.c_str(), W_OK | X_OK) != 0) {
-		error_response(connection, FORBIDDEN);
-		return -1;
-	}
+	// if (access(path.c_str(), W_OK | X_OK) != 0) {
+	// 	error_response(connection, FORBIDDEN);
+	// 	return -1;
+	// }
 	slash_pos = path.find_last_of('/');
 	if (slash_pos == std::string::npos)
 		parent_path = '.';
