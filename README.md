@@ -9,7 +9,7 @@ webserv is a non-blocking HTTP server that handles multiple simultaneous connect
 
 ## Core Features
 
-- Non-blocking I/O via a single `poll()` loop monitoring all server sockets, client connections, and CGI pipes simultaneously
+- Non-blocking I/O via a single `poll()` loop monitoring all server sockets, client connections, and CGI pipes simultaneously — for a detailed breakdown see [src/sockets/SOCKETS.md](src/sockets/SOCKETS.md)
 - Static file serving with automatic content-type detection
 - Directory listing (autoindex)
 - File upload (POST) and deletion (DELETE)
